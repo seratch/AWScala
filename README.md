@@ -11,11 +11,12 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 
 - AWS Identity and Access Management (IAM)
 - Amazon Simple Storage Service (Amazon S3)
+- Amazon SimpleDB
 - Amazon Simple Queue Service（Amazon SQS）
 
 ## Examples
 
-### IAM
+### AWS Identity and Access Management (IAM)
 
 ```scala
 import awscala._, iam._
@@ -47,7 +48,7 @@ https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/iam/IAM.sc
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/IAMSpec.scala
 
-### S3
+### Amazon Simple Storage Service (Amazon S3)
 
 ```scala
 import awscala._, s3._
@@ -73,7 +74,7 @@ https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/s3/S3.scal
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/S3Spec.scala
 
-### SimpleDB
+### Amazon SimpleDB
 
 ```scala
 import awscala._, simpledb._
@@ -95,7 +96,7 @@ https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/S
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala
 
-### SQS
+### Amazon Simple Queue Service（Amazon SQS）
 
 ```scala
 import awscala._, sqs._
