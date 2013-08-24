@@ -1,5 +1,6 @@
 package awscala.s3
 
+import java.io.File
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ s3 => aws }
 
@@ -15,12 +16,38 @@ object Bucket {
 
 case class Bucket(name: String) extends aws.model.Bucket(name) {
 
+  // policy
   def policy()(implicit s3: S3) = s3.policy(this)
   def policy(text: String)(implicit s3: S3) = s3.policy(this).setPolicyText(text)
 
+  // acl
   def acl()(implicit s3: S3) = s3.acl(this)
   def acl(acl: AccessControlList)(implicit s3: S3) = s3.bucketAcl(this, acl)
 
+  // object
+  def get(key: String)(implicit s3: S3) = getObject(key)
+  def getObject(key: String)(implicit s3: S3) = s3.get(this, key)
+  def get(key: String, versionId: String)(implicit s3: S3) = getObject(key, versionId)
+  def getObject(key: String, versionId: String)(implicit s3: S3) = s3.get(this, key, versionId)
+
+  def keys()(implicit s3: S3) = s3.keys(this)
+  def keys(prefix: String)(implicit s3: S3) = s3.keys(this, prefix)
+
+  def objectSummaries()(implicit s3: S3) = s3.objectSummaries(this)
+  def objectSummaries(prefix: String)(implicit s3: S3) = s3.objectSummaries(this, prefix)
+
+  def put(key: String, file: File)(implicit s3: S3) = s3.put(this, key, file)
+  def putAsPublicRead(key: String, file: File)(implicit s3: S3) = s3.putObjectAsPublicRead(this, key, file)
+  def putAsPublicReadWrite(key: String, file: File)(implicit s3: S3) = s3.putObjectAsPublicReadWrite(this, key, file)
+
+  def putObject(key: String, file: File)(implicit s3: S3) = s3.putObject(this, key, file)
+  def putObjectAsPublicRead(key: String, file: File)(implicit s3: S3) = s3.putObjectAsPublicRead(this, key, file)
+  def putObjectAsPublicReadWrite(key: String, file: File)(implicit s3: S3) = s3.putObjectAsPublicReadWrite(this, key, file)
+
+  def delete(obj: S3Object)(implicit s3: S3) = s3.deleteObject(obj)
+  def deleteObject(obj: S3Object)(implicit s3: S3) = s3.deleteObject(obj)
+
+  // configuration
   def crossOriginConfig()(implicit s3: S3) = s3.crossOriginConfig(this)
   def lifecycleConfig(bucket: Bucket)(implicit s3: S3) = s3.lifecycleConfig(this)
   def loggingConfig(bucket: Bucket)(implicit s3: S3) = s3.loggingConfig(this)

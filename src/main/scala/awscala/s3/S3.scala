@@ -62,8 +62,6 @@ trait S3 extends aws.AmazonS3 {
   def deleteTaggingConfig(bucket: Bucket): Unit = deleteBucketTaggingConfiguration(bucket.name)
   def deleteWebsiteConfig(bucket: Bucket): Unit = deleteBucketWebsiteConfiguration(bucket.name)
 
-  def withBucket[A](bucket: Bucket)(op: (S3ClientWithBucket) => A): A = op(new S3ClientWithBucket(this, bucket))
-
   // ------------------------------------------
   // Objects
   // ------------------------------------------
@@ -139,65 +137,6 @@ trait S3 extends aws.AmazonS3 {
   def generatePresignedUrl(obj: S3Object, expiration: DateTime): java.net.URL = {
     generatePresignedUrl(obj.bucket.name, obj.key, expiration.toDate)
   }
-
-}
-
-/**
- * S3Client with specified bucket.
- *
- * {{{
- *   val s3 = S3()
- *   s3.withBucket(s3.bucket("name").get) { s =>
- *     s.put("sample.txt", new java.io.File("sample.txt"))
- *   }
- * }}}
- *
- * @param s3 s3
- * @param bucket bucket
- */
-class S3ClientWithBucket(s3: S3, bucket: Bucket) {
-
-  // get
-  def get(key: String): Option[S3Object] = s3.getObject(bucket, key)
-  def get(key: String, versionId: String): Option[S3Object] = s3.getObject(bucket, key, versionId)
-  def getObject(key: String): Option[S3Object] = s3.getObject(bucket, key)
-  def getObject(key: String, versionId: String): Option[S3Object] = s3.getObject(bucket, key, versionId)
-
-  def keys: Seq[String] = s3.keys(bucket)
-  def keys(prefix: String): Seq[String] = s3.keys(bucket, prefix)
-
-  // listObjects
-  def objectSummaries() = s3.objectSummaries(bucket)
-  def objectSummaries(prefix: String) = s3.objectSummaries(bucket, prefix)
-
-  // acl
-  def acl(obj: S3Object) = s3.acl(obj.bucket, obj.key)
-  def acl(key: String): AccessControlList = s3.acl(bucket, key)
-  def acl(obj: S3Object, acl: AccessControlList): Unit = s3.acl(obj.bucket, obj.key, acl)
-  def acl(bucket: Bucket, key: String, acl: AccessControlList): Unit = s3.acl(bucket, key, acl)
-
-  // put
-  def put(key: String, file: File) = s3.put(bucket, key, file)
-  def putAsPublicRead(key: String, file: File) = s3.putObjectAsPublicRead(bucket, key, file)
-  def putAsPublicReadWrite(key: String, file: File) = s3.putObjectAsPublicReadWrite(bucket, key, file)
-
-  def putObject(key: String, file: File) = s3.putObject(bucket, key, file)
-  def putObjectAsPublicRead(key: String, file: File) = s3.putObjectAsPublicRead(bucket, key, file)
-  def putObjectAsPublicReadWrite(key: String, file: File) = s3.putObjectAsPublicReadWrite(bucket, key, file)
-
-  // copy
-  def copy(from: S3Object, to: S3Object) = s3.copyObject(from, to)
-  def copyObject(from: S3Object, to: S3Object) = s3.copyObject(from, to)
-
-  // delete
-  def delete(obj: S3Object) = s3.deleteObject(obj)
-  def deleteObject(obj: S3Object) = s3.deleteObject(obj.bucket.name, obj.key)
-  def deleteVersion(obj: S3Object, versionId: String) = s3.deleteObjectVersion(obj, versionId)
-  def deleteObjectVersion(obj: S3Object, versionId: String) = s3.deleteObjectVersion(obj, versionId)
-  def deleteObjects(objs: Seq[S3Object]) = s3.deleteObjects(objs)
-
-  // presignedUrl
-  def generatePresignedUrl(obj: S3Object, expiration: DateTime) = s3.generatePresignedUrl(obj, expiration)
 
 }
 

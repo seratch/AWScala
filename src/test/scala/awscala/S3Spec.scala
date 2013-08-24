@@ -24,23 +24,19 @@ class S3Spec extends FlatSpec with ShouldMatchers {
     log.info(s"Created Bucket: ${bucket}")
 
     // create/update objectes
-    s3.put(bucket, "S3.scala", new java.io.File("src/main/scala/awscala/s3/S3.scala"))
-    s3.putAsPublicRead(bucket, "S3.scala", new java.io.File("src/main/scala/awscala/s3/S3.scala"))
-    s3.put(bucket, "S3Spec.scala", new java.io.File("src/test/scala/awscala/S3Spec.scala"))
+    bucket.put("S3.scala", new java.io.File("src/main/scala/awscala/s3/S3.scala"))
+    bucket.putAsPublicRead("S3.scala", new java.io.File("src/main/scala/awscala/s3/S3.scala"))
+    bucket.put("S3Spec.scala", new java.io.File("src/test/scala/awscala/S3Spec.scala"))
 
     // get objects
-    val obj = s3.get(bucket, "S3.scala")
-    log.info(s"Object: ${obj}")
-    val summaries = s3.objectSummaries(bucket)
+    val s3obj: Option[S3Object] = bucket.get("S3.scala")
+    log.info(s"Object: ${s3obj}")
+    val summaries = bucket.objectSummaries
     log.info(s"Object Summaries: ${summaries}")
 
     // delete objects
-    s3.delete(obj.get)
-    s3.get(bucket, "S3Spec.scala").map(_.destroy()) // working with implicit S3 isntance
-
-    s3.withBucket(bucket) { s3q =>
-      s3q.keys.map(key => s3q.get(key).map(_.destroy()))
-    }
+    s3obj.foreach(o => bucket.delete(o))
+    bucket.get("S3Spec.scala").map(_.destroy()) // working with implicit S3 instance
 
     bucket.destroy()
   }

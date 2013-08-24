@@ -3,7 +3,7 @@ AWScala: AWS SDK on Scala REPL
 
 AWScala enables Scala developers to easily work with Amazon Web Services in the Scala way.
 
-Though AWScala objects basically extend AWS SDK for Java APIs, you can use them　with less stress on Scala REPL or `sbt console`.
+Though AWScala objects basically extend AWS SDK for Java APIs, you can use them with less stress on Scala REPL or `sbt console`.
 
 ## Supported Services
 
@@ -56,23 +56,16 @@ implicit val s3 = S3()
 
 val buckets: Seq[Bucket] = s3.buckets
 val bucket: Bucket = s3.createBucket("unique-name-xxx")
+val summaries: Seq[S3ObjectSummary] = bucket.objectSummaries
 
-s3.putObject(bucket, "sample.txt", new java.io.File("sample.txt"))
+bucket.put("sample.txt", new java.io.File("sample.txt"))
 
-val s3obj: Option[S3Object] = s3.getObject(bucket, "sample.txt")
+val s3obj: Option[S3Object] = bucket.getObject("sample.txt")
 
-val obj = s3obj.get
-obj.publicUrl // http://unique-name-xxx.s3.amazonaws.com/sample.txt
-obj.generatePresignedUrl(DateTime.now.plusMinutes(10)) // ?Expires=....
-
-s3obj.map(obj => s3.deleteObject(bucket, obj)) // or obj.destroy()
-
-val summaries: Seq[S3ObjectSummary] = s3.objectSummaries(bucket)
-
-s3.withBucket(bucket) { s3 =>
-  val obj = s3.getObject("sample.txt")
-  val summaries = s3.objectSummaries
-  s3.deleteObject(obj)
+s3obj.foreach { obj =>
+  obj.publicUrl // http://unique-name-xxx.s3.amazonaws.com/sample.txt
+  obj.get.generatePresignedUrl(DateTime.now.plusMinutes(10)) // ?Expires=....
+  bucket.delete(obj) // or obj.destroy()
 }
 ```
 
