@@ -73,6 +73,28 @@ https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/s3/S3.scal
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/S3Spec.scala
 
+### SimpleDB
+
+```scala
+import awscala._, simpledb._
+
+implicit val simpleDB = SimpleDB.at(Region.Tokyo)
+
+val domain: Domain = simpleDB.createDomain("users")
+
+domain.put("00001", "name" -> "Alice", "age" -> "23", "country" -> "America")
+domain.put("00002", "name" -> "Bob",   "age" -> "34", "country" -> "America")
+domain.put("00003", "name" -> "Chris", "age" -> "27", "country" -> "Japan")
+
+val items: Seq[Item] = domain.select(s"select * from users where country = 'America'")
+
+simpleDB.domains.foreach(_.destroy())
+```
+
+https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/SimpleDB.scala
+
+https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala
+
 ### SQS
 
 ```scala
