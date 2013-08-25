@@ -48,8 +48,7 @@ class SQSSpec extends FlatSpec with ShouldMatchers {
     }
 
     // delete a queue
-    sqs.deleteQueue(queue)
-    queue.destroy() // working with implicit SQS instance
+    queue.destroy() // or sqs.deleteQueue(queue)
     log.info(s"Deleted queue: ${queue}")
   }
 

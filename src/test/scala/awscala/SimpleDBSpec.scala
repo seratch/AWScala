@@ -27,6 +27,7 @@ class SimpleDBSpec extends FlatSpec with ShouldMatchers {
     log.info(s"Found Items: ${items}")
     items.size should equal(2)
 
+    items.foreach(_.destroy())
     simpleDB.domains.foreach(_.destroy())
   }
 
