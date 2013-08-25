@@ -26,24 +26,22 @@ class SQSSpec extends FlatSpec with ShouldMatchers {
     log.info(s"Created queue: ${queue}, url: ${url}")
 
     // send messages
-    val sent = sqs.sendMessage(queue, "some message!")
+    val sent = queue.add("some message!")
     log.info(s"Sent : ${sent}")
-    val sents = sqs.sendMessages(queue, Seq("first", "second", "third"))
-    log.info(s"Batch Sent : ${sents}")
+    val sendMessages = queue.add("first", "second", "third")
+    log.info(s"Batch Sent : ${sendMessages}")
 
     // receive messages
-    val receivedMessages = sqs.receiveMessage(queue)
+    val receivedMessages = queue.messages // or sqs.receiveMessage(queue)
     log.info(s"Received : ${receivedMessages}")
 
     // delete messages
-    sqs.deleteMessages(receivedMessages)
-    receivedMessages.foreach(msg => sqs.deleteMessage(msg))
-    receivedMessages.foreach(_.destroy()) // working with implicit SQS instance
+    queue.remove(receivedMessages)
 
     // working with specified queue
     sqs.withQueue(queue) { s =>
       s.sendMessage("some message!")
-      s.sendMessages(Seq("first", "second", "third"))
+      s.sendMessages("first", "second", "third")
       s.receiveMessage.foreach(msg => s.deleteMessage(msg))
     }
 

@@ -100,16 +100,16 @@ trait SQS extends aws.AmazonSQS {
 class SQSClientWithQueue(sqs: SQS, queue: Queue) {
 
   def sendMessage(messageBody: String) = sqs.sendMessage(queue, messageBody)
-  def sendMessages(messages: Seq[String]) = sqs.sendMessages(queue, messages)
-  def sendMessageBatch(messages: Seq[MessageBatchEntry]) = sqs.sendMessageBatch(queue, messages)
+  def sendMessages(messages: String*) = sqs.sendMessages(queue, messages)
+  def sendMessageBatch(messages: MessageBatchEntry*) = sqs.sendMessageBatch(queue, messages)
 
   def receive() = receiveMessage()
   def receiveMessage() = sqs.receiveMessage(queue)
 
   def delete(message: Message) = sqs.delete(message)
   def deleteMessage(message: Message) = sqs.deleteMessage(message)
-  def deleteMessages(messages: Seq[Message]) = sqs.deleteMessages(messages)
-  def deleteMessageBatch(messages: Seq[DeleteMessageBatchEntry]) = sqs.deleteMessageBatch(queue, messages)
+  def deleteMessages(messages: Message*) = sqs.deleteMessages(messages)
+  def deleteMessageBatch(messages: DeleteMessageBatchEntry*) = sqs.deleteMessageBatch(queue, messages)
 
 }
 

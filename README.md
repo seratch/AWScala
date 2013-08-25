@@ -81,23 +81,15 @@ https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/S3Spec.sca
 import awscala._, sqs._
 implicit val sqs = SQS.at(Region.Tokyo)
 
-val quques: Seq[Queue] = sqs.queues
-
 val queue: Queue = sqs.createQueue("sample-queue")
 
-sqs.sendMessage(queue, "message body")
-sqs.sendMessages(queue, Seq("first", "second", "third"))
+queue.add("message body")
+qeueu.add("first", "second", "third")
 
-val messages: Seq[Message] = sqs.receiveMessage(queue)
-messages.foreach(msg => sqs.deleteMessage(msg))
-messages.foreach(_.destroy())
+val messages: Seq[Message] = queue.messages
+queue.removeAll(messages)
 
-sqs.withQueue(queue) { sqs =>
-  sqs.sendMessage("hello")
-  val msgs = sqs.receiveMessage()
-}
-
-sqs.deleteQueue(queue)
+queue.destroy()
 ```
 
 https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sqs/SQS.scala
