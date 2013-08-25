@@ -46,16 +46,27 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
   def createTable(
     name: String,
-    hashPK: (String, aws.model.ScalarAttributeType),
-    rangePK: Option[(String, aws.model.ScalarAttributeType)] = None): TableMeta = {
+    hashPK: (String, aws.model.ScalarAttributeType)): TableMeta = {
     create(Table(
       name = name,
       hashPK = hashPK._1,
-      rangePK = rangePK.map(_._1),
+      rangePK = None,
+      attributes = Seq(AttributeDefinition(hashPK._1, hashPK._2))
+    ))
+  }
+
+  def createTable(
+    name: String,
+    hashPK: (String, aws.model.ScalarAttributeType),
+    rangePK: (String, aws.model.ScalarAttributeType)): TableMeta = {
+    create(Table(
+      name = name,
+      hashPK = hashPK._1,
+      rangePK = Some(rangePK._1),
       attributes = Seq(
-        Some(AttributeDefinition(hashPK._1, hashPK._2)),
-        rangePK.map(pk => AttributeDefinition(pk._1, pk._2))
-      ).flatten
+        AttributeDefinition(hashPK._1, hashPK._2),
+        AttributeDefinition(rangePK._1, rangePK._2)
+      )
     ))
   }
 

@@ -36,7 +36,7 @@ class SQSSpec extends FlatSpec with ShouldMatchers {
     log.info(s"Received : ${receivedMessages}")
 
     // delete messages
-    queue.remove(receivedMessages)
+    queue.removeAll(receivedMessages)
 
     // working with specified queue
     sqs.withQueue(queue) { s =>

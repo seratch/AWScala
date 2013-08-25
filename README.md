@@ -106,7 +106,7 @@ implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
 val tableMeta: TableMeta = dynamoDB.createTable(
   name = "Members",
   hashPK = ("Id", AttributeType.Number),
-  rangePK = Some("Company", AttributeType.String)
+  rangePK = ("Company", AttributeType.String)
 )
 
 val table: Table = dynamoDB.table("Members").get

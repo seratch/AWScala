@@ -20,7 +20,7 @@ class DynamoDBSpec extends FlatSpec with ShouldMatchers {
     val tableMeta: TableMeta = dynamoDB.createTable(
       name = tableName,
       hashPK = ("id", AttributeType.Number),
-      rangePK = Some("company", AttributeType.String)
+      rangePK = ("company", AttributeType.String)
     )
     log.info(s"Created Domain: ${tableMeta}")
 
