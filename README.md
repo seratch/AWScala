@@ -11,8 +11,9 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 
 - AWS Identity and Access Management (IAM)
 - Amazon Simple Storage Service (Amazon S3)
-- Amazon SimpleDB
 - Amazon Simple Queue Service（Amazon SQS）
+- Amazon DynamoDB
+- Amazon SimpleDB
 
 ## Examples
 
@@ -74,28 +75,6 @@ https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/s3/S3.scal
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/S3Spec.scala
 
-### Amazon SimpleDB
-
-```scala
-import awscala._, simpledb._
-
-implicit val simpleDB = SimpleDB.at(Region.Tokyo)
-
-val domain: Domain = simpleDB.createDomain("users")
-
-domain.put("00001", "name" -> "Alice", "age" -> "23", "country" -> "America")
-domain.put("00002", "name" -> "Bob",   "age" -> "34", "country" -> "America")
-domain.put("00003", "name" -> "Chris", "age" -> "27", "country" -> "Japan")
-
-val items: Seq[Item] = domain.select(s"select * from users where country = 'America'")
-
-simpleDB.domains.foreach(_.destroy())
-```
-
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/SimpleDB.scala
-
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala
-
 ### Amazon Simple Queue Service（Amazon SQS）
 
 ```scala
@@ -124,6 +103,58 @@ sqs.deleteQueue(queue)
 https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sqs/SQS.scala
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SQSSpec.scala
+
+### Amazon DynamoDB
+
+```scala
+import awscala._, dynamodb._
+
+implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
+
+val tableMeta: TableMeta = dynamoDB.createTable(
+  name = "Members",
+  hashPK = ("Id", AttributeType.Number),
+  rangePK = Some("Company", AttributeType.String)
+)
+
+val table: Table = dynamoDB.table("Members").get
+
+table.putItem(1, "Typesafe", "name" -> "Alice", "age" -> 23)
+table.putItem(2, "Typesafe", "name" -> "Bob",   "age" -> 36)
+table.putItem(3, "Oracle",   "name" -> "Chris", "age" -> 29)
+
+val foundByKey: Option[Item] = table.query(Seq("id" -> Condition.eq(2))).headOption
+
+val items: Seq[Item] = table.scan(Seq("age" -> Condition.gt(25)))
+
+table.destroy()
+```
+
+https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/dynamodb/DynamoDB.scala
+
+https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/DynamoDBSpec.scala
+
+### Amazon SimpleDB
+
+```scala
+import awscala._, simpledb._
+
+implicit val simpleDB = SimpleDB.at(Region.Tokyo)
+
+val domain: Domain = simpleDB.createDomain("users")
+
+domain.put("00001", "name" -> "Alice", "age" -> "23", "country" -> "America")
+domain.put("00002", "name" -> "Bob",   "age" -> "34", "country" -> "America")
+domain.put("00003", "name" -> "Chris", "age" -> "27", "country" -> "Japan")
+
+val items: Seq[Item] = domain.select(s"select * from users where country = 'America'")
+
+simpleDB.domains.foreach(_.destroy())
+```
+
+https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/SimpleDB.scala
+
+https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala
 
 ## How to contribute
 
