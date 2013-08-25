@@ -45,7 +45,7 @@ trait SimpleDB extends aws.AmazonSimpleDB {
   // Items/Attributes
   // ------------------------------------------
 
-  def select(domain: Domain, expression: String, consistentRead: Boolean = true): Seq[Item] = {
+  def select(domain: Domain, expression: String, consistentRead: Boolean = false): Seq[Item] = {
     select(new aws.model.SelectRequest()
       .withSelectExpression(expression)
       .withConsistentRead(consistentRead)).getItems.asScala.map(i => Item(domain, i)).toSeq
