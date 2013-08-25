@@ -111,11 +111,9 @@ val tableMeta: TableMeta = dynamoDB.createTable(
 
 val table: Table = dynamoDB.table("Members").get
 
-table.putItem(1, "Typesafe", "name" -> "Alice", "age" -> 23)
-table.putItem(2, "Typesafe", "name" -> "Bob",   "age" -> 36)
-table.putItem(3, "Oracle",   "name" -> "Chris", "age" -> 29)
-
-val foundByKey: Option[Item] = table.query(Seq("id" -> Condition.eq(2))).headOption
+table.put(1, "Google", "name" -> "Alice", "age" -> 23)
+table.put(2, "Google", "name" -> "Bob",   "age" -> 36)
+table.put(3, "Amazon", "name" -> "Chris", "age" -> 29)
 
 val items: Seq[Item] = table.scan(Seq("age" -> Condition.gt(25)))
 

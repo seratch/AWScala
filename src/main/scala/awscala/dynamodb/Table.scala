@@ -10,14 +10,19 @@ case class Table(
     localSecondaryIndexes: Seq[LocalSecondaryIndex] = Nil,
     provisionedThroughput: Option[ProvisionedThroughput] = None) {
 
-  def getItem(hashPK: Any)(
-    implicit dynamoDB: DynamoDB): Option[Item] = {
-    dynamoDB.get(this, hashPK, None)
+  def get(hashPK: Any)(implicit dynamoDB: DynamoDB): Option[Item] = getItem(hashPK)
+  def get(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB): Option[Item] = getItem(hashPK, rangePK)
+
+  def getItem(hashPK: Any)(implicit dynamoDB: DynamoDB): Option[Item] = {
+    dynamoDB.get(this, hashPK)
   }
   def getItem(hashPK: Any, rangePK: Any)(
     implicit dynamoDB: DynamoDB): Option[Item] = {
     dynamoDB.get(this, hashPK, rangePK)
   }
+
+  def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB) = putItem(hashPK, attributes: _*)
+  def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB) = putItem(hashPK, rangePK, attributes: _*)
 
   def putItem(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB) = {
     dynamoDB.put(this, hashPK, attributes: _*)
@@ -26,8 +31,11 @@ case class Table(
     dynamoDB.put(this, hashPK, rangePK, attributes: _*)
   }
 
+  def delete(hashPK: Any)(implicit dynamoDB: DynamoDB) = deleteItem(hashPK)
+  def delete(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB) = deleteItem(hashPK, rangePK)
+
   def deleteItem(hashPK: Any)(implicit dynamoDB: DynamoDB) = {
-    dynamoDB.deleteItem(this, hashPK, None)
+    dynamoDB.deleteItem(this, hashPK)
   }
   def deleteItem(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB) = {
     dynamoDB.deleteItem(this, hashPK, Some(rangePK))
@@ -55,21 +63,37 @@ case class Table(
       attributesToGet = attributesToGet)
   }
 
-  def addAttributes(table: Table, hashPK: Any, rangePK: Option[Any] = None, attributes: Seq[(String, Any)])(
+  def addAttributes(hashPK: Any, attributes: (String, Any)*)(
     implicit dynamoDB: DynamoDB): Unit = {
-    dynamoDB.updateAttributes(table, hashPK, rangePK, aws.model.AttributeAction.ADD, attributes)
+    dynamoDB.updateAttributes(this, hashPK, None, aws.model.AttributeAction.ADD, attributes)
   }
-  def deleteAttributes(table: Table, hashPK: Any, rangePK: Option[Any] = None, attributes: Seq[(String, Any)])(
+  def addAttributes(hashPK: Any, rangePK: Any, attributes: Seq[(String, Any)])(
     implicit dynamoDB: DynamoDB): Unit = {
-    dynamoDB.updateAttributes(table, hashPK, rangePK, aws.model.AttributeAction.DELETE, attributes)
+    dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.ADD, attributes)
   }
-  def putAttributes(table: Table, hashPK: Any, rangePK: Option[Any] = None, attributes: Seq[(String, Any)])(
+
+  def deleteAttributes(hashPK: Any, attributes: Seq[(String, Any)])(
     implicit dynamoDB: DynamoDB): Unit = {
-    dynamoDB.updateAttributes(table, hashPK, rangePK, aws.model.AttributeAction.PUT, attributes)
+    dynamoDB.updateAttributes(this, hashPK, None, aws.model.AttributeAction.DELETE, attributes)
+  }
+  def deleteAttributes(hashPK: Any, rangePK: Any, attributes: Seq[(String, Any)])(
+    implicit dynamoDB: DynamoDB): Unit = {
+    dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.DELETE, attributes)
+  }
+
+  def putAttributes(hashPK: Any, attributes: Seq[(String, Any)])(
+    implicit dynamoDB: DynamoDB): Unit = {
+    dynamoDB.updateAttributes(this, hashPK, None, aws.model.AttributeAction.PUT, attributes)
+  }
+  def putAttributes(hashPK: Any, rangePK: Any, attributes: Seq[(String, Any)])(
+    implicit dynamoDB: DynamoDB): Unit = {
+    dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
   }
 
   def update(throughput: ProvisionedThroughput)(implicit dynamoDB: DynamoDB) = {
     dynamoDB.updateTableProvisionedThroughput(this, throughput)
   }
+
   def destroy()(implicit dynamoDB: DynamoDB) = dynamoDB.delete(this)
+
 }

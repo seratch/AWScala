@@ -105,9 +105,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   // Items
   // ------------------------------------------
 
-  def get(table: Table, hashPK: Any): Option[Item] = {
-    getItem(table, hashPK, consistentRead)
-  }
+  def get(table: Table, hashPK: Any): Option[Item] = getItem(table, hashPK)
+
   def getItem(table: Table, hashPK: Any): Option[Item] = try {
     Some(Item(table, getItem(new aws.model.GetItemRequest()
       .withTableName(table.name)
@@ -116,19 +115,24 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     ).getItem))
   } catch { case e: aws.model.ResourceNotFoundException => None }
 
-  def get(table: Table, hashPK: Any, rangePK: Any): Option[Item] = {
-    getItem(table, hashPK, Some(rangePK))
+  def get(table: Table, hashPK: Any, rangePK: Any): Option[Item] = getItem(table, hashPK, rangePK)
+
+  def getItem(table: Table, hashPK: Any, rangePK: Any): Option[Item] = {
+    rangePK match {
+      case None => getItem(table, hashPK)
+      case _ =>
+        try {
+          Some(Item(table, getItem(new aws.model.GetItemRequest()
+            .withTableName(table.name)
+            .withKey(Map(
+              table.hashPK -> AttributeValue.toJavaValue(hashPK),
+              table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
+            ).asJava)
+            .withConsistentRead(consistentRead)
+          ).getItem))
+        } catch { case e: aws.model.ResourceNotFoundException => None }
+    }
   }
-  def getItem(table: Table, hashPK: Any, rangePK: Any): Option[Item] = try {
-    Some(Item(table, getItem(new aws.model.GetItemRequest()
-      .withTableName(table.name)
-      .withKey(Map(
-        table.hashPK -> AttributeValue.toJavaValue(hashPK),
-        table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
-      ).asJava)
-      .withConsistentRead(consistentRead)
-    ).getItem))
-  } catch { case e: aws.model.ResourceNotFoundException => None }
 
   def put(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
     putItem(table, hashPK, attributes: _*)
