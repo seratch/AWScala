@@ -31,12 +31,17 @@ case class Item(domain: Domain, name: String, alternateNameEncoding: Option[Stri
     simpleDB.replaceAttributesIfExists(this, attributes: _*)
   }
 
+  def put(attributes: (String, String)*)(implicit simpleDB: SimpleDB): Unit = putAttributes(attributes: _*)
   def putAttributes(attributes: (String, String)*)(implicit simpleDB: SimpleDB): Unit = {
     simpleDB.putAttributes(this, attributes: _*)
   }
 
+  def delete(attributes: Seq[Attribute])(implicit simpleDB: SimpleDB): Unit = deleteAttributes(attributes)
   def deleteAttributes(attributes: Seq[Attribute])(implicit simpleDB: SimpleDB): Unit = {
     simpleDB.deleteAttributes(attributes)
   }
+
+  def destroy()(implicit simpleDB: SimpleDB): Unit = simpleDB.deleteItems(Seq(this))
+
 }
 

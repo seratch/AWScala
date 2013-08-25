@@ -16,9 +16,14 @@ case class Domain(name: String) {
     simpleDB.putAttributes(Item(this, itemName), attributes: _*)
   }
 
-  def delete(attributes: Seq[Attribute])(implicit simpleDB: SimpleDB): Unit = {
-    simpleDB.deleteAttributes(attributes)
-  }
+  def delete(item: Item)(implicit simpleDB: SimpleDB) = deleteItem(item)
+  def deleteItem(item: Item)(implicit simpleDB: SimpleDB) = simpleDB.deleteItems(Seq(item))
+
+  def delete(attribute: Attribute)(implicit simpleDB: SimpleDB) = deleteAttribute(attribute)
+  def deleteAttribute(attribute: Attribute)(implicit simpleDB: SimpleDB) = simpleDB.deleteAttributes(Seq(attribute))
+
+  def deleteItems(items: Seq[Item])(implicit simpleDB: SimpleDB) = simpleDB.deleteItems(items)
+  def deleteAttributes(attributes: Seq[Attribute])(implicit simpleDB: SimpleDB) = simpleDB.deleteAttributes(attributes)
 
   def destroy()(implicit simpleDB: SimpleDB): Unit = simpleDB.deleteDomain(this)
 

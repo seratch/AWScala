@@ -3,7 +3,7 @@ package awscala.simpledb
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ simpledb => aws }
-import com.amazonaws.services.simpledb.model.ReplaceableAttribute
+import com.amazonaws.services.simpledb.model.{ DeletableItem, ReplaceableAttribute }
 
 object SimpleDB {
 
@@ -76,6 +76,14 @@ trait SimpleDB extends aws.AmazonSimpleDB {
         case (k, v) =>
           new ReplaceableAttribute().withName(k).withValue(v).withReplace(false)
       }.asJava))
+  }
+
+  def deleteItems(items: Seq[Item]): Unit = {
+    items.headOption.foreach { item =>
+      batchDeleteAttributes(new aws.model.BatchDeleteAttributesRequest()
+        .withDomainName(item.domain.name)
+        .withItems(items.map(i => new DeletableItem().withName(i.name)).asJava))
+    }
   }
 
   def deleteAttributes(attributes: Seq[Attribute]): Unit = {
