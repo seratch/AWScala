@@ -41,7 +41,9 @@ class DynamoDBSpec extends FlatSpec with ShouldMatchers {
     companies.put("Google", "url" -> "http://www.google.com/")
     companies.put("Microsoft")
 
-    // TODO get
+    // get by primary key
+    val google: Option[Item] = companies.get("Google")
+    google.get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.google.com/")
 
     // scan
     val found: Seq[Item] = companies.scan(Seq("url" -> Condition.isNotNull()))
@@ -78,8 +80,6 @@ class DynamoDBSpec extends FlatSpec with ShouldMatchers {
     members.put(1, "Google", "name" -> "Alice", "age" -> 23)
     members.put(2, "Google", "name" -> "Bob", "age" -> 36)
     members.put(3, "Amazon", "name" -> "Chris", "age" -> 29)
-
-    // TODO get
 
     // key conditions
     val chris: Option[Item] = members.query(Seq("id" -> Condition.eq(3))).headOption
