@@ -217,7 +217,7 @@ for{
 	instances <- f
 	inst <- instances
 } inst.withKeyPair(kpFile){i =>
-	inst.ssh{
+	i.ssh{
 	    client=>
 	    client.exec("ls -la").right.map { result =>
    	        println(s"------\n${inst.instanceId} Result:\n" + result.stdOutAsString())
