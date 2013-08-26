@@ -1,4 +1,4 @@
-package awscala.dynamodb
+package awscala.dynamodbv2
 
 import com.amazonaws.services.{ dynamodbv2 => aws }
 

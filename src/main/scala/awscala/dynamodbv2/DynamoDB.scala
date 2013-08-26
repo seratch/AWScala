@@ -1,4 +1,4 @@
-package awscala.dynamodb
+package awscala.dynamodbv2
 
 import awscala._
 import scala.collection.JavaConverters._
@@ -183,7 +183,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
   }
 
-  private[dynamodb] def updateAttributes(
+  private[dynamodbv2] def updateAttributes(
     table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]): Unit = {
 
     updateItem(new aws.model.UpdateItemRequest().withAttributeUpdates(attributes.map {

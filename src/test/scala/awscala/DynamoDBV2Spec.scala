@@ -1,13 +1,13 @@
 package awscala
 
-import awscala._, dynamodb._
+import awscala._, dynamodbv2._
 
 import org.slf4j._
 import org.scalatest._
 import org.scalatest.matchers._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
-class DynamoDBSpec extends FlatSpec with ShouldMatchers {
+class DynamoDBV2Spec extends FlatSpec with ShouldMatchers {
 
   behavior of "DynamoDB"
 

@@ -1,4 +1,4 @@
-package awscala.dynamodb
+package awscala.dynamodbv2
 
 import awscala._
 import scala.collection.JavaConverters._
