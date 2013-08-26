@@ -32,6 +32,7 @@ case class User(id: String, name: String, arn: String, path: String, createdAt: 
   // policies
   def policyNames()(implicit iam: IAM) = iam.policyNames(this)
   def policy(name: String)(implicit iam: IAM) = iam.userPolicy(this, name)
+  def putPolicy(name: String, policy: awscala.auth.policy.Policy)(implicit iam: IAM) = iam.putUserPolicy(this, name, policy.toJSON)
   def putPolicy(name: String, document: String)(implicit iam: IAM) = iam.putUserPolicy(this, name, document)
   def remove(policy: UserPolicy)(implicit iam: IAM) = removePolicy(policy)
   def removePolicy(policy: UserPolicy)(implicit iam: IAM) = iam.deleteUserPolicy(policy)

@@ -31,6 +31,7 @@ case class Role(id: String, name: String, arn: String, path: String, assumeRoleP
   // policies
   def policyNames()(implicit iam: IAM) = iam.rolePolicyNames(this)
   def policy(name: String)(implicit iam: IAM) = iam.rolePolicy(this, name)
+  def putPolicy(name: String, policy: awscala.auth.policy.Policy)(implicit iam: IAM) = iam.putRolePolicy(this, name, policy.toJSON)
   def putPolicy(name: String, document: String)(implicit iam: IAM) = iam.putRolePolicy(this, name, document)
   def remove(policy: RolePolicy)(implicit iam: IAM) = removePolicy(policy)
   def removePolicy(policy: RolePolicy)(implicit iam: IAM) = iam.deleteRolePolicy(policy)

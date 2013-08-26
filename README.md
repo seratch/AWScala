@@ -26,8 +26,8 @@ implicit val iam = IAM()
 val group = iam.createGroup("Developers")
 
 import awscala.auth.policy._
-val policy: Policy = Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*")))))
-group.putPolicy("policy-name", policy.toJSON)
+group.putPolicy("policy-name", 
+  Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*"))))))
 
 val user: User = iam.createUser("Alice")
 user.setLoginPassword("password")

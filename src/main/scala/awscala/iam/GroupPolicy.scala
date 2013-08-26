@@ -12,6 +12,10 @@ object GroupPolicy {
 
 case class GroupPolicy(group: Group, name: String, document: String) {
 
+  def this(group: Group, name: String, document: awscala.auth.policy.Policy) {
+    this(group, name, document.asJSON)
+  }
+
   def destroy()(implicit iam: IAM) = iam.delete(this)
 }
 

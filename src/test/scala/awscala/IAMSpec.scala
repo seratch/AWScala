@@ -32,7 +32,7 @@ class IAMSpec extends FlatSpec with ShouldMatchers {
 
     import awscala.auth.policy._
     val policy: Policy = Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*")))))
-    group.putPolicy(policyName, policy.toJSON)
+    group.putPolicy(policyName, policy)
 
     group.policyNames.foreach { policyName =>
       group.policy(policyName).destroy()
