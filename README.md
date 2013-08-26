@@ -91,7 +91,7 @@ https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SQSSpec.sc
 ### Amazon DynamoDB
 
 ```scala
-import awscala._, dynamodb._
+import awscala._, dynamodbv2._
 
 implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
 
@@ -118,9 +118,9 @@ val googlers: Seq[Item] = table.scan(Seq("Company" -> Condition.gt("Google")))
 table.destroy()
 ```
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/dynamodb/DynamoDB.scala
+https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/dynamodbv2/DynamoDB.scala
 
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/DynamoDBSpec.scala
+https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/DynamoDBV2Spec.scala
 
 ### Amazon SimpleDB
 
