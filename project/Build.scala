@@ -17,10 +17,13 @@ object AwscalaProject extends Build {
       else Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
     publishMavenStyle := true,
+    resolvers += "spray repo" at "http://repo.spray.io",
     libraryDependencies ++= Seq(
       "com.amazonaws"  %  "aws-java-sdk"    % "[1.5,)",
       "joda-time"      %  "joda-time"       % "2.3",
       "org.joda"       %  "joda-convert"    % "1.2",
+      "com.decodified" %% "scala-ssh" % "0.6.4",
+      "org.bouncycastle" % "bcprov-jdk16" % "1.46",
       "ch.qos.logback" %  "logback-classic" % "1.0.13"  % "test",
       "org.scalatest"  %% "scalatest"       % "1.9.1"   % "test"
     ),
