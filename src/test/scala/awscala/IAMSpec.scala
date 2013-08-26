@@ -29,19 +29,10 @@ class IAMSpec extends FlatSpec with ShouldMatchers {
     group.remove(user)
 
     val policyName = s"awscala-unit-test-group-policy-${System.currentTimeMillis}"
-    val policyDocument =
-      """{
-        |  "Version": "2012-10-17",
-        |  "Statement": [
-        |    {
-        |      "Effect": "Allow",
-        |      "Action": "s3:*",
-        |      "Resource": "*"
-        |    }
-        |  ]
-        |}
-      """.stripMargin
-    group.putPolicy(policyName, policyDocument)
+
+    import awscala.auth.policy._
+    val policy: Policy = Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*")))))
+    group.putPolicy(policyName, policy.toJSON)
 
     group.policyNames.foreach { policyName =>
       group.policy(policyName).destroy()

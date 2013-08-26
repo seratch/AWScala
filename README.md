@@ -24,18 +24,10 @@ import awscala._, iam._
 implicit val iam = IAM()
 
 val group = iam.createGroup("Developers")
-group.putPolicy("policy-name",
-  """{
-   |  "Version": "2012-10-17",
-   |  "Statement": [
-   |    {
-   |      "Effect": "Allow",
-   |      "Action": "s3:*",
-   |      "Resource": "*"
-   |    }
-   |  ]
-   |}
- """.stripMargin)
+
+import awscala.auth.policy._
+val policy: Policy = Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*")))))
+group.putPolicy("policy-name", policy.toJSON)
 
 val user: User = iam.createUser("Alice")
 user.setLoginPassword("password")
