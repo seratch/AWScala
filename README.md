@@ -143,14 +143,23 @@ val f = Future(ec2.run(RunInstancesRequest("ami-2819aa29").withKeyName("YOUR_KEY
 for{
 	instances <- f
 	inst <- instances
-} inst.withKeyPair(kpFile){i =>
-	i.ssh{
-	    client=>
-	    client.exec("ls -la").right.map { result =>
-   	        println(s"------\n${inst.instanceId} Result:\n" + result.stdOutAsString())
+} {
+    inst.withKeyPair(kpFile){i =>
+    val oneLinerResult = i.process("ls -la")
+    println(s"------\n${inst.instanceId} OneLiner Result:\n" + oneLinerResult)
+
+    /*
+    // required [sirthias/scala-ssh](https://github.com/sirthias/scala-ssh)
+
+    i.ssh{
+        client=>
+            client.exec("ls -la").right.map { result =>
+            println(s"------\n${inst.instanceId} Result:\n" + result.stdOutAsString())
+            }
         }
-   }
-   i.terminate
+    */
+    }
+    inst.terminate
 }
 ```
 

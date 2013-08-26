@@ -3,6 +3,7 @@ package awscala.ec2
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ ec2 => aws }
+import awscala.Region
 
 object EC2 {
   def apply(credentials: Credentials = Credentials.defaultEnv): EC2 = new EC2Client(credentials)
@@ -39,6 +40,24 @@ trait EC2 extends aws.AmazonEC2 {
     }
     requestedInstances
   }
+
+  def createKeyPair(name: String): KeyPair = KeyPair(createKeyPair(new aws.model.CreateKeyPairRequest(name)).getKeyPair)
+
+  def deleteKeyPair(name: String): Unit = deleteKeyPair(new aws.model.DeleteKeyPairRequest(name))
+
+  def keyPairs: Seq[KeyPair] = describeKeyPairs().getKeyPairs.asScala.map(KeyPair(_))
+
+  def keyPair(name: String): Option[KeyPair] = describeKeyPairs(new aws.model.DescribeKeyPairsRequest().withKeyNames(name)).getKeyPairs.asScala.map(KeyPair(_)).headOption
+
+  def securityGroups: Seq[SecurityGroup] = describeSecurityGroups().getSecurityGroups.asScala.map(SecurityGroup(_))
+
+  def securityGroup(name: String): Option[SecurityGroup] = describeSecurityGroups(new aws.model.DescribeSecurityGroupsRequest().withGroupNames(name)).getSecurityGroups.asScala.map(SecurityGroup(_)).headOption
+
+  def createSecurityGroup(name: String, description: String): Option[SecurityGroup] = {
+    createSecurityGroup(new aws.model.CreateSecurityGroupRequest(name, description))
+    securityGroup(name)
+  }
+  def deleteSecurityGroup(name: String): Unit = deleteSecurityGroup(new aws.model.DeleteSecurityGroupRequest().withGroupName(name))
 }
 
 /**

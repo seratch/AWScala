@@ -22,8 +22,8 @@ object AwscalaProject extends Build {
       "com.amazonaws"  %  "aws-java-sdk"    % "[1.5,)",
       "joda-time"      %  "joda-time"       % "2.3",
       "org.joda"       %  "joda-convert"    % "1.2",
-      "com.decodified" %% "scala-ssh" % "0.6.4",
-      "org.bouncycastle" % "bcprov-jdk16" % "1.46",
+      "com.decodified" %% "scala-ssh" % "0.6.4" % "provided",
+      "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" %  "logback-classic" % "1.0.13"  % "test",
       "org.scalatest"  %% "scalatest"       % "1.9.1"   % "test"
     ),
