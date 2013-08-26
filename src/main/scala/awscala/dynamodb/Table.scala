@@ -10,6 +10,10 @@ case class Table(
     localSecondaryIndexes: Seq[LocalSecondaryIndex] = Nil,
     provisionedThroughput: Option[ProvisionedThroughput] = None) {
 
+  // ------------------------------------------
+  // Items
+  // ------------------------------------------
+
   def get(hashPK: Any)(implicit dynamoDB: DynamoDB): Option[Item] = getItem(hashPK)
   def get(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB): Option[Item] = getItem(hashPK, rangePK)
 
@@ -41,7 +45,23 @@ case class Table(
     dynamoDB.deleteItem(this, hashPK, Some(rangePK))
   }
 
-  def query(keyConditions: Seq[(String, Condition)],
+  def queryWithIndex(
+    index: LocalSecondaryIndex,
+    keyConditions: Seq[(String, aws.model.Condition)],
+    select: Select = aws.model.Select.ALL_ATTRIBUTES,
+    attributesToGet: Seq[String] = Nil,
+    consistentRead: Boolean = false)(implicit dynamoDB: DynamoDB): Seq[Item] = {
+    dynamoDB.queryWithIndex(
+      table = this,
+      index = index,
+      keyConditions = keyConditions,
+      select = select,
+      attributesToGet = attributesToGet,
+      consistentRead = consistentRead)
+  }
+
+  def query(
+    keyConditions: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     consistentRead: Boolean = false)(implicit dynamoDB: DynamoDB): Seq[Item] = {
@@ -53,7 +73,7 @@ case class Table(
       consistentRead = consistentRead)
   }
 
-  def scan(filter: Seq[(String, Condition)],
+  def scan(filter: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil)(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.scan(

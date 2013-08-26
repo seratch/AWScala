@@ -58,7 +58,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   def createTable(
     name: String,
     hashPK: (String, aws.model.ScalarAttributeType),
-    rangePK: (String, aws.model.ScalarAttributeType)): TableMeta = {
+    rangePK: (String, aws.model.ScalarAttributeType),
+    otherAttributes: Seq[(String, aws.model.ScalarAttributeType)],
+    indexes: Seq[LocalSecondaryIndex]): TableMeta = {
     create(Table(
       name = name,
       hashPK = hashPK._1,
@@ -66,11 +68,13 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       attributes = Seq(
         AttributeDefinition(hashPK._1, hashPK._2),
         AttributeDefinition(rangePK._1, rangePK._2)
-      )
+      ) ++: otherAttributes.map(a => AttributeDefinition(a._1, a._2)),
+      localSecondaryIndexes = indexes
     ))
   }
 
   def create(table: Table): TableMeta = createTable(table)
+
   def createTable(table: Table): TableMeta = {
     val keySchema: Seq[aws.model.KeySchemaElement] = Seq(
       Some(KeySchema(table.hashPK, aws.model.KeyType.HASH)),
@@ -78,13 +82,14 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     ).flatten.map(_.asInstanceOf[aws.model.KeySchemaElement])
 
     val req = new aws.model.CreateTableRequest()
+      .withTableName(table.name)
       .withAttributeDefinitions(table.attributes.map(_.asInstanceOf[aws.model.AttributeDefinition]).asJava)
       .withKeySchema(keySchema.asJava)
       .withProvisionedThroughput(
         table.provisionedThroughput.map(_.asInstanceOf[aws.model.ProvisionedThroughput]).getOrElse {
           ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10)
         }
-      ).withTableName(table.name)
+      )
     if (!table.localSecondaryIndexes.isEmpty) {
       req.setLocalSecondaryIndexes(table.localSecondaryIndexes.map(_.asInstanceOf[aws.model.LocalSecondaryIndex]).asJava)
     }
@@ -178,7 +183,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
   }
 
-  private[dynamodb] def updateAttributes(table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]): Unit = {
+  private[dynamodb] def updateAttributes(
+    table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]): Unit = {
+
     updateItem(new aws.model.UpdateItemRequest().withAttributeUpdates(attributes.map {
       case (key, value) =>
         (key, new aws.model.AttributeValueUpdate().withAction(action).withValue(AttributeValue.toJavaValue(value)))
@@ -199,8 +206,30 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       ).asJava))
   }
 
+  def queryWithIndex(table: Table,
+    index: LocalSecondaryIndex,
+    keyConditions: Seq[(String, aws.model.Condition)],
+    select: Select = aws.model.Select.ALL_ATTRIBUTES,
+    attributesToGet: Seq[String] = Nil,
+    scanIndexForward: Boolean = true,
+    consistentRead: Boolean = false): Seq[Item] = try {
+
+    val req = new aws.model.QueryRequest()
+      .withTableName(table.name)
+      .withIndexName(index.name)
+      .withKeyConditions(keyConditions.toMap.asJava)
+      .withSelect(select)
+      .withScanIndexForward(scanIndexForward)
+      .withConsistentRead(consistentRead)
+    if (!attributesToGet.isEmpty) {
+      req.setAttributesToGet(attributesToGet.asJava)
+    }
+
+    query(req).getItems.asScala.map(i => Item(table, i)).toSeq
+  } catch { case e: aws.model.ResourceNotFoundException => Nil }
+
   def query(table: Table,
-    keyConditions: Seq[(String, Condition)],
+    keyConditions: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     consistentRead: Boolean = false): Seq[Item] = try {
@@ -218,7 +247,10 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
   def scan(table: Table,
-    filter: Seq[(String, Condition)],
+    filter: Seq[(String, aws.model.Condition)],
+    limit: Int = 1000,
+    segment: Int = 0,
+    totalSegments: Int = 1,
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil): Seq[Item] = try {
 
@@ -226,6 +258,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withTableName(table.name)
       .withScanFilter(filter.toMap.asJava)
       .withSelect(select)
+      .withLimit(limit)
+      .withSegment(segment)
+      .withTotalSegments(totalSegments)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }

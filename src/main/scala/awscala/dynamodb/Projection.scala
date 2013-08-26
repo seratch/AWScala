@@ -10,8 +10,8 @@ object Projection {
   )
 }
 
-case class Projection(nonKeyAttributes: Seq[String], projectionType: ProjectionType) extends aws.model.Projection {
-  setNonKeyAttributes(nonKeyAttributes.asJava)
+case class Projection(projectionType: ProjectionType, nonKeyAttributes: Seq[String] = Nil) extends aws.model.Projection {
   setProjectionType(projectionType)
+  setNonKeyAttributes(nonKeyAttributes.asJava)
 }
 

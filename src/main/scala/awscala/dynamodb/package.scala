@@ -10,7 +10,6 @@ package object dynamodb {
   type ProjectionType = aws.model.ProjectionType
   type ReturnConsumedCapacity = aws.model.ReturnConsumedCapacity
 
-  type Condition = aws.model.Condition
   type ComparisonOperator = aws.model.ComparisonOperator
   type Select = aws.model.Select
 

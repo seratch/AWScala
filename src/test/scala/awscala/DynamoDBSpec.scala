@@ -16,10 +16,10 @@ class DynamoDBSpec extends FlatSpec with ShouldMatchers {
   it should "provide cool APIs for Hash PK tables" in {
     implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
 
-    val tableName = s"companies_${System.currentTimeMillis}"
+    val tableName = s"Companies_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
       name = tableName,
-      hashPK = ("id", AttributeType.String)
+      hashPK = "Id" -> AttributeType.String
     )
     log.info(s"Created Table: ${createdTableMeta}")
 
@@ -46,8 +46,8 @@ class DynamoDBSpec extends FlatSpec with ShouldMatchers {
     google.get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.google.com/")
 
     // scan
-    val found: Seq[Item] = companies.scan(Seq("url" -> Condition.isNotNull()))
-    found.size should equal(2)
+    val foundCompanies: Seq[Item] = companies.scan(Seq("url" -> Condition.isNotNull))
+    foundCompanies.size should equal(2)
 
     companies.destroy()
   }
@@ -55,11 +55,19 @@ class DynamoDBSpec extends FlatSpec with ShouldMatchers {
   it should "provide cool APIs for Hash/Range PK tables" in {
     implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
 
-    val tableName = s"members_${System.currentTimeMillis}"
+    val tableName = s"Members_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
       name = tableName,
-      hashPK = ("id", AttributeType.Number),
-      rangePK = ("company", AttributeType.String)
+      hashPK = "Id" -> AttributeType.Number,
+      rangePK = "Country" -> AttributeType.String,
+      otherAttributes = Seq("Company" -> AttributeType.String),
+      indexes = Seq(
+        LocalSecondaryIndex(
+          name = "CompanyIndex",
+          keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
+          projection = Projection(ProjectionType.Include, Seq("Company"))
+        )
+      )
     )
     log.info(s"Created Table: ${createdTableMeta}")
 
@@ -77,17 +85,12 @@ class DynamoDBSpec extends FlatSpec with ShouldMatchers {
 
     val members: Table = dynamoDB.table(tableName).get
 
-    members.put(1, "Google", "name" -> "Alice", "age" -> 23)
-    members.put(2, "Google", "name" -> "Bob", "age" -> 36)
-    members.put(3, "Amazon", "name" -> "Chris", "age" -> 29)
+    members.put(1, "Japan", "Name" -> "Alice", "Age" -> 23, "Company" -> "Google")
+    members.put(2, "U.S.", "Name" -> "Bob", "Age" -> 36, "Company" -> "Google")
+    members.put(3, "Japan", "Name" -> "Chris", "Age" -> 29, "Company" -> "Amazon")
 
-    // key conditions
-    val chris: Option[Item] = members.query(Seq("id" -> Condition.eq(3))).headOption
-    chris.get.attributes.find(_.name == "age").get.value.n.get should equal("29")
-
-    // scan
-    val found: Seq[Item] = members.scan(Seq("age" -> Condition.gt(25)))
-    found.size should equal(2)
+    val googlers: Seq[Item] = members.scan(Seq("Company" -> Condition.eq("Google")))
+    googlers.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("Bob", "Alice"))
 
     members.destroy()
   }
