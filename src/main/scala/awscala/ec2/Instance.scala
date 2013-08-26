@@ -18,7 +18,7 @@ class Instance(underlying: aws.model.Instance) {
 
   def terminate()(implicit ec2: EC2) = ec2.terminateInstances(new aws.model.TerminateInstancesRequest().withInstanceIds(this.instanceId))
 
-  protected def provider(keyPairFile: File, trustAnyHostKey: Boolean = false): HostConfigProvider = new FromStringsHostConfigProvider {
+  protected def provider(keyPairFile: File): HostConfigProvider = new FromStringsHostConfigProvider {
     def rawLines(host: String): com.decodified.scalassh.Validated[(String, TraversableOnce[String])] =
       if (keyPairFile.exists())
         Right("dummy_source" -> (
@@ -39,26 +39,25 @@ class Instance(underlying: aws.model.Instance) {
   case class InstanceWithKeyPair(private val underlying: aws.model.Instance, keyPairFile: File) extends Instance(underlying) {
     def ssh[T](f: SshClient => SSH.Result[T]) = SSH[T](publicDN, provider(keyPairFile))(f)
 
-    def scp(file: File) = {
-      import sys.process._
-      //TODO: ask if user will trust any host key provided by the server. Currently it's always YES.
-      s"scp -P 22 -o StrictHostKeyChecking=no -i ${keyPairFile.getAbsolutePath} ${file.getAbsolutePath}} ec2-user@${publicDN}:~/${file.getName}" !!
-    }
+    override def scp(file: File, kpFile: File = keyPairFile, scpOption: String = "-o StrictHostKeyChecking=no"): Either[String, String] = super.scp(file, keyPairFile, scpOption)
+
+    override def process(command: String, kpFile: File = keyPairFile, sshOption: String = "-o StrictHostKeyChecking=no -t -t"): Either[String, String] = super.process(command, keyPairFile, sshOption)
   }
 
   def ssh[T](f: SshClient => SSH.Result[T], keyPairFile: File) = SSH[T](publicDN, provider(keyPairFile))(f)
 
-  //  def process(command: String, keyPairFile: File):(String,Instance) = {
-  //    import sys.process._
-  //    val result = s"echo ${command}" #&& "echo exit" #> s"ssh  -o StrictHostKeyChecking=no -t -t -i ${keyPairFile.getAbsolutePath} ec2-user@${publicDN}" !!
-  //
-  //    (result,this)
-  //  }
-  //
-
-  def scp(file: File, keyPairFile: File) = {
+  def process(command: String, keyPairFile: File, sshOption: String = "-o StrictHostKeyChecking=no -t -t"): Either[String, String] = {
     import sys.process._
-    s"scp -P 22 -o StrictHostKeyChecking=no -i ${keyPairFile.getAbsolutePath} ${file.getAbsolutePath}} ec2-user@${publicDN}:~/${file.getName}" !!
+    try {
+      Right(s"echo ${command}" #&& "echo exit" #> s"ssh ${sshOption} -i ${keyPairFile.getAbsolutePath} ec2-user@${publicDN}" !!)
+    } catch { case e: Exception => Left(e.toString) }
+  }
+
+  def scp(file: File, keyPairFile: File, scpOption: String = "-o StrictHostKeyChecking=no"): Either[String, String] = {
+    import sys.process._
+    try {
+      Right(s"scp -P 22 ${scpOption} -i ${keyPairFile.getAbsolutePath} ${file.getAbsolutePath} ec2-user@${publicDN}:${file.getName}" !!)
+    } catch { case e: Exception => Left(e.toString) }
   }
 
   def createImage(imageName: String)(implicit ec2: EC2) = {
@@ -142,9 +141,7 @@ class Instance(underlying: aws.model.Instance) {
 
   def vpcId: Option[String] = wrapOption(underlying.getVpcId)
 
-  private def wrapOption[A](value: A): Option[A] = if (null != value) Some(value) else None
-
-  private def convOption[A, B](value: A)(conv: A => B): Option[B] = if (null != value) Some(conv(value)) else None
+  override def toString: String = s"Instance(${underlying.toString})"
 }
 
 case class InstanceLicense(instance: Instance, pool: String) extends aws.model.InstanceLicense {
