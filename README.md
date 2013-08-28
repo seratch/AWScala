@@ -13,8 +13,19 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 - AWS Security Token Service (STS)
 - Amazon Simple Storage Service (Amazon S3)
 - Amazon Simple Queue Service（Amazon SQS）
+- Amazon Redshift
 - Amazon DynamoDB
 - Amazon SimpleDB
+
+## How to use
+
+```scala
+scalaVersion := "2.10.2"
+ 
+resolvers += "sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
+ 
+libraryDependencies += "com.github.seratch" %% "awscala" % "0.1.0-SNAPSHOT"
+```
 
 ## Examples
 
@@ -113,6 +124,20 @@ queue.destroy()
 https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sqs/SQS.scala
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SQSSpec.scala
+
+### Amazon Redshift
+
+```scala
+import awscala._, redshift._
+
+implicit val redshift = Redshift.at(Region.Tokyo)
+
+val cluster = redshift.createCluster(NewCluster("sample-cluster", "mydb", "username", "password"))
+
+redshift.delete(cluster)
+```
+
+https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/redshift/Redshift.scala
 
 ### Amazon DynamoDB
 
