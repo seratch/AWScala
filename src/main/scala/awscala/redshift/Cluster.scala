@@ -69,6 +69,7 @@ class Cluster(
   setClusterVersion(version.value)
   setDBName(dbName)
   setEncrypted(encrypted)
+  setEndpoint(endpoint)
   setMasterUsername(masterUserName)
   setModifyStatus(modifyStatus)
   setNodeType(nodeType.value)
