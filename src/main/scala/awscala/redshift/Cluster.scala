@@ -8,6 +8,7 @@ object Cluster {
   def apply(c: aws.model.Cluster): Cluster = new Cluster(
     identifier = c.getClusterIdentifier,
     dbName = c.getDBName,
+    endpoint = Endpoint(c.getEndpoint),
     masterUserName = c.getMasterUsername,
     status = c.getClusterStatus,
     version = ClusterVersion(c.getClusterVersion),
@@ -30,29 +31,31 @@ object Cluster {
     createdAt = new DateTime(c.getClusterCreateTime)
   )
 }
-case class Cluster(
-    identifier: String,
-    dbName: String,
-    masterUserName: String,
-    status: String,
-    version: ClusterVersion,
-    nodeType: NodeType,
-    numOfNodes: Int,
-    modifyStatus: String,
-    availabilityZone: AvailabilityZone,
-    encrypted: Boolean,
-    allowVersionUpgrade: Boolean,
-    publiclyAccessible: Boolean,
-    automatedSnapshotRetentionPeriod: Int,
-    subnetGroupName: String,
-    restoreStatus: Option[RestoreStatus],
-    preferredMaintenanceWindow: String,
-    pendingModifiedValues: PendingModifiedValues,
-    parameterGroupStatuses: Seq[ClusterParameterGroupStatus],
-    securityGroupMemberships: Seq[ClusterSecurityGroupMembership],
-    vpcId: String,
-    vpcSecurityGroupMemberships: Seq[VpcSecurityGroupMembership],
-    createdAt: DateTime) extends aws.model.Cluster {
+
+class Cluster(
+    val identifier: String,
+    val dbName: String,
+    val endpoint: Endpoint,
+    val masterUserName: String,
+    val status: String,
+    val version: ClusterVersion,
+    val nodeType: NodeType,
+    val numOfNodes: Int,
+    val modifyStatus: String,
+    val availabilityZone: AvailabilityZone,
+    val encrypted: Boolean,
+    val allowVersionUpgrade: Boolean,
+    val publiclyAccessible: Boolean,
+    val automatedSnapshotRetentionPeriod: Int,
+    val subnetGroupName: String,
+    val restoreStatus: Option[RestoreStatus],
+    val preferredMaintenanceWindow: String,
+    val pendingModifiedValues: PendingModifiedValues,
+    val parameterGroupStatuses: Seq[ClusterParameterGroupStatus],
+    val securityGroupMemberships: Seq[ClusterSecurityGroupMembership],
+    val vpcId: String,
+    val vpcSecurityGroupMemberships: Seq[VpcSecurityGroupMembership],
+    val createdAt: DateTime) extends aws.model.Cluster {
 
   setAllowVersionUpgrade(allowVersionUpgrade)
   setAutomatedSnapshotRetentionPeriod(automatedSnapshotRetentionPeriod)
@@ -76,4 +79,7 @@ case class Cluster(
   setRestoreStatus(restoreStatus.orNull[aws.model.RestoreStatus])
   setVpcId(vpcId)
   setVpcSecurityGroups(vpcSecurityGroupMemberships.map(_.asInstanceOf[aws.model.VpcSecurityGroupMembership]).asJava)
+
+  def jdbcUrl: String = s"jdbc:postgresql://${endpoint.address}:${endpoint.port}/${dbName}"
+
 }
