@@ -42,7 +42,7 @@ https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/iam/IAM.sc
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/IAMSpec.scala
 
-##### Security Token Service (STS)
+##### AWS Security Token Service (STS)
 
 ```scala
 import awscala._, sts._
