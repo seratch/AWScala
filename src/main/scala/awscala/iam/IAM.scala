@@ -86,7 +86,7 @@ trait IAM extends aws.AmazonIdentityManagement {
 
   def put(policy: GroupPolicy): Unit = putGroupPolicy(policy)
   def putGroupPolicy(policy: GroupPolicy): Unit = putGroupPolicy(policy.group, policy.name, policy.document)
-  def putGroupPolicy(group: Group, policyName: String, policy: awscala.auth.policy.Policy): Unit = {
+  def putGroupPolicy(group: Group, policyName: String, policy: Policy): Unit = {
     putGroupPolicy(group, policyName, policy.toJSON)
   }
   def putGroupPolicy(group: Group, policyName: String, policyDocument: String): Unit = {
@@ -185,7 +185,7 @@ trait IAM extends aws.AmazonIdentityManagement {
 
   def roles: Seq[Role] = listRoles.getRoles.asScala.map(r => Role(r)).toSeq
 
-  def createRole(name: String, path: String, assumeRolePolicy: awscala.auth.policy.Policy): Role = {
+  def createRole(name: String, path: String, assumeRolePolicy: Policy): Role = {
     createRole(name, path, assumeRolePolicy.toJSON)
   }
   def createRole(name: String, path: String, assumeRolePolicyDocument: String): Role = {
@@ -212,7 +212,7 @@ trait IAM extends aws.AmazonIdentityManagement {
 
   def put(policy: RolePolicy): Unit = putRolePolicy(policy)
   def putRolePolicy(policy: RolePolicy): Unit = putRolePolicy(policy.role, policy.name, policy.document)
-  def putRolePolicy(role: Role, policyName: String, policy: awscala.auth.policy.Policy): Unit = {
+  def putRolePolicy(role: Role, policyName: String, policy: Policy): Unit = {
     putRolePolicy(role, policyName, policy.toJSON)
   }
   def putRolePolicy(role: Role, policyName: String, policyDocument: String): Unit = {

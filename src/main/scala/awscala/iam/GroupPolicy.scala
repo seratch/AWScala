@@ -1,6 +1,7 @@
 package awscala.iam
 
 import com.amazonaws.services.{ identitymanagement => aws }
+import awscala.Policy
 
 object GroupPolicy {
   def apply(group: Group, r: aws.model.GetGroupPolicyResult): GroupPolicy = GroupPolicy(
@@ -12,7 +13,7 @@ object GroupPolicy {
 
 case class GroupPolicy(group: Group, name: String, document: String) {
 
-  def this(group: Group, name: String, document: awscala.auth.policy.Policy) {
+  def this(group: Group, name: String, document: Policy) {
     this(group, name, document.asJSON)
   }
 

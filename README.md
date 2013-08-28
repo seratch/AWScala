@@ -10,6 +10,7 @@ Though AWScala objects basically extend AWS SDK for Java APIs, you can use them 
 http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 
 - AWS Identity and Access Management (IAM)
+- AWS Security Token Service (STS)
 - Amazon Simple Storage Service (Amazon S3)
 - Amazon Simple Queue Service（Amazon SQS）
 - Amazon DynamoDB
@@ -40,6 +41,31 @@ group.destroy()
 https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/iam/IAM.scala
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/IAMSpec.scala
+
+##### Security Token Service (STS)
+
+```scala
+import awscala._, sts._
+
+implicit val sts = STS()
+
+val federation: FederationToken = sts.federationToken(
+  name = "anonymous-user",
+  policy = Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*"))))),
+  durationSeconds = 1200)
+
+val signinToken: String = sts.signinToken(federation.credentials)
+
+val loginUrl: String = sts.loginUrl(
+  credentials = federation.credentials,
+  consoleUrl  = "https://console.aws.amazon.com/iam",
+  issuerUrl   = "http://example.com/internal/auth")
+```
+
+https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sts/STS.scala
+
+https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/STSSpec.scala
+
 
 ### Amazon Simple Storage Service (Amazon S3)
 

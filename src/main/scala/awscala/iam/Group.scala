@@ -29,7 +29,7 @@ case class Group(id: String, name: String, arn: String, path: String, createdAt:
   // policies
   def policyNames()(implicit iam: IAM) = iam.groupPolicyNames(this)
   def policy(name: String)(implicit iam: IAM) = iam.groupPolicy(this, name)
-  def putPolicy(name: String, policy: awscala.auth.policy.Policy)(implicit iam: IAM) = iam.putGroupPolicy(this, name, policy.toJSON)
+  def putPolicy(name: String, policy: Policy)(implicit iam: IAM) = iam.putGroupPolicy(this, name, policy.toJSON)
   def putPolicy(name: String, document: String)(implicit iam: IAM) = iam.putGroupPolicy(this, name, document)
   def remove(policy: GroupPolicy)(implicit iam: IAM) = removePolicy(policy)
   def removePolicy(policy: GroupPolicy)(implicit iam: IAM) = iam.deleteGroupPolicy(policy)

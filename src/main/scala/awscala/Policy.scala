@@ -1,4 +1,4 @@
-package awscala.auth.policy
+package awscala
 
 import scala.collection.JavaConverters._
 import com.amazonaws.auth.{ policy => aws }

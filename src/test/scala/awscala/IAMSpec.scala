@@ -30,7 +30,6 @@ class IAMSpec extends FlatSpec with ShouldMatchers {
 
     val policyName = s"awscala-unit-test-group-policy-${System.currentTimeMillis}"
 
-    import awscala.auth.policy._
     val policy: Policy = Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*")))))
     group.putPolicy(policyName, policy)
 
