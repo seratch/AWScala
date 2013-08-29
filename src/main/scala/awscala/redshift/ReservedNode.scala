@@ -17,7 +17,10 @@ object ReservedNode {
     nodeType = NodeType(n.getNodeType),
     offeringId = n.getReservedNodeOfferingId,
     offeringType = n.getOfferingType,
-    recurringCharges = n.getRecurringCharges.asScala.map(c => RecurringCharge(c)).toSeq,
+    recurringCharges = n.getRecurringCharges.asScala.map(c => RecurringCharge(
+      amount = c.getRecurringChargeAmount,
+      frequency = c.getRecurringChargeFrequency
+    )).toSeq,
     startedAt = new DateTime(n.getStartTime)
   )
 }
@@ -35,7 +38,7 @@ class ReservedNode(
   offeringType: String,
   recurringCharges: Seq[RecurringCharge],
   startedAt: DateTime)
-  extends aws.model.ReservedNode {
+    extends aws.model.ReservedNode {
 
   setCurrencyCode(currencyCode)
   setDuration(duration)

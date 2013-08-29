@@ -83,4 +83,8 @@ class Cluster(
 
   def jdbcUrl: String = s"jdbc:postgresql://${endpoint.address}:${endpoint.port}/${dbName}"
 
+  def destroy(finalSnapshotIdentifier: String)(implicit redshift: Redshift) = redshift.delete(this, finalSnapshotIdentifier)
+
+  def destroyWithoutFinalSnapshot()(implicit redshift: Redshift) = redshift.deleteWithoutFinalSnapshot(this)
+
 }

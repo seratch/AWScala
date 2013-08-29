@@ -65,19 +65,25 @@ trait Redshift extends aws.AmazonRedshift {
     Cluster(createCluster(req))
   }
 
-  def delete(cluster: Cluster, finalSnapshotIdentifier: String, skipFinalSnapshot: Boolean = false): Unit = {
-    deleteCluster(cluster, skipFinalSnapshot, finalSnapshotIdentifier)
+  def delete(cluster: Cluster, finalSnapshotIdentifier: String): Unit = {
+    deleteCluster(cluster, finalSnapshotIdentifier)
   }
-  def deleteCluster(cluster: Cluster, skipFinalSnapshot: Boolean = true, finalSnapshotIdentifier: String): Unit = {
+  def deleteCluster(cluster: Cluster, finalSnapshotIdentifier: String): Unit = {
     deleteCluster(new aws.model.DeleteClusterRequest()
       .withClusterIdentifier(cluster.identifier)
       .withFinalClusterSnapshotIdentifier(finalSnapshotIdentifier)
-      .withSkipFinalClusterSnapshot(skipFinalSnapshot))
+      .withSkipFinalClusterSnapshot(false))
+  }
+  def deleteWithoutFinalSnapshot(cluster: Cluster): Unit = deleteClusterWithoutFinalSnapshot(cluster)
+  def deleteClusterWithoutFinalSnapshot(cluster: Cluster): Unit = {
+    deleteCluster(new aws.model.DeleteClusterRequest()
+      .withClusterIdentifier(cluster.identifier)
+      .withSkipFinalClusterSnapshot(true))
   }
 
   def clusterVersions: Seq[ClusterVersion] = describeClusterVersions.getClusterVersions.asScala.map(v => ClusterVersion(v))
 
-  def clusterVersion(version: String, paramtereGroupFamily: String = null, marker: String = null, maxRecords: Int = -1) : Option[ClusterVersion] = {
+  def clusterVersion(version: String, paramtereGroupFamily: String = null, marker: String = null, maxRecords: Int = -1): Option[ClusterVersion] = {
     val req = new aws.model.DescribeClusterVersionsRequest().withClusterVersion(version)
     if (marker != null) {
       req.setMarker(marker)
@@ -288,9 +294,9 @@ trait Redshift extends aws.AmazonRedshift {
   def createSubnetGroup(name: String, description: String, subnetIds: Seq[String]): ClusterSubnetGroup = {
     ClusterSubnetGroup(createClusterSubnetGroup(
       new aws.model.CreateClusterSubnetGroupRequest()
-          .withClusterSubnetGroupName(name)
-          .withDescription(description)
-          .withSubnetIds(subnetIds.asJava)
+        .withClusterSubnetGroupName(name)
+        .withDescription(description)
+        .withSubnetIds(subnetIds.asJava)
     ))
   }
 

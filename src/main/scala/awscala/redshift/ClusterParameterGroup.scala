@@ -13,4 +13,7 @@ case class ClusterParameterGroup(name: String, family: String, description: Stri
   setParameterGroupName(name)
   setParameterGroupFamily(family)
   setDescription(description)
+
+  def destroy()(implicit redshift: Redshift) = redshift.delete(this)
+
 }

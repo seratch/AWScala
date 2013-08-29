@@ -81,4 +81,6 @@ class Snapshot(
   setStatus(status.value)
   setTotalBackupSizeInMegaBytes(totalBackupSizeInMegaBytes)
   setVpcId(vpcId)
+
+  def destroy()(implicit redshift: Redshift) = redshift.delete(this)
 }

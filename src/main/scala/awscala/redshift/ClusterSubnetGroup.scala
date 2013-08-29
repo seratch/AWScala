@@ -23,4 +23,6 @@ case class ClusterSubnetGroup(
   setSubnetGroupStatus(status)
   setSubnets(subnets.map(_.asInstanceOf[aws.model.Subnet]).asJava)
   setVpcId(vpcId)
+
+  def destroy()(implicit redshift: Redshift) = redshift.delete(this)
 }

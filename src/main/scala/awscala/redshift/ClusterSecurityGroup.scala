@@ -20,5 +20,7 @@ case class ClusterSecurityGroup(
   setDescription(description)
   setEC2SecurityGroups(ec2SecurityGroups.map(_.asInstanceOf[aws.model.EC2SecurityGroup]).asJava)
   setIPRanges(ipranges.map(_.asInstanceOf[aws.model.IPRange]).asJava)
+
+  def destroy()(implicit redshift: Redshift) = redshift.delete(this)
 }
 

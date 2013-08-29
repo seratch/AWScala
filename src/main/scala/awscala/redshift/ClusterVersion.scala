@@ -1,6 +1,6 @@
 package awscala.redshift
 
-import com.amazonaws.services.{redshift => aws}
+import com.amazonaws.services.{ redshift => aws }
 
 object ClusterVersion {
   val Version_1_0 = ClusterVersion("1.0")
@@ -13,8 +13,8 @@ object ClusterVersion {
 }
 
 case class ClusterVersion(
- version: String, description: Option[String] = None,  parameterGroupFamily: Option[String] = None)
-  extends aws.model.ClusterVersion {
+  version: String, description: Option[String] = None, parameterGroupFamily: Option[String] = None)
+    extends aws.model.ClusterVersion {
 
   setClusterVersion(version)
   setDescription(description.orNull[String])
