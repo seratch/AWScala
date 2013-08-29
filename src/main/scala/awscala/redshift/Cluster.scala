@@ -66,7 +66,7 @@ class Cluster(
   setClusterSecurityGroups(securityGroupMemberships.map(_.asInstanceOf[aws.model.ClusterSecurityGroupMembership]).asJava)
   setClusterStatus(status)
   setClusterSubnetGroupName(subnetGroupName)
-  setClusterVersion(version.value)
+  setClusterVersion(version.version)
   setDBName(dbName)
   setEncrypted(encrypted)
   setEndpoint(endpoint)

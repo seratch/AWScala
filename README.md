@@ -132,9 +132,12 @@ import awscala._, redshift._
 
 implicit val redshift = Redshift.at(Region.Tokyo)
 
-val cluster = redshift.createCluster(NewCluster("sample-cluster", "mydb", "username", "password"))
+val cluster: Cluster = redshift.createCluster(NewCluster(
+  "sample-cluster", "mydb", "username", "password"))
 
-redshift.delete(cluster)
+val snapshot: Snapshot = redshift.createSnapshot(cluster, "snapshot-name") 
+
+redshift.delete(cluster, "final-snapshot-name")
 ```
 
 https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/redshift/Redshift.scala
