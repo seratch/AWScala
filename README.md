@@ -11,6 +11,7 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 
 - AWS Identity and Access Management (IAM)
 - AWS Security Token Service (STS)
+- Amazon Elastic Compute Cloud (Amazon EC2)
 - Amazon Simple Storage Service (Amazon S3)
 - Amazon Simple Queue Service（Amazon SQS）
 - Amazon Redshift
@@ -76,6 +77,42 @@ val loginUrl: String = sts.loginUrl(
 https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sts/STS.scala
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/STSSpec.scala
+
+
+### Amazon Elastic Compute Cloud (Amazon EC2)
+
+```scala
+import awscala._, ec2._
+
+implicit val ec2 = EC2.at(Region.Tokyo)
+
+val existings: Seq[Instance] = ec2.instances
+
+import scala.concurrent._
+import scala.concurrent.ExecutionContext.Implicits.global
+
+// simply create a t1.micro instance
+val f = Future(ec2.runAndAwait("ami-2819aa29", ec2.keyPairs.head))
+
+for {
+  instances <- f
+  instance <- instances
+} {
+  instance.withKeyPair(new java.io.File("key_pair_file")) { i =>
+    // optional: scala-ssh (https://github.com/sirthias/scala-ssh)
+    i.ssh { ssh =>
+      ssh.exec("ls -la").right.map { result =>
+        println(s"------\n${inst.instanceId} Result:\n" + result.stdOutAsString())
+      }
+    }
+  }
+  instance.terminate()
+}
+```
+
+https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/ec2/EC2.scala
+
+https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/EC2Spec.scala
 
 
 ### Amazon Simple Storage Service (Amazon S3)
@@ -197,44 +234,6 @@ simpleDB.domains.foreach(_.destroy())
 https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/SimpleDB.scala
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala
-
-###Amazon Elastic Compute Cloud (Amazon EC2)
-
-```scala
-import awscala._, ec2._
-
-implicit val ec2 = EC2.at(Region.Tokyo)
-
-val existings:Seq[Instance] = ec2.instances
-
-import scala.concurrent._
-import scala.concurrent.ExecutionContext.Implicits.global
-
-val kpFile:java.io.File = new java.io.File("YOUR_KEY_PAIR_PATH")
-val f = Future(ec2.run(RunInstancesRequest("ami-2819aa29").withKeyName("YOUR_KEY_PAIR_NAME").withInstanceType("t1.micro")))
-
-for{
-	instances <- f
-	inst <- instances
-} {
-    inst.withKeyPair(kpFile){i =>
-    val oneLinerResult = i.process("ls -la")
-    println(s"------\n${inst.instanceId} OneLiner Result:\n" + oneLinerResult)
-
-    /*
-    // required [sirthias/scala-ssh](https://github.com/sirthias/scala-ssh)
-
-    i.ssh{
-        client=>
-            client.exec("ls -la").right.map { result =>
-            println(s"------\n${inst.instanceId} Result:\n" + result.stdOutAsString())
-            }
-        }
-    */
-    }
-    inst.terminate
-}
-```
 
 ## How to contribute
 

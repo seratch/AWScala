@@ -38,27 +38,24 @@ class EC2Spec extends FlatSpec with ShouldMatchers {
       sys.process.Process(s"chmod 600 ${kpFile.getAbsolutePath}")
     }
 
-    ec2.run(RunInstancesRequest("ami-2819aa29").withKeyName(keyPairName).withInstanceType("t1.micro").withSecurityGroups(groupName)).headOption.foreach {
-      inst =>
-
-        inst.withKeyPair(kpFile) {
-          _.ssh {
-            client =>
-              client.exec("ls -la").right.map { result =>
-                log.info(s"Run command on this EC2 instance:${inst.instanceId} Result:\n" + result.stdOutAsString())
-              }
+    ec2.runAndAwait("ami-2819aa29", keyPair).headOption.foreach { instance =>
+      instance.withKeyPair(kpFile) { i =>
+        i.ssh { client =>
+          client.exec("ls -la").right.map { result =>
+            log.info(s"Run command on this EC2 instance:${instance.instanceId} Result:\n" + result.stdOutAsString())
           }
         }
-        kpFile.delete()
+      }
+      kpFile.delete()
 
-        inst.terminate()
+      instance.terminate()
 
-        //Unless  EC2 instance has been terminated, you cannot delete SecurityGroup.
-        while (!ec2.instances.exists(i => i.instanceId == inst.instanceId && i.state.getName == "terminated")) {
-          Thread.sleep(3000L)
-        }
-        ec2.deleteKeyPair(keyPairName)
-        ec2.deleteSecurityGroup(groupName)
+      //Unless  EC2 instance has been terminated, you cannot delete SecurityGroup.
+      while (!ec2.instances.exists(i => i.instanceId == instance.instanceId && i.state.getName == "terminated")) {
+        Thread.sleep(3000L)
+      }
+      ec2.deleteKeyPair(keyPairName)
+      ec2.deleteSecurityGroup(groupName)
     }
   }
 }
