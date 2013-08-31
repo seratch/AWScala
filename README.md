@@ -198,6 +198,44 @@ https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/S
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala
 
+###Amazon Elastic Compute Cloud (Amazon EC2)
+
+```scala
+import awscala._, ec2._
+
+implicit val ec2 = EC2.at(Region.Tokyo)
+
+val existings:Seq[Instance] = ec2.instances
+
+import scala.concurrent._
+import scala.concurrent.ExecutionContext.Implicits.global
+
+val kpFile:java.io.File = new java.io.File("YOUR_KEY_PAIR_PATH")
+val f = Future(ec2.run(RunInstancesRequest("ami-2819aa29").withKeyName("YOUR_KEY_PAIR_NAME").withInstanceType("t1.micro")))
+
+for{
+	instances <- f
+	inst <- instances
+} {
+    inst.withKeyPair(kpFile){i =>
+    val oneLinerResult = i.process("ls -la")
+    println(s"------\n${inst.instanceId} OneLiner Result:\n" + oneLinerResult)
+
+    /*
+    // required [sirthias/scala-ssh](https://github.com/sirthias/scala-ssh)
+
+    i.ssh{
+        client=>
+            client.exec("ls -la").right.map { result =>
+            println(s"------\n${inst.instanceId} Result:\n" + result.stdOutAsString())
+            }
+        }
+    */
+    }
+    inst.terminate
+}
+```
+
 ## How to contribute
 
 If you're interested in contributing this project, please send pull requests!
