@@ -1,17 +1,22 @@
 package awscala.ec2
 
-import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ ec2 => aws }
 
-case class RunInstancesRequest(imageId: String, min: Int = 1, max: Int = 1) extends aws.model.RunInstancesRequest(imageId, min, max)
+case class RunInstancesRequest(imageId: String, min: Int = 1, max: Int = 1)
+    extends aws.model.RunInstancesRequest(imageId, min, max) {
 
-case class KeyPair(name: String, fingerprint: String, material: Option[String]) extends aws.model.KeyPair
+  // TODO set...
+}
+
 object KeyPair {
-  def apply(k: aws.model.KeyPair): KeyPair = KeyPair(k.getKeyName, k.getKeyFingerprint, wrapOption(k.getKeyMaterial))
+  def apply(k: aws.model.KeyPair): KeyPair = KeyPair(k.getKeyName, k.getKeyFingerprint, Option(k.getKeyMaterial))
   def apply(k: aws.model.KeyPairInfo): KeyPair = KeyPair(k.getKeyName, k.getKeyFingerprint, None)
 }
-case class SecurityGroup(groupId: String,
+case class KeyPair(name: String, fingerprint: String, material: Option[String]) extends aws.model.KeyPair
+
+case class SecurityGroup(
+  groupId: String,
   groupName: String,
   description: String,
   ipPermissions: Seq[IpPermission],
@@ -30,12 +35,34 @@ object SecurityGroup {
       k.getTags.asScala.map(t => t.getKey -> t.getValue).toMap,
       k.getVpcId)
 }
-case class IpPermission(fromPort: Int, toPort: Int, ipRanges: Seq[String], ipProtocol: String, userIdGroupPairs: Seq[UserIdGroupPair]) extends aws.model.IpPermission
+
 object IpPermission {
-  def apply(i: aws.model.IpPermission): IpPermission = IpPermission(i.getFromPort, i.getToPort, i.getIpRanges.asScala, i.getIpProtocol, i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_)))
+  def apply(i: aws.model.IpPermission): IpPermission = {
+    IpPermission(
+      fromPort = i.getFromPort,
+      toPort = i.getToPort,
+      ipRanges = i.getIpRanges.asScala,
+      ipProtocol = i.getIpProtocol,
+      userIdGroupPairs = i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_))
+    )
+  }
 }
-case class UserIdGroupPair(groupId: String, groupName: String, userId: String) extends aws.model.UserIdGroupPair
+case class IpPermission(
+  fromPort: Int,
+  toPort: Int,
+  ipRanges: Seq[String],
+  ipProtocol: String,
+  userIdGroupPairs: Seq[UserIdGroupPair]) extends aws.model.IpPermission
+
 object UserIdGroupPair {
-  def apply(u: aws.model.UserIdGroupPair): UserIdGroupPair = UserIdGroupPair(u.getGroupId, u.getGroupName, u.getUserId)
+  def apply(u: aws.model.UserIdGroupPair): UserIdGroupPair = {
+    UserIdGroupPair(
+      groupId = u.getGroupId,
+      groupName = u.getGroupName,
+      userId = u.getUserId
+    )
+  }
 }
+case class UserIdGroupPair(groupId: String, groupName: String, userId: String)
+  extends aws.model.UserIdGroupPair
 
