@@ -4,8 +4,7 @@ import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ ec2 => aws }
 
-case class RunInstancesRequest(imageId: String, min: Int = 1, max: Int = 1) extends aws.model.RunInstancesRequest(imageId, min, max) {
-}
+case class RunInstancesRequest(imageId: String, min: Int = 1, max: Int = 1) extends aws.model.RunInstancesRequest(imageId, min, max)
 
 case class KeyPair(name: String, fingerprint: String, material: Option[String]) extends aws.model.KeyPair
 object KeyPair {
