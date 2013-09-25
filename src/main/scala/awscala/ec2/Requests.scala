@@ -13,7 +13,11 @@ object KeyPair {
   def apply(k: aws.model.KeyPair): KeyPair = KeyPair(k.getKeyName, k.getKeyFingerprint, Option(k.getKeyMaterial))
   def apply(k: aws.model.KeyPairInfo): KeyPair = KeyPair(k.getKeyName, k.getKeyFingerprint, None)
 }
-case class KeyPair(name: String, fingerprint: String, material: Option[String]) extends aws.model.KeyPair
+case class KeyPair(name: String, fingerprint: String, material: Option[String]) extends aws.model.KeyPair {
+  override def getKeyName = name
+  override def getKeyFingerprint = fingerprint
+  override def getKeyMaterial = material.orNull
+}
 
 case class SecurityGroup(
   groupId: String,
