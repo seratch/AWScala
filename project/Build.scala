@@ -28,7 +28,7 @@ object AwscalaProject extends Build {
       "org.scalatest"  %% "scalatest"       % "1.9.1"   % "test"
     ),
     sbtPlugin := false,
-    scalacOptions ++= Seq("-unchecked"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { x => false },
