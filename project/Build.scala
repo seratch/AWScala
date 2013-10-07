@@ -19,7 +19,7 @@ object AwscalaProject extends Build {
     publishMavenStyle := true,
     resolvers += "spray repo" at "http://repo.spray.io",
     libraryDependencies ++= Seq(
-      "com.amazonaws"  %  "aws-java-sdk"    % "[1.5,)",
+      "com.amazonaws"  %  "aws-java-sdk"    % "[1.6,)",
       "joda-time"      %  "joda-time"       % "2.3",
       "org.joda"       %  "joda-convert"    % "1.2",
       "com.decodified" %% "scala-ssh" % "0.6.4" % "provided",
