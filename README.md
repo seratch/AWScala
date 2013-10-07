@@ -21,7 +21,7 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 ## How to use
 
 ```scala
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.3"
  
 resolvers += "sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
  
