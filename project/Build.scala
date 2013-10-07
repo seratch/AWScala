@@ -9,7 +9,7 @@ object AwscalaProject extends Build {
     organization := "com.github.seratch",
     name := "awscala",
     version := "0.1.0-SNAPSHOT",
-    scalaVersion := "2.10.2",
+    scalaVersion := "2.10.3",
     crossScalaVersions := Seq("2.10.0"),
     publishTo <<= version { (v: String) => 
       val nexus = "https://oss.sonatype.org/"
