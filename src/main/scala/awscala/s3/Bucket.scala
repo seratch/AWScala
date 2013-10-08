@@ -36,6 +36,8 @@ case class Bucket(name: String) extends aws.model.Bucket(name) {
   def objectSummaries()(implicit s3: S3) = s3.objectSummaries(this)
   def objectSummaries(prefix: String)(implicit s3: S3) = s3.objectSummaries(this, prefix)
 
+  def totalSize()(implicit s3: S3) = objectSummaries().map(_.getSize).sum
+
   def put(key: String, file: File)(implicit s3: S3) = s3.put(this, key, file)
   def putAsPublicRead(key: String, file: File)(implicit s3: S3) = s3.putObjectAsPublicRead(this, key, file)
   def putAsPublicReadWrite(key: String, file: File)(implicit s3: S3) = s3.putObjectAsPublicReadWrite(this, key, file)
