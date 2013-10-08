@@ -38,4 +38,6 @@ object Region {
   val US_WEST_2 = apply(awsregions.Regions.US_WEST_2)
   val Oregon = US_WEST_2
 
+  lazy val all: Seq[Region] = Seq(Tokyo, Singapore, Sydney, Ireland, GovCloud, SaoPaulo, NorthernVirginia, NorthernCalifornia, Oregon)
+
 }
