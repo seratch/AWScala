@@ -99,7 +99,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
   def updateTableProvisionedThroughput(table: Table, provisionedThroughput: ProvisionedThroughput): TableMeta = {
     TableMeta(updateTable(
-      new aws.model.UpdateTableRequest().withProvisionedThroughput(provisionedThroughput)).getTableDescription)
+      new aws.model.UpdateTableRequest(table.name, provisionedThroughput)).getTableDescription)
   }
 
   def delete(table: Table): Unit = deleteTable(table)
