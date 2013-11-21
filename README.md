@@ -21,11 +21,7 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 ## How to use
 
 ```scala
-scalaVersion := "2.10.3"
- 
-resolvers += "sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
- 
-libraryDependencies += "com.github.seratch" %% "awscala" % "0.1.0-SNAPSHOT"
+libraryDependencies += "com.github.seratch" %% "awscala" % "[0.1,)"
 ```
 
 ## Examples
