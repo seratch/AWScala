@@ -1,0 +1,300 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>AWScala by seratch</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/seratch/AWScala">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/seratch/AWScala/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/seratch/AWScala/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>AWScala</h1>
+          <p>Using AWS SDK on the Scala REPL</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/seratch">seratch</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a name="awscala-aws-sdk-on-the-scala-repl" class="anchor" href="#awscala-aws-sdk-on-the-scala-repl"><span class="octicon octicon-link"></span></a>AWScala: AWS SDK on the Scala REPL</h1>
+
+<p>AWScala enables Scala developers to easily work with Amazon Web Services in the Scala way.</p>
+
+<p>Though AWScala objects basically extend AWS SDK for Java APIs, you can use them with less stress on Scala REPL or <code>sbt console</code>.</p>
+
+<h2>
+<a name="supported-services" class="anchor" href="#supported-services"><span class="octicon octicon-link"></span></a>Supported Services</h2>
+
+<p><a href="http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/">http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/</a></p>
+
+<ul>
+<li>AWS Identity and Access Management (IAM)</li>
+<li>AWS Security Token Service (STS)</li>
+<li>Amazon Elastic Compute Cloud (Amazon EC2)</li>
+<li>Amazon Simple Storage Service (Amazon S3)</li>
+<li>Amazon Simple Queue Service（Amazon SQS）</li>
+<li>Amazon Redshift</li>
+<li>Amazon DynamoDB</li>
+<li>Amazon SimpleDB</li>
+</ul><h2>
+<a name="how-to-use" class="anchor" href="#how-to-use"><span class="octicon octicon-link"></span></a>How to use</h2>
+
+<div class="highlight highlight-scala"><pre><span class="n">libraryDependencies</span> <span class="o">+=</span> <span class="s">"com.github.seratch"</span> <span class="o">%%</span> <span class="s">"awscala"</span> <span class="o">%</span> <span class="s">"[0.1,)"</span>
+</pre></div>
+
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
+
+<h3>
+<a name="aws-identity-and-access-management-iam" class="anchor" href="#aws-identity-and-access-management-iam"><span class="octicon octicon-link"></span></a>AWS Identity and Access Management (IAM)</h3>
+
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">awscala._</span><span class="o">,</span> <span class="n">iam</span><span class="o">.</span><span class="k">_</span>
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">iam</span> <span class="k">=</span> <span class="nc">IAM</span><span class="o">()</span>
+
+<span class="k">val</span> <span class="n">group</span> <span class="k">=</span> <span class="n">iam</span><span class="o">.</span><span class="n">createGroup</span><span class="o">(</span><span class="s">"Developers"</span><span class="o">)</span>
+
+<span class="k">import</span> <span class="nn">awscala.auth.policy._</span>
+<span class="n">group</span><span class="o">.</span><span class="n">putPolicy</span><span class="o">(</span><span class="s">"policy-name"</span><span class="o">,</span> 
+  <span class="nc">Policy</span><span class="o">(</span><span class="nc">Seq</span><span class="o">(</span><span class="nc">Statement</span><span class="o">(</span><span class="nc">Effect</span><span class="o">.</span><span class="nc">Allow</span><span class="o">,</span> <span class="nc">Seq</span><span class="o">(</span><span class="nc">Action</span><span class="o">(</span><span class="s">"s3:*"</span><span class="o">)),</span> <span class="nc">Seq</span><span class="o">(</span><span class="nc">Resource</span><span class="o">(</span><span class="s">"*"</span><span class="o">))))))</span>
+
+<span class="k">val</span> <span class="n">user</span><span class="k">:</span> <span class="kt">User</span> <span class="o">=</span> <span class="n">iam</span><span class="o">.</span><span class="n">createUser</span><span class="o">(</span><span class="s">"Alice"</span><span class="o">)</span>
+<span class="n">user</span><span class="o">.</span><span class="n">setLoginPassword</span><span class="o">(</span><span class="s">"password"</span><span class="o">)</span>
+<span class="n">group</span><span class="o">.</span><span class="n">add</span><span class="o">(</span><span class="n">user</span><span class="o">)</span>
+
+<span class="n">group</span><span class="o">.</span><span class="n">policyNames</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="n">name</span> <span class="k">=&gt;</span> <span class="n">group</span><span class="o">.</span><span class="n">policy</span><span class="o">(</span><span class="n">name</span><span class="o">).</span><span class="n">destroy</span><span class="o">())</span>
+<span class="n">group</span><span class="o">.</span><span class="n">destroy</span><span class="o">()</span>
+</pre></div>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/iam/IAM.scala">https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/iam/IAM.scala</a></p>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/IAMSpec.scala">https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/IAMSpec.scala</a></p>
+
+<h5>
+<a name="aws-security-token-service-sts" class="anchor" href="#aws-security-token-service-sts"><span class="octicon octicon-link"></span></a>AWS Security Token Service (STS)</h5>
+
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">awscala._</span><span class="o">,</span> <span class="n">sts</span><span class="o">.</span><span class="k">_</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">sts</span> <span class="k">=</span> <span class="nc">STS</span><span class="o">()</span>
+
+<span class="k">val</span> <span class="n">federation</span><span class="k">:</span> <span class="kt">FederationToken</span> <span class="o">=</span> <span class="n">sts</span><span class="o">.</span><span class="n">federationToken</span><span class="o">(</span>
+  <span class="n">name</span> <span class="k">=</span> <span class="s">"anonymous-user"</span><span class="o">,</span>
+  <span class="n">policy</span> <span class="k">=</span> <span class="nc">Policy</span><span class="o">(</span><span class="nc">Seq</span><span class="o">(</span><span class="nc">Statement</span><span class="o">(</span><span class="nc">Effect</span><span class="o">.</span><span class="nc">Allow</span><span class="o">,</span> <span class="nc">Seq</span><span class="o">(</span><span class="nc">Action</span><span class="o">(</span><span class="s">"s3:*"</span><span class="o">)),</span> <span class="nc">Seq</span><span class="o">(</span><span class="nc">Resource</span><span class="o">(</span><span class="s">"*"</span><span class="o">))))),</span>
+  <span class="n">durationSeconds</span> <span class="k">=</span> <span class="mi">1200</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">signinToken</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">sts</span><span class="o">.</span><span class="n">signinToken</span><span class="o">(</span><span class="n">federation</span><span class="o">.</span><span class="n">credentials</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">loginUrl</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">sts</span><span class="o">.</span><span class="n">loginUrl</span><span class="o">(</span>
+  <span class="n">credentials</span> <span class="k">=</span> <span class="n">federation</span><span class="o">.</span><span class="n">credentials</span><span class="o">,</span>
+  <span class="n">consoleUrl</span>  <span class="k">=</span> <span class="s">"https://console.aws.amazon.com/iam"</span><span class="o">,</span>
+  <span class="n">issuerUrl</span>   <span class="k">=</span> <span class="s">"http://example.com/internal/auth"</span><span class="o">)</span>
+</pre></div>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sts/STS.scala">https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sts/STS.scala</a></p>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/STSSpec.scala">https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/STSSpec.scala</a></p>
+
+<h3>
+<a name="amazon-elastic-compute-cloud-amazon-ec2" class="anchor" href="#amazon-elastic-compute-cloud-amazon-ec2"><span class="octicon octicon-link"></span></a>Amazon Elastic Compute Cloud (Amazon EC2)</h3>
+
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">awscala._</span><span class="o">,</span> <span class="n">ec2</span><span class="o">.</span><span class="k">_</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">ec2</span> <span class="k">=</span> <span class="nc">EC2</span><span class="o">.</span><span class="n">at</span><span class="o">(</span><span class="nc">Region</span><span class="o">.</span><span class="nc">Tokyo</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">existings</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Instance</span><span class="o">]</span> <span class="k">=</span> <span class="n">ec2</span><span class="o">.</span><span class="n">instances</span>
+
+<span class="k">import</span> <span class="nn">scala.concurrent._</span>
+<span class="k">import</span> <span class="nn">scala.concurrent.ExecutionContext.Implicits.global</span>
+
+<span class="c1">// simply create a t1.micro instance</span>
+<span class="k">val</span> <span class="n">f</span> <span class="k">=</span> <span class="nc">Future</span><span class="o">(</span><span class="n">ec2</span><span class="o">.</span><span class="n">runAndAwait</span><span class="o">(</span><span class="s">"ami-2819aa29"</span><span class="o">,</span> <span class="n">ec2</span><span class="o">.</span><span class="n">keyPairs</span><span class="o">.</span><span class="n">head</span><span class="o">))</span>
+
+<span class="k">for</span> <span class="o">{</span>
+  <span class="n">instances</span> <span class="k">&lt;-</span> <span class="n">f</span>
+  <span class="n">instance</span> <span class="k">&lt;-</span> <span class="n">instances</span>
+<span class="o">}</span> <span class="o">{</span>
+  <span class="n">instance</span><span class="o">.</span><span class="n">withKeyPair</span><span class="o">(</span><span class="k">new</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">File</span><span class="o">(</span><span class="s">"key_pair_file"</span><span class="o">))</span> <span class="o">{</span> <span class="n">i</span> <span class="k">=&gt;</span>
+    <span class="c1">// optional: scala-ssh (https://github.com/sirthias/scala-ssh)</span>
+    <span class="n">i</span><span class="o">.</span><span class="n">ssh</span> <span class="o">{</span> <span class="n">ssh</span> <span class="k">=&gt;</span>
+      <span class="n">ssh</span><span class="o">.</span><span class="n">exec</span><span class="o">(</span><span class="s">"ls -la"</span><span class="o">).</span><span class="n">right</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="n">result</span> <span class="k">=&gt;</span>
+        <span class="n">println</span><span class="o">(</span><span class="n">s</span><span class="s">"------\n${inst.instanceId} Result:\n"</span> <span class="o">+</span> <span class="n">result</span><span class="o">.</span><span class="n">stdOutAsString</span><span class="o">())</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+  <span class="n">instance</span><span class="o">.</span><span class="n">terminate</span><span class="o">()</span>
+<span class="o">}</span>
+</pre></div>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/ec2/EC2.scala">https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/ec2/EC2.scala</a></p>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/EC2Spec.scala">https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/EC2Spec.scala</a></p>
+
+<h3>
+<a name="amazon-simple-storage-service-amazon-s3" class="anchor" href="#amazon-simple-storage-service-amazon-s3"><span class="octicon octicon-link"></span></a>Amazon Simple Storage Service (Amazon S3)</h3>
+
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">awscala._</span><span class="o">,</span> <span class="n">s3</span><span class="o">.</span><span class="k">_</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">s3</span> <span class="k">=</span> <span class="n">S3</span><span class="o">()</span>
+
+<span class="k">val</span> <span class="n">buckets</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Bucket</span><span class="o">]</span> <span class="k">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">buckets</span>
+<span class="k">val</span> <span class="n">bucket</span><span class="k">:</span> <span class="kt">Bucket</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">createBucket</span><span class="o">(</span><span class="s">"unique-name-xxx"</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">summaries</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">S3ObjectSummary</span><span class="o">]</span> <span class="k">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">objectSummaries</span>
+
+<span class="n">bucket</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">"sample.txt"</span><span class="o">,</span> <span class="k">new</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">File</span><span class="o">(</span><span class="s">"sample.txt"</span><span class="o">))</span>
+
+<span class="k">val</span> <span class="n">s3obj</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">S3Object</span><span class="o">]</span> <span class="k">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">getObject</span><span class="o">(</span><span class="s">"sample.txt"</span><span class="o">)</span>
+
+<span class="n">s3obj</span><span class="o">.</span><span class="n">foreach</span> <span class="o">{</span> <span class="n">obj</span> <span class="k">=&gt;</span>
+  <span class="n">obj</span><span class="o">.</span><span class="n">publicUrl</span> <span class="c1">// http://unique-name-xxx.s3.amazonaws.com/sample.txt</span>
+  <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">generatePresignedUrl</span><span class="o">(</span><span class="nc">DateTime</span><span class="o">.</span><span class="n">now</span><span class="o">.</span><span class="n">plusMinutes</span><span class="o">(</span><span class="mi">10</span><span class="o">))</span> <span class="c1">// ?Expires=....</span>
+  <span class="n">bucket</span><span class="o">.</span><span class="n">delete</span><span class="o">(</span><span class="n">obj</span><span class="o">)</span> <span class="c1">// or obj.destroy()</span>
+<span class="o">}</span>
+</pre></div>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/s3/S3.scala">https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/s3/S3.scala</a></p>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/S3Spec.scala">https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/S3Spec.scala</a></p>
+
+<h3>
+<a name="amazon-simple-queue-serviceamazon-sqs" class="anchor" href="#amazon-simple-queue-serviceamazon-sqs"><span class="octicon octicon-link"></span></a>Amazon Simple Queue Service（Amazon SQS）</h3>
+
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">awscala._</span><span class="o">,</span> <span class="n">sqs</span><span class="o">.</span><span class="k">_</span>
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">sqs</span> <span class="k">=</span> <span class="nc">SQS</span><span class="o">.</span><span class="n">at</span><span class="o">(</span><span class="nc">Region</span><span class="o">.</span><span class="nc">Tokyo</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">queue</span><span class="k">:</span> <span class="kt">Queue</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">createQueue</span><span class="o">(</span><span class="s">"sample-queue"</span><span class="o">)</span>
+
+<span class="n">queue</span><span class="o">.</span><span class="n">add</span><span class="o">(</span><span class="s">"message body"</span><span class="o">)</span>
+<span class="n">qeueu</span><span class="o">.</span><span class="n">add</span><span class="o">(</span><span class="s">"first"</span><span class="o">,</span> <span class="s">"second"</span><span class="o">,</span> <span class="s">"third"</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">messages</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Message</span><span class="o">]</span> <span class="k">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">messages</span>
+<span class="n">queue</span><span class="o">.</span><span class="n">removeAll</span><span class="o">(</span><span class="n">messages</span><span class="o">)</span>
+
+<span class="n">queue</span><span class="o">.</span><span class="n">destroy</span><span class="o">()</span>
+</pre></div>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sqs/SQS.scala">https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sqs/SQS.scala</a></p>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SQSSpec.scala">https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SQSSpec.scala</a></p>
+
+<h3>
+<a name="amazon-redshift" class="anchor" href="#amazon-redshift"><span class="octicon octicon-link"></span></a>Amazon Redshift</h3>
+
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">awscala._</span><span class="o">,</span> <span class="n">redshift</span><span class="o">.</span><span class="k">_</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">redshift</span> <span class="k">=</span> <span class="nc">Redshift</span><span class="o">.</span><span class="n">at</span><span class="o">(</span><span class="nc">Region</span><span class="o">.</span><span class="nc">Tokyo</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">cluster</span><span class="k">:</span> <span class="kt">Cluster</span> <span class="o">=</span> <span class="n">redshift</span><span class="o">.</span><span class="n">createCluster</span><span class="o">(</span><span class="nc">NewCluster</span><span class="o">(</span>
+  <span class="s">"sample-cluster"</span><span class="o">,</span> <span class="s">"mydb"</span><span class="o">,</span> <span class="s">"username"</span><span class="o">,</span> <span class="s">"password"</span><span class="o">))</span>
+
+<span class="k">val</span> <span class="n">snapshot</span><span class="k">:</span> <span class="kt">Snapshot</span> <span class="o">=</span> <span class="n">redshift</span><span class="o">.</span><span class="n">createSnapshot</span><span class="o">(</span><span class="n">cluster</span><span class="o">,</span> <span class="s">"snapshot-name"</span><span class="o">)</span> 
+
+<span class="n">redshift</span><span class="o">.</span><span class="n">delete</span><span class="o">(</span><span class="n">cluster</span><span class="o">,</span> <span class="s">"final-snapshot-name"</span><span class="o">)</span>
+</pre></div>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/redshift/Redshift.scala">https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/redshift/Redshift.scala</a></p>
+
+<h3>
+<a name="amazon-dynamodb" class="anchor" href="#amazon-dynamodb"><span class="octicon octicon-link"></span></a>Amazon DynamoDB</h3>
+
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">awscala._</span><span class="o">,</span> <span class="n">dynamodbv2</span><span class="o">.</span><span class="k">_</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">dynamoDB</span> <span class="k">=</span> <span class="nc">DynamoDB</span><span class="o">.</span><span class="n">at</span><span class="o">(</span><span class="nc">Region</span><span class="o">.</span><span class="nc">Tokyo</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">tableMeta</span><span class="k">:</span> <span class="kt">TableMeta</span> <span class="o">=</span> <span class="n">dynamoDB</span><span class="o">.</span><span class="n">createTable</span><span class="o">(</span>
+  <span class="n">name</span> <span class="k">=</span> <span class="s">"Members"</span><span class="o">,</span>
+  <span class="n">hashPK</span> <span class="k">=</span>  <span class="s">"Id"</span> <span class="o">-&gt;</span> <span class="nc">AttributeType</span><span class="o">.</span><span class="nc">Number</span><span class="o">,</span>
+  <span class="n">rangePK</span> <span class="k">=</span> <span class="s">"Country"</span> <span class="o">-&gt;</span> <span class="nc">AttributeType</span><span class="o">.</span><span class="nc">String</span><span class="o">,</span>
+  <span class="n">otherAttributes</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"Company"</span> <span class="o">-&gt;</span> <span class="nc">AttributeType</span><span class="o">.</span><span class="nc">String</span><span class="o">),</span>
+  <span class="n">indexes</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="nc">LocalSecondaryIndex</span><span class="o">(</span>
+    <span class="n">name</span> <span class="k">=</span> <span class="s">"CompanyIndex"</span><span class="o">,</span>
+    <span class="n">keySchema</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="nc">KeySchema</span><span class="o">(</span><span class="s">"Id"</span><span class="o">,</span> <span class="nc">KeyType</span><span class="o">.</span><span class="nc">Hash</span><span class="o">),</span> <span class="nc">KeySchema</span><span class="o">(</span><span class="s">"Company"</span><span class="o">,</span> <span class="nc">KeyType</span><span class="o">.</span><span class="nc">Range</span><span class="o">)),</span>
+    <span class="n">projection</span> <span class="k">=</span> <span class="nc">Projection</span><span class="o">(</span><span class="nc">ProjectionType</span><span class="o">.</span><span class="nc">Include</span><span class="o">,</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"Company"</span><span class="o">))</span>
+  <span class="o">))</span>
+<span class="o">)</span>
+
+<span class="k">val</span> <span class="n">table</span><span class="k">:</span> <span class="kt">Table</span> <span class="o">=</span> <span class="n">dynamoDB</span><span class="o">.</span><span class="n">table</span><span class="o">(</span><span class="s">"Members"</span><span class="o">).</span><span class="n">get</span>
+
+<span class="n">table</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="s">"Japan"</span><span class="o">,</span> <span class="s">"Name"</span> <span class="o">-&gt;</span> <span class="s">"Alice"</span><span class="o">,</span> <span class="s">"Age"</span> <span class="o">-&gt;</span> <span class="mi">23</span><span class="o">,</span> <span class="s">"Company"</span> <span class="o">-&gt;</span> <span class="s">"Google"</span><span class="o">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="s">"U.S."</span><span class="o">,</span>  <span class="s">"Name"</span> <span class="o">-&gt;</span> <span class="s">"Bob"</span><span class="o">,</span>   <span class="s">"Age"</span> <span class="o">-&gt;</span> <span class="mi">36</span><span class="o">,</span> <span class="s">"Company"</span> <span class="o">-&gt;</span> <span class="s">"Google"</span><span class="o">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="s">"Japan"</span><span class="o">,</span> <span class="s">"Name"</span> <span class="o">-&gt;</span> <span class="s">"Chris"</span><span class="o">,</span> <span class="s">"Age"</span> <span class="o">-&gt;</span> <span class="mi">29</span><span class="o">,</span> <span class="s">"Company"</span> <span class="o">-&gt;</span> <span class="s">"Amazon"</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">googlers</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Item</span><span class="o">]</span> <span class="k">=</span> <span class="n">table</span><span class="o">.</span><span class="n">scan</span><span class="o">(</span><span class="nc">Seq</span><span class="o">(</span><span class="s">"Company"</span> <span class="o">-&gt;</span> <span class="nc">Condition</span><span class="o">.</span><span class="n">gt</span><span class="o">(</span><span class="s">"Google"</span><span class="o">)))</span>
+
+<span class="n">table</span><span class="o">.</span><span class="n">destroy</span><span class="o">()</span>
+</pre></div>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/dynamodbv2/DynamoDB.scala">https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/dynamodbv2/DynamoDB.scala</a></p>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/DynamoDBV2Spec.scala">https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/DynamoDBV2Spec.scala</a></p>
+
+<h3>
+<a name="amazon-simpledb" class="anchor" href="#amazon-simpledb"><span class="octicon octicon-link"></span></a>Amazon SimpleDB</h3>
+
+<div class="highlight highlight-scala"><pre><span class="k">import</span> <span class="nn">awscala._</span><span class="o">,</span> <span class="n">simpledb</span><span class="o">.</span><span class="k">_</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">simpleDB</span> <span class="k">=</span> <span class="nc">SimpleDB</span><span class="o">.</span><span class="n">at</span><span class="o">(</span><span class="nc">Region</span><span class="o">.</span><span class="nc">Tokyo</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">domain</span><span class="k">:</span> <span class="kt">Domain</span> <span class="o">=</span> <span class="n">simpleDB</span><span class="o">.</span><span class="n">createDomain</span><span class="o">(</span><span class="s">"users"</span><span class="o">)</span>
+
+<span class="n">domain</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">"00001"</span><span class="o">,</span> <span class="s">"name"</span> <span class="o">-&gt;</span> <span class="s">"Alice"</span><span class="o">,</span> <span class="s">"age"</span> <span class="o">-&gt;</span> <span class="s">"23"</span><span class="o">,</span> <span class="s">"country"</span> <span class="o">-&gt;</span> <span class="s">"America"</span><span class="o">)</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">"00002"</span><span class="o">,</span> <span class="s">"name"</span> <span class="o">-&gt;</span> <span class="s">"Bob"</span><span class="o">,</span>   <span class="s">"age"</span> <span class="o">-&gt;</span> <span class="s">"34"</span><span class="o">,</span> <span class="s">"country"</span> <span class="o">-&gt;</span> <span class="s">"America"</span><span class="o">)</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">"00003"</span><span class="o">,</span> <span class="s">"name"</span> <span class="o">-&gt;</span> <span class="s">"Chris"</span><span class="o">,</span> <span class="s">"age"</span> <span class="o">-&gt;</span> <span class="s">"27"</span><span class="o">,</span> <span class="s">"country"</span> <span class="o">-&gt;</span> <span class="s">"Japan"</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">items</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Item</span><span class="o">]</span> <span class="k">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">select</span><span class="o">(</span><span class="n">s</span><span class="s">"select * from users where country = 'America'"</span><span class="o">)</span>
+
+<span class="n">simpleDB</span><span class="o">.</span><span class="n">domains</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">destroy</span><span class="o">())</span>
+</pre></div>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/SimpleDB.scala">https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/SimpleDB.scala</a></p>
+
+<p><a href="https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala">https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala</a></p>
+
+<h2>
+<a name="how-to-contribute" class="anchor" href="#how-to-contribute"><span class="octicon octicon-link"></span></a>How to contribute</h2>
+
+<p>If you're interested in contributing this project, please send pull requests!</p>
+
+<h3>
+<a name="running-tests" class="anchor" href="#running-tests"><span class="octicon octicon-link"></span></a>Running tests</h3>
+
+<p>Tests requires aws credentials with Administrator permissions:</p>
+
+<pre><code>export AWS_ACCESS_KEY_ID=xxx
+export AWS_SECRET_ACCESS_KEY=yyy
+</code></pre>
+
+<p>And then, just run <code>sbt test</code>.</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Apache License, Version 2.0</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
