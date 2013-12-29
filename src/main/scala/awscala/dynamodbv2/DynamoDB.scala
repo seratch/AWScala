@@ -104,7 +104,6 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
   def delete(table: Table): Unit = deleteTable(table)
   def deleteTable(table: Table): Unit = deleteTable(table.name)
-  def deleteTable(tableName: String): Unit = deleteTable(new aws.model.DeleteTableRequest().withTableName(tableName))
 
   // ------------------------------------------
   // Items
