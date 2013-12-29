@@ -75,10 +75,16 @@ case class Table(
 
   def scan(filter: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
-    attributesToGet: Seq[String] = Nil)(implicit dynamoDB: DynamoDB): Seq[Item] = {
+    attributesToGet: Seq[String] = Nil,
+    limit: Int = 1000,
+    segment: Int = 0,
+    totalSegments: Int = 1)(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.scan(
       table = this,
       filter = filter,
+      limit = limit,
+      segment = segment,
+      totalSegments = totalSegments,
       select = select,
       attributesToGet = attributesToGet)
   }
