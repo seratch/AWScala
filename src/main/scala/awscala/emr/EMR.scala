@@ -8,8 +8,9 @@ import com.amazonaws.services.elasticmapreduce._
 import com.amazonaws.services.elasticmapreduce.model._
 
 
+
 object EMR {
-  def apply(credentials: Credentials = Credentials.defaultEnv): EMR = new EMRClient(credentials)
+  def apply(credentials: Credentials = Credentials.defaultEnv): EMR =new EMRClient(credentials)
   def apply(accessKeyId: String, secretAccessKey: String): EMR = apply(Credentials(accessKeyId, secretAccessKey))
   def at(region: Region): EMR = apply().at(region)
 }
@@ -23,7 +24,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
     this
   }
 
-    def buildEMRCluster(masterInstanceType 	:String, 
+    def buildJobFlowInstancesConfig(masterInstanceType 	:String, 
     					masterMarketType	:String, 
     					masterBidPrice 		:String ="0.0" ,
     					coreInstanceType	:String ,
@@ -33,7 +34,9 @@ trait EMR extends aws.AmazonElasticMapReduce {
     					taskInstanceType	:String ,
     					taskInstanceCount	:Int,
     					taskMarketType		:String , 
-    					taskBidPrice 		:String ="0.0" ): AmazonElasticMapReduceClient =
+    					taskBidPrice 		:String ="0.0" ,
+    					ec2KeyName			:String,
+    					hadoopVersion		:String): JobFlowInstancesConfig =
     {
       
       
@@ -68,31 +71,67 @@ trait EMR extends aws.AmazonElasticMapReduce {
       //build task market type
       if (coreMarketType=="SPOT") coreGroupConfig.withBidPrice(coreBidPrice)
      
-      val clusterGroups     = List (masterGroupConfig,coreGroupConfig,taskGroupConfig)
+      val clusterGroups = List (masterGroupConfig,coreGroupConfig,taskGroupConfig)
       
-      val addInstanceGroupsRequest     = new AddInstanceGroupsRequest()
-          addInstanceGroupsRequest.withInstanceGroups(clusterGroups)
-          
-          
-      val amazonElasticMapReduceClient = new AmazonElasticMapReduceClient()
-      	  amazonElasticMapReduceClient.addInstanceGroups(addInstanceGroupsRequest)
-      	  amazonElasticMapReduceClient
+      val addInstanceGroupsRequest = new AddInstanceGroupsRequest().withInstanceGroups(clusterGroups)
+      
+      new JobFlowInstancesConfig()
+          .withEc2KeyName(ec2KeyName)
+          .withHadoopVersion(hadoopVersion)
+          .withInstanceGroups(addInstanceGroupsRequest.getInstanceGroups())
+   
+    }
+    
+    def buildJobFlowStepsRequest[T](steps:List[T]):AddJobFlowStepsRequest=
+    {
+      val stepConfig = buildSteps(steps.asInstanceOf[List[jarStep]])
+      new AddJobFlowStepsRequest().withSteps(stepConfig)
 
     }
     
-    def addJobFlowSteps(amazonElasticMapReduceClient:AmazonElasticMapReduceClient) :AmazonElasticMapReduceClient=
+    case class jarStep(stepName:String, stepType:String, stepPath:String, stepClass:String, stepArgs:List[String])
+    
+    private def buildSteps(steps:List[jarStep]):  List[com.amazonaws.services.elasticmapreduce.model.StepConfig]=
     {
+    
+      for{
+    	  step <- steps
+    	  val aStepConfigJar = new HadoopJarStepConfig(step.stepPath)
+    	  .withMainClass(step.stepClass)
+    	  .withArgs(step.stepArgs)
       
-      val steps = new StepConfig()
-      val addJobFlowStepsRequest = new AddJobFlowStepsRequest()
-      .withSteps(steps)
-      amazonElasticMapReduceClient.addJobFlowSteps(addJobFlowStepsRequest)
-      amazonElasticMapReduceClient
+    	  val aStepConfig = new StepConfig()
+    	  .withName(step.stepName)
+    	  .withHadoopJarStep(aStepConfigJar)
+         }
+      yield{
+        aStepConfig 
+      }
+      
+           
     }
     
+    
+    def buildRunRequest(jobName					: String, 
+    					amiVersion				: String ="latest",
+    					loggingURI				: String="" ,
+    					visibleToAllUsers		: Boolean=true,
+    					jobFlowInstancesConfig 	: JobFlowInstancesConfig,
+    					jobFlowStepsRequest		: AddJobFlowStepsRequest):RunJobFlowRequest=
+    {
+       new RunJobFlowRequest()
+        .withName(jobName)
+        .withAmiVersion(amiVersion)
+        .withSteps(jobFlowStepsRequest.getSteps())
+        .withLogUri(loggingURI)
+        .withVisibleToAllUsers(visibleToAllUsers)
+        .withInstances(jobFlowInstancesConfig)
+        
+    }
+    
+    
+ 
   
 }
 
-class EMRClient(credentials: Credentials = Credentials.defaultEnv)
-  extends aws.AmazonElasticMapReduceClient(credentials)
-  with EMR
+class EMRClient(credentials: Credentials = Credentials.defaultEnv ) extends aws.AmazonElasticMapReduceClient(credentials) with EMR
