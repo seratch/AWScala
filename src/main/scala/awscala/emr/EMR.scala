@@ -23,7 +23,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
     this.setRegion(region)
     this
   }
-
+  	//Step #1
     def buildJobFlowInstancesConfig(masterInstanceType 	:String, 
     					masterMarketType	:String, 
     					masterBidPrice 		:String ="0.0" ,
@@ -82,6 +82,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
    
     }
     
+    //Step #2
     def buildJobFlowStepsRequest[T](steps:List[T]):AddJobFlowStepsRequest=
     {
       val stepConfig = buildSteps(steps.asInstanceOf[List[jarStep]])
@@ -111,7 +112,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
            
     }
     
-    
+    //Step #3
     def buildRunRequest(jobName					: String, 
     					amiVersion				: String ="latest",
     					loggingURI				: String="" ,
