@@ -65,7 +65,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
         .withInstanceCount(taskInstanceCount)
         .withMarket(taskMarketType)
       //build task market type
-      if (coreMarketType == "SPOT") coreGroupConfig.withBidPrice(coreBidPrice)
+      if (taskMarketType == "SPOT") taskGroupConfig.withBidPrice(taskBidPrice)
 
       val clusterGroups = List(masterGroupConfig, coreGroupConfig, taskGroupConfig)
 
