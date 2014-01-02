@@ -5,10 +5,7 @@ import org.scalatest._
 import org.scalatest.matchers._
 import awscala._
 import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import com.amazonaws.services.{ elasticmapreduce => aws }
-import com.amazonaws.services.elasticmapreduce._
-import com.amazonaws.services.elasticmapreduce.model._
+
 class EMRSpec extends FlatSpec with ShouldMatchers  {
 
   implicit val emr = EMR()
@@ -53,7 +50,12 @@ class EMRSpec extends FlatSpec with ShouldMatchers  {
     jobFlowInstancesConfig.getEc2KeyName() should equal(ec2KeyName)
     jobFlowInstancesConfig.getHadoopVersion() should equal(hadoopVersion)
 
+    // to add steps to new server
     val jobFlowStepsRequest = emr.buildJobFlowStepsRequest(steps)
+
+    // to add steps to an existing server
+    //val jobFlowStepsRequest2 = emr.buildJobFlowStepsRequest(steps ,jobFlowId="j-XXXXXXXXXXX")
+
     val steps_test_list = jobFlowStepsRequest.getSteps()
 
     for (i <- 0 to steps_test_list.size() - 1) {

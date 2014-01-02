@@ -4,7 +4,6 @@ import awscala._
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ elasticmapreduce => aws }
-import com.amazonaws.services.elasticmapreduce._
 import com.amazonaws.services.elasticmapreduce.model._
 
 object EMR {
@@ -79,10 +78,14 @@ trait EMR extends aws.AmazonElasticMapReduce {
     }
 
   //Step #2
-  def buildJobFlowStepsRequest[T](steps: List[T]): AddJobFlowStepsRequest =
+  def buildJobFlowStepsRequest[T](steps: List[T], jobFlowId: String = ""): AddJobFlowStepsRequest =
     {
       val stepConfig = buildSteps(steps.asInstanceOf[List[jarStep]])
-      new AddJobFlowStepsRequest().withSteps(stepConfig)
+      val addJobFlowStepsRequest = new AddJobFlowStepsRequest().withSteps(stepConfig)
+      if (jobFlowId != "")
+        addJobFlowStepsRequest.withJobFlowId(jobFlowId)
+
+      addJobFlowStepsRequest
 
     }
 
