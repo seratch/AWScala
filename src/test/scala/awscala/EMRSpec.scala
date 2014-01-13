@@ -6,10 +6,13 @@ import org.scalatest.matchers._
 import awscala._
 import scala.collection.JavaConversions._
 
-class EMRSpec extends FlatSpec with ShouldMatchers  {
+class EMRSpec extends FlatSpec with ShouldMatchers {
 
-  implicit val emr = EMR()
-
+  implicit val emr = EMR(credentials)
+/**
+ * starts an EMR cluster based on "on-demand" instances 
+ */
+  
   it should "cluster configurations on demand" in {
     //cluster nodes information
     val masterInstanceType = "c1.medium"
@@ -70,7 +73,7 @@ class EMRSpec extends FlatSpec with ShouldMatchers  {
     val runJobFlowRequest = emr.buildRunRequest(jobName, amiVersion, loggingURI, visibleToAllUsers, jobFlowInstancesConfig, jobFlowStepsRequest)
     val runJobFlowResult = emr.runJobFlow(runJobFlowRequest)
     val job_flow_id = runJobFlowResult.getJobFlowId()
-
+    
   }
 
   it should "cluster configurations SPOT" in {
@@ -93,7 +96,7 @@ class EMRSpec extends FlatSpec with ShouldMatchers  {
     val hadoopVersion = "1.0.3"
 
     //job settings
-    val jobName = "My Test Job"
+    val jobName = "cluster configurations SPOT"
     val amiVersion = "latest"
     val loggingURI = "s3://path to my logging bucket"
     val visibleToAllUsers = true
@@ -126,4 +129,78 @@ class EMRSpec extends FlatSpec with ShouldMatchers  {
 
   }
 
+  it should "run cluster with one method call" in
+  {
+        //cluster nodes information
+    val masterInstanceType = "c1.medium"
+    val masterMarketType = "ON_DEMAND"
+    val masterBidPrice = "0.00"
+    val coreInstanceType = "c1.medium"
+    val coreInstanceCount = 1
+    val coreMarketType = "ON_DEMAND"
+    val coreBidPrice = "0.00"
+    val taskInstanceType = "c1.medium"
+    val taskInstanceCount = 1
+    val taskMarketType = "ON_DEMAND"
+    val taskBidPrice = "0.00"
+    val ec2KeyName = "ec2KeyName"
+    val hadoopVersion = "1.0.3"
+    //job settings
+    val jobName = "Test one run method"
+    val amiVersion = "latest"
+    val loggingURI = "s3://path/"
+    val visibleToAllUsers = true
+    //individual steps information      
+    val step1 = emr.jarStep("step1", "jarStep", "s3://path", "com.myclass", List("--key1", "value1", "--key2", "value2"))
+    val step2 = emr.jarStep("step2", "jarStep", "s3://path", "com.myclass", List("--key1", "value1", "--key2", "value2"))
+    val steps = List(step1, step2)
+    
+
+    val run_request =   emr.runJobFlow(masterInstanceType, masterMarketType, masterBidPrice, coreInstanceType, coreInstanceCount, coreMarketType, coreBidPrice, taskInstanceType, taskInstanceCount, taskMarketType, taskBidPrice, ec2KeyName, hadoopVersion, steps, "", jobName, amiVersion, loggingURI, visibleToAllUsers)
+    
+    
+    val job_flow_id = run_request.getJobFlowId()
+    println(job_flow_id )
+    Thread.sleep(10000)
+    var state= emr.getClusterState(job_flow_id)
+    println(state)
+    
+    state should equal("STARTING")
+    val response_jobFlowId = emr.TerminateCluster(job_flow_id)
+    state should equal("TERMINATED")
+    
+  }
+  
+  
+  
+  
+  
+  
+  
+    it should "cluster shutdown" in {
+      val jobFlowId = "j-12CU6XBCMQ2TP"
+      val response_jobFlowId = emr.TerminateCluster(jobFlowId)
+      
+      	jobFlowId should equal(response_jobFlowId)
+      
+    }
+
+    
+    it should "cluster status" in 
+    {
+       val jobFlowId = "j-3B6BS0TV2NVN9"
+       val state= emr.getClusterState(jobFlowId)
+       state should equal("TERMINATED")
+    }
+    
+    
+    it should "custom define cluster information" in 
+    {
+       val jobFlowId = "j-12CU6XBCMQ2TP"
+       def getClusterName(cluster: com.amazonaws.services.elasticmapreduce.model.Cluster): String = cluster.getName()
+
+       val ami_version= emr.getClusterDetail(jobFlowId,getClusterName)
+       ami_version should equal ("country report")
+    }
+    
 }

@@ -20,22 +20,9 @@ trait EMR extends aws.AmazonElasticMapReduce {
     this.setRegion(region)
     this
   }
-  //Step #1
-  def buildJobFlowInstancesConfig(masterInstanceType: String,
-    masterMarketType: String,
-    masterBidPrice: String = "0.0",
-    coreInstanceType: String,
-    coreInstanceCount: Int,
-    coreMarketType: String,
-    coreBidPrice: String = "0.0",
-    taskInstanceType: String,
-    taskInstanceCount: Int,
-    taskMarketType: String,
-    taskBidPrice: String = "0.0",
-    ec2KeyName: String,
-    hadoopVersion: String): JobFlowInstancesConfig =
-    {
 
+  def buildMasterGroupConfig(masterInstanceType: String, masterMarketType: String, masterBidPrice: String = "0.0"): com.amazonaws.services.elasticmapreduce.model.InstanceGroupConfig =
+    {
       //building master node
       val masterGroupConfig = new InstanceGroupConfig()
         .withName("Master")
@@ -43,10 +30,14 @@ trait EMR extends aws.AmazonElasticMapReduce {
         .withInstanceCount(1)
         .withInstanceType(masterInstanceType)
         .withMarket(masterMarketType)
+
       //build master market type
       if (masterMarketType == "SPOT") masterGroupConfig.withBidPrice(masterBidPrice)
+      masterGroupConfig
+    }
 
-      //building core node
+  def buildCoreGroupConfig(coreInstanceType: String, coreInstanceCount: Int, coreMarketType: String, coreBidPrice: String = "0.0"): com.amazonaws.services.elasticmapreduce.model.InstanceGroupConfig =
+    {
       val coreGroupConfig = new InstanceGroupConfig()
         .withName("CORE")
         .withInstanceRole("CORE")
@@ -55,8 +46,11 @@ trait EMR extends aws.AmazonElasticMapReduce {
         .withMarket(coreMarketType)
       //build core market type
       if (coreMarketType == "SPOT") coreGroupConfig.withBidPrice(coreBidPrice)
+      coreGroupConfig
+    }
 
-      //building task node
+  def buildTaskGroupConfig(taskInstanceType: String, taskInstanceCount: Int, taskMarketType: String, taskBidPrice: String = "0.0"): com.amazonaws.services.elasticmapreduce.model.InstanceGroupConfig =
+    {
       val taskGroupConfig = new InstanceGroupConfig()
         .withName("TASK")
         .withInstanceRole("TASK")
@@ -65,6 +59,34 @@ trait EMR extends aws.AmazonElasticMapReduce {
         .withMarket(taskMarketType)
       //build task market type
       if (taskMarketType == "SPOT") taskGroupConfig.withBidPrice(taskBidPrice)
+      taskGroupConfig
+    }
+
+  //Step #1
+  def buildJobFlowInstancesConfig(
+    masterInstanceType: String = "m1.small",
+    masterMarketType: String = "ON_DEMAND",
+    masterBidPrice: String = "0.0",
+    coreInstanceType: String = "m1.small",
+    coreInstanceCount: Int = 1,
+    coreMarketType: String = "ON_DEMAND",
+    coreBidPrice: String = "0.0",
+    taskInstanceType: String = "m1.small",
+    taskInstanceCount: Int = 1,
+    taskMarketType: String = "ON_DEMAND",
+    taskBidPrice: String = "0.0",
+    ec2KeyName: String,
+    hadoopVersion: String): JobFlowInstancesConfig =
+    {
+
+      //building master node
+      val masterGroupConfig = buildMasterGroupConfig(masterInstanceType, masterMarketType, masterBidPrice)
+
+      //building core node
+      val coreGroupConfig = buildCoreGroupConfig(coreInstanceType, coreInstanceCount, coreMarketType, coreBidPrice)
+
+      //building task node
+      val taskGroupConfig = buildTaskGroupConfig(taskInstanceType, taskInstanceCount, taskMarketType, taskBidPrice)
 
       val clusterGroups = List(masterGroupConfig, coreGroupConfig, taskGroupConfig)
 
@@ -110,7 +132,8 @@ trait EMR extends aws.AmazonElasticMapReduce {
     }
 
   //Step #3
-  def buildRunRequest(jobName: String,
+  def buildRunRequest(
+    jobName: String = "AWSscala",
     amiVersion: String = "latest",
     loggingURI: String = "",
     visibleToAllUsers: Boolean = true,
@@ -124,6 +147,95 @@ trait EMR extends aws.AmazonElasticMapReduce {
         .withLogUri(loggingURI)
         .withVisibleToAllUsers(visibleToAllUsers)
         .withInstances(jobFlowInstancesConfig)
+
+    }
+
+  // format: OFF
+  
+  def runJobFlow[T](
+    masterInstanceType	    : String = "m1.small",
+    masterMarketType	    : String = "ON_DEMAND",
+    masterBidPrice		    : String = "0.0",
+    coreInstanceType	    : String = "m1.small",
+    coreInstanceCount	    : Int	 = 1 ,
+    coreMarketType		    : String = "ON_DEMAND",
+    coreBidPrice		    : String = "0.0",
+    taskInstanceType	    : String = "m1.small",
+    taskInstanceCount	    : Int	 = 1  ,
+    taskMarketType		    : String = "ON_DEMAND",
+    taskBidPrice		    : String = "0.0",
+    ec2KeyName			    : String,
+    hadoopVersion		    : String,
+    steps				    : List[T],
+    jobFlowId			    : String = "",
+    jobName				    : String = "AWSscala",
+    amiVersion			    : String = "latest",
+    loggingURI			    : String = "",
+    visibleToAllUsers	    : Boolean = true 
+    ):  com.amazonaws.services.elasticmapreduce.model.RunJobFlowResult  =
+    {
+
+      val jobFlowInstancesConfig = buildJobFlowInstancesConfig(
+        masterInstanceType,
+        masterMarketType,
+        masterBidPrice,
+        coreInstanceType,
+        coreInstanceCount,
+        coreMarketType,
+        coreBidPrice,
+        taskInstanceType,
+        taskInstanceCount,
+        taskMarketType,
+        taskBidPrice,
+        ec2KeyName,
+        hadoopVersion)
+
+      val jobFlowStepsRequest = buildJobFlowStepsRequest[T](
+        steps, 
+        jobFlowId)
+
+      val runJobFlowRequest = buildRunRequest(
+        jobName,
+        amiVersion,
+        loggingURI,
+        visibleToAllUsers,
+        jobFlowInstancesConfig,
+        jobFlowStepsRequest)
+
+         
+      runJobFlow(runJobFlowRequest)  
+      
+
+    }
+
+  // format: ON
+
+  def getClusterDetail[T](jobFlowId: String, op: com.amazonaws.services.elasticmapreduce.model.Cluster => T): T =
+    {
+
+      val describeClusterRequest = new DescribeClusterRequest().withClusterId(jobFlowId)
+      val cluster = describeCluster(describeClusterRequest).getCluster()
+      op(cluster)
+
+    }
+
+  def getClusterState(jobFlowId: String): String =
+    {
+      def getState(cluster: com.amazonaws.services.elasticmapreduce.model.Cluster): String = cluster.getStatus().getState()
+      getClusterDetail(jobFlowId, getState)
+
+    }
+
+  def getClusterName(jobFlowId: String): String =
+    {
+      def getName(cluster: com.amazonaws.services.elasticmapreduce.model.Cluster): String = cluster.getName()
+      getClusterDetail(jobFlowId, getName)
+
+    }
+
+  def TerminateCluster(jobFlowId: String) =
+    {
+      new TerminateJobFlowsRequest().withJobFlowIds(jobFlowId).getJobFlowIds().get(0)
 
     }
 
