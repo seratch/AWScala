@@ -263,20 +263,75 @@ import scala.collection.JavaConversions._
     val steps = List(step1, step2)
 
     //build and EMR cluster
-    val jobFlowInstancesConfig = emr.buildJobFlowInstancesConfig(masterInstanceType, masterMarketType, masterBidPrice, coreInstanceType, coreInstanceCount, coreMarketType, coreBidPrice, taskInstanceType, taskInstanceCount, taskMarketType, taskBidPrice, ec2KeyName, hadoopVersion)
+    val jobFlowInstancesConfig = emr.buildJobFlowInstancesConfig(
+    masterInstanceType, 
+    masterMarketType, 
+    masterBidPrice, 
+    coreInstanceType, 
+    coreInstanceCount, 
+    coreMarketType, 
+    coreBidPrice, 
+    taskInstanceType, 
+    taskInstanceCount, 
+    taskMarketType, 
+    taskBidPrice, 
+    ec2KeyName, 
+    hadoopVersion)
 
     // Add map reduce jobs to the cluster
     val jobFlowStepsRequest = emr.buildJobFlowStepsRequest(steps)
     
     // prepare the cluster to run 
-    val runJobFlowRequest = emr.buildRunRequest(jobName, amiVersion, loggingURI, visibleToAllUsers, jobFlowInstancesConfig, jobFlowStepsRequest)
+    val runJobFlowRequest = emr.buildRunRequest(
+    jobName, 
+    amiVersion, 
+    loggingURI, 
+    visibleToAllUsers, 
+    jobFlowInstancesConfig, 
+    jobFlowStepsRequest)
     
     // run the cluster    
     val runJobFlowResult = emr.runJobFlow(runJobFlowRequest)
     
-    //optain a job flow ID once the cluster is running. 
+    //obtain job flow ID once the cluster is in STARTING state. 
     val job_flow_id = runJobFlowResult.getJobFlowId()
     
+    
+    Or , you can access the runJobFlow method directly which will take care of object creation, note how all the parameters are primitive types (facade design pattern). Here is an example: 
+    val run_request = emr.runJobFlow(
+      masterInstanceType, 
+      masterMarketType, 
+      masterBidPrice, 
+      coreInstanceType, 
+      coreInstanceCount, 
+      coreMarketType, 
+      coreBidPrice, 
+      taskInstanceType, 
+      taskInstanceCount, 
+      taskMarketType, 
+      taskBidPrice, 
+      ec2KeyName, 
+      hadoopVersion, 
+      steps, 
+      "", 
+      jobName, 
+      amiVersion, 
+      loggingURI, 
+      visibleToAllUsers)
+    
+    val job_flow_id = run_request.getJobFlowId()
+    
+    
+    // to get cluster status 
+    val ClusterState= emr.getClusterState(job_flow_id)
+    
+    //to get additional cluster information write access method to members of the com.amazonaws.services.elasticmapreduce.model.Cluster class (currying), for example:
+    
+   def getClusterName(cluster: com.amazonaws.services.elasticmapreduce.model.Cluster): String = cluster.getName()
+   val clusterName= emr.getClusterDetail(jobFlowId,getClusterName)
+   
+   //to shutdown the cluster 
+   val response_jobFlowId = emr.TerminateCluster(jobFlowId)
 ```
 
 ## How to contribute
