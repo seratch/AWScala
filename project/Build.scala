@@ -8,7 +8,7 @@ object AwscalaProject extends Build {
   lazy val mainSettings: Seq[Project.Setting[_]] = Defaults.defaultSettings ++ Seq(
     organization := "com.github.seratch",
     name := "awscala",
-    version := "0.1.2",
+    version := "0.1.3-SNAPSHOT",
     scalaVersion := "2.10.3",
     crossScalaVersions := Seq("2.10.0"),
     publishTo <<= version { (v: String) => 
