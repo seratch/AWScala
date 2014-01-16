@@ -46,6 +46,10 @@ case class Bucket(name: String) extends aws.model.Bucket(name) {
   def putObjectAsPublicRead(key: String, file: File)(implicit s3: S3) = s3.putObjectAsPublicRead(this, key, file)
   def putObjectAsPublicReadWrite(key: String, file: File)(implicit s3: S3) = s3.putObjectAsPublicReadWrite(this, key, file)
 
+  // put object from byte array
+  def putObject(key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata)(implicit s3: S3) = s3.putObject(this, key, bytes, metadata)
+  def putObjectAsPublicRead(key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata)(implicit s3: S3) = s3.putObjectAsPublicRead(this, key, bytes, metadata)
+
   def delete(obj: S3Object)(implicit s3: S3) = s3.deleteObject(obj)
   def deleteObject(obj: S3Object)(implicit s3: S3) = s3.deleteObject(obj)
 

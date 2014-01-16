@@ -3,7 +3,7 @@ package awscala.s3
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ s3 => aws }
-import java.io.File
+import java.io.{ File, ByteArrayInputStream }
 
 object S3 {
 
@@ -111,6 +111,24 @@ trait S3 extends aws.AmazonS3 {
   def putObjectAsPublicReadWrite(bucket: Bucket, key: String, file: File): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
       new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)))
+  }
+
+  // putting a byte array
+  def put(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObject(bucket, key, bytes, metadata)
+  def putAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObjectAsPublicRead(bucket, key, bytes, metadata)
+
+  def putObject(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult =
+    PutObjectResult(bucket, key, putObject(
+      new aws.model.PutObjectRequest(bucket.name, key, new ByteArrayInputStream(bytes), metadata)
+    ))
+
+  def putObjectAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
+    PutObjectResult(bucket, key, putObject(
+      new aws.model.PutObjectRequest(bucket.name, key,
+        new ByteArrayInputStream(bytes),
+        metadata
+      ).withCannedAcl(aws.model.CannedAccessControlList.PublicRead))
+    )
   }
 
   // copy
