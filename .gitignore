@@ -57,6 +57,6 @@ derby.log
 db
 
 .lib
-sbt
+sbt-launch.jar
 
 logs
