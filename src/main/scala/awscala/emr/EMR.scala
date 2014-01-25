@@ -14,29 +14,20 @@ object EMR {
 
 trait EMR extends aws.AmazonElasticMapReduce {
 
+  final val masterGroupName:String = "Master"
+  final val masterInstanceRoleType =InstanceRoleType.MASTER
+  final val coreGroupName:String = "Core"
+  final val coreInstanceRoleType =InstanceRoleType.CORE
+  final val taskGroupName:String = "Task"
+  final val taskInstanceRoleType =InstanceRoleType.TASK 
+  
   lazy val CHECK_INTERVAL = 5000L
 
   def at(region: Region): EMR = {
     this.setRegion(region)
     this
   }
-
-  
-  final val masterGroupName:String = "Master"
-  final val masterInstanceRoleType =InstanceRoleType.MASTER
-  
-  final val coreGroupName:String = "Core"
-  final val coreInstanceRoleType =InstanceRoleType.CORE
-  
-  
-  final val taskGroupName:String = "Task"
-  final val taskInstanceRoleType =InstanceRoleType.TASK 
-  
-  
-  
-  
-  
-  
+   
   def buildMasterGroupConfig(masterInstanceType: String, masterMarketType: String, masterBidPrice: String = "0.0"): com.amazonaws.services.elasticmapreduce.model.InstanceGroupConfig =
     {
 
