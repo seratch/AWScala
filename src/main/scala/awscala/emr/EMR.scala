@@ -30,7 +30,6 @@ trait EMR extends aws.AmazonElasticMapReduce {
    
   def buildMasterGroupConfig(masterInstanceType: String, masterMarketType: String, masterBidPrice: String = "0.0"): com.amazonaws.services.elasticmapreduce.model.InstanceGroupConfig =
     {
-
       val masterMarketTypeObject = MarketType.fromValue(masterMarketType)
 
       //building master node
@@ -108,7 +107,6 @@ trait EMR extends aws.AmazonElasticMapReduce {
         .withEc2KeyName(ec2KeyName)
         .withHadoopVersion(hadoopVersion)
         .withInstanceGroups(addInstanceGroupsRequest.getInstanceGroups())
-
     }
 
   //Step #2
@@ -116,11 +114,9 @@ trait EMR extends aws.AmazonElasticMapReduce {
     {
       val stepConfig = buildSteps(steps.asInstanceOf[List[jarStep]])
       val addJobFlowStepsRequest = new AddJobFlowStepsRequest().withSteps(stepConfig)
-      if (jobFlowId != "")
-        addJobFlowStepsRequest.withJobFlowId(jobFlowId)
+      if (jobFlowId != "")   addJobFlowStepsRequest.withJobFlowId(jobFlowId)
 
       addJobFlowStepsRequest
-
     }
 
   case class jarStep(stepName: String, stepType: String, stepPath: String, stepClass: String, stepArgs: List[String])
@@ -159,7 +155,6 @@ trait EMR extends aws.AmazonElasticMapReduce {
         .withLogUri(loggingURI)
         .withVisibleToAllUsers(visibleToAllUsers)
         .withInstances(jobFlowInstancesConfig)
-
     }
 
   // format: OFF
@@ -213,11 +208,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
         visibleToAllUsers,
         jobFlowInstancesConfig,
         jobFlowStepsRequest)
-
-         
       runJobFlow(runJobFlowRequest)  
-      
-
     }
 
   // format: ON
@@ -228,28 +219,21 @@ trait EMR extends aws.AmazonElasticMapReduce {
       val describeClusterRequest = new DescribeClusterRequest().withClusterId(jobFlowId)
       val cluster = describeCluster(describeClusterRequest).getCluster()
       op(cluster)
-
     }
 
   def getClusterState(jobFlowId: String): String =
     {
       def getState(cluster: com.amazonaws.services.elasticmapreduce.model.Cluster): String = cluster.getStatus().getState()
       getClusterDetail(jobFlowId, getState)
-
     }
 
   def getClusterName(jobFlowId: String): String =
     {
       def getName(cluster: com.amazonaws.services.elasticmapreduce.model.Cluster): String = cluster.getName()
       getClusterDetail(jobFlowId, getName)
-
     }
 
-  def terminateCluster(jobFlowId: String) =
-    {
-      new TerminateJobFlowsRequest().withJobFlowIds(jobFlowId).getJobFlowIds().get(0)
-
-    }
+  def terminateCluster(jobFlowId: String) = new TerminateJobFlowsRequest().withJobFlowIds(jobFlowId).getJobFlowIds().get(0)
 
 }
 
