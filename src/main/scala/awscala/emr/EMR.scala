@@ -21,44 +21,65 @@ trait EMR extends aws.AmazonElasticMapReduce {
     this
   }
 
+  
+  final val masterGroupName:String = "Master"
+  final val masterInstanceRoleType =InstanceRoleType.MASTER
+  
+  final val coreGroupName:String = "Core"
+  final val coreInstanceRoleType =InstanceRoleType.CORE
+  
+  
+  final val taskGroupName:String = "Task"
+  final val taskInstanceRoleType =InstanceRoleType.TASK 
+  
+  
+  
+  
+  
+  
   def buildMasterGroupConfig(masterInstanceType: String, masterMarketType: String, masterBidPrice: String = "0.0"): com.amazonaws.services.elasticmapreduce.model.InstanceGroupConfig =
     {
+
+      val masterMarketTypeObject = MarketType.fromValue(masterMarketType)
+
       //building master node
       val masterGroupConfig = new InstanceGroupConfig()
-        .withName("Master")
-        .withInstanceRole("MASTER")
+        .withName(masterGroupName)
+        .withInstanceRole(masterInstanceRoleType)
         .withInstanceCount(1)
         .withInstanceType(masterInstanceType)
-        .withMarket(masterMarketType)
+        .withMarket(masterMarketTypeObject)
 
       //build master market type
-      if (masterMarketType == "SPOT") masterGroupConfig.withBidPrice(masterBidPrice)
+      if (masterMarketTypeObject.name() == "SPOT") masterGroupConfig.withBidPrice(masterBidPrice)
       masterGroupConfig
     }
 
   def buildCoreGroupConfig(coreInstanceType: String, coreInstanceCount: Int, coreMarketType: String, coreBidPrice: String = "0.0"): com.amazonaws.services.elasticmapreduce.model.InstanceGroupConfig =
     {
+      val corerMarketTypeObject = MarketType.fromValue(coreMarketType)
       val coreGroupConfig = new InstanceGroupConfig()
-        .withName("CORE")
-        .withInstanceRole("CORE")
+        .withName(coreGroupName)
+        .withInstanceRole(coreInstanceRoleType)
         .withInstanceType(coreInstanceType)
         .withInstanceCount(coreInstanceCount)
-        .withMarket(coreMarketType)
+        .withMarket(corerMarketTypeObject)
       //build core market type
-      if (coreMarketType == "SPOT") coreGroupConfig.withBidPrice(coreBidPrice)
+      if (corerMarketTypeObject.name() == "SPOT") coreGroupConfig.withBidPrice(coreBidPrice)
       coreGroupConfig
     }
 
   def buildTaskGroupConfig(taskInstanceType: String, taskInstanceCount: Int, taskMarketType: String, taskBidPrice: String = "0.0"): com.amazonaws.services.elasticmapreduce.model.InstanceGroupConfig =
     {
+      val taskMarketTypeObject = MarketType.fromValue(taskMarketType)
       val taskGroupConfig = new InstanceGroupConfig()
-        .withName("TASK")
-        .withInstanceRole("TASK")
+        .withName(taskGroupName)
+        .withInstanceRole(taskInstanceRoleType)
         .withInstanceType(taskInstanceType)
         .withInstanceCount(taskInstanceCount)
-        .withMarket(taskMarketType)
+        .withMarket(taskMarketTypeObject)
       //build task market type
-      if (taskMarketType == "SPOT") taskGroupConfig.withBidPrice(taskBidPrice)
+      if (taskMarketTypeObject.name() == "SPOT") taskGroupConfig.withBidPrice(taskBidPrice)
       taskGroupConfig
     }
 
@@ -233,7 +254,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
 
     }
 
-  def TerminateCluster(jobFlowId: String) =
+  def terminateCluster(jobFlowId: String) =
     {
       new TerminateJobFlowsRequest().withJobFlowIds(jobFlowId).getJobFlowIds().get(0)
 
