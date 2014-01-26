@@ -3,20 +3,23 @@ package awscala.emr
 import org.slf4j._
 import org.scalatest._
 import org.scalatest.matchers._
-import awscala._
+import awscala._,dynamodbv2._
 import scala.collection.JavaConversions._
 
 class EMRSpec extends FlatSpec with ShouldMatchers {
-  behavior of "EMRF"
-
-  val log = LoggerFactory.getLogger(this.getClass)
-
-  implicit val emr = EMR(credentials)
+  behavior of "EMR"
+ 
+  implicit val emr = EMR.at(Region.US_EAST_1)
+   val log = LoggerFactory.getLogger(this.getClass)
+ 
   /**
    * starts an EMR cluster based on "on-demand" instances
    */
 
   it should "cluster configurations on demand" in {
+        
+
+    
     //cluster nodes information
     val masterInstanceType = "c1.medium"
     val masterMarketType = "ON_DEMAND"
@@ -72,11 +75,13 @@ class EMRSpec extends FlatSpec with ShouldMatchers {
     }
 
     val runJobFlowRequest = emr.buildRunRequest(jobName, amiVersion, loggingURI, visibleToAllUsers, jobFlowInstancesConfig, jobFlowStepsRequest)
-   //uncomment these line to run a job on the cluseter
-   /* val runJobFlowResult = emr.runJobFlow(runJobFlowRequest)
-      val job_flow_id = runJobFlowResult.getJobFlowId()
+   //uncomment to add steps on the server.  
+   /* 
+    val runJobFlowResult = emr.runJobFlow(runJobFlowRequest)
+    val job_flow_id = runJobFlowResult.getJobFlowId()
+     
+    */
 
-	  */
   }
 
   it should "cluster configurations SPOT" in {
