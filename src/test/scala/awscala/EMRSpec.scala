@@ -6,7 +6,7 @@ import org.scalatest.matchers._
 import awscala._
 import scala.collection.JavaConversions._
 
-class EMRSpec extends FlatSpec with ShouldMatchers {
+class EMRSpec extends FlatSpec with ShouldMatchers with s3login {
   behavior of "EMR"
  
   implicit val emr = EMR.at(Region.US_EAST_1)
@@ -49,9 +49,18 @@ class EMRSpec extends FlatSpec with ShouldMatchers {
     val task = jobFlowInstancesConfig.getInstanceGroups()(2)
 
     // test for node configuration
+    
+
     master.toString() should equal("{Name: Master,Market: ON_DEMAND,InstanceRole: MASTER,InstanceType: c1.medium,InstanceCount: 1}")
-    core.toString() should equal("{Name: CORE,Market: ON_DEMAND,InstanceRole: CORE,InstanceType: c1.medium,InstanceCount: 1}")
-    task.toString() should equal("{Name: TASK,Market: ON_DEMAND,InstanceRole: TASK,InstanceType: c1.medium,InstanceCount: 1}")
+    
+    core.getInstanceCount() should equal(1)
+    core.getInstanceType() should equal("c1.medium")
+    core.getInstanceRole() should equal("CORE")
+    core.getMarket() should equal(coreMarketType)
+    core.getName()should equal("Core")
+    
+    core.toString() should equal("{Name: Core,Market: ON_DEMAND,InstanceRole: CORE,InstanceType: c1.medium,InstanceCount: 1}")
+    task.toString() should equal("{Name: Task,Market: ON_DEMAND,InstanceRole: TASK,InstanceType: c1.medium,InstanceCount: 1}")
 
     // test for general cluster configuration
     jobFlowInstancesConfig.getEc2KeyName() should equal(ec2KeyName)
@@ -76,11 +85,11 @@ class EMRSpec extends FlatSpec with ShouldMatchers {
 
     val runJobFlowRequest = emr.buildRunRequest(jobName, amiVersion, loggingURI, visibleToAllUsers, jobFlowInstancesConfig, jobFlowStepsRequest)
    //uncomment to add steps on the server.  
-   /* 
+    
     val runJobFlowResult = emr.runJobFlow(runJobFlowRequest)
     val job_flow_id = runJobFlowResult.getJobFlowId()
      
-    */
+    
 
   }
 
@@ -118,8 +127,8 @@ class EMRSpec extends FlatSpec with ShouldMatchers {
     val task = jobFlowInstancesConfig.getInstanceGroups()(2)
 
     master.toString() should equal("{Name: Master,Market: SPOT,InstanceRole: MASTER,BidPrice: 2.10,InstanceType: cc2.8xlarge,InstanceCount: 1}")
-    core.toString() should equal("{Name: CORE,Market: SPOT,InstanceRole: CORE,BidPrice: 3.00,InstanceType: c1.small,InstanceCount: 1}")
-    task.toString() should equal("{Name: TASK,Market: SPOT,InstanceRole: TASK,BidPrice: 1.50,InstanceType: c1.xlarge,InstanceCount: 1}")
+    core.toString() should equal("{Name: Core,Market: SPOT,InstanceRole: CORE,BidPrice: 3.00,InstanceType: c1.small,InstanceCount: 1}")
+    task.toString() should equal("{Name: Task,Market: SPOT,InstanceRole: TASK,BidPrice: 1.50,InstanceType: c1.xlarge,InstanceCount: 1}")
 
     val jobFlowStepsRequest = emr.buildJobFlowStepsRequest(steps)
     val steps_test_list = jobFlowStepsRequest.getSteps()
@@ -186,7 +195,11 @@ class EMRSpec extends FlatSpec with ShouldMatchers {
     {
       val jobFlowId = "j-3B6BS0TV2NVN9"
       val state = emr.getClusterState(jobFlowId)
-      state should equal("TERMINATED")
+      
+      val possible_States= List("TERMINATED" ,"TERMINATED_WITH_ERRORS" )
+      
+      possible_States should (contain(state))
+      
     }
 
   it should "custom define cluster information" in
