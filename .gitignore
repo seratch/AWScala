@@ -60,3 +60,6 @@ db
 sbt-launch.jar
 
 logs
+
+awscala-unit-test-keypair-*
+
