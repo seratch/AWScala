@@ -3,7 +3,7 @@ package awscala.ec2
 import awscala._
 import com.amazonaws.services.{ ec2 => aws }
 
-case class InstanceWithKeyPair(private val underlying: aws.model.Instance, keyPairFile: File)
+case class InstanceWithKeyPair(override val underlying: aws.model.Instance, keyPairFile: File)
     extends Instance(underlying) {
 
   import com.decodified.scalassh._

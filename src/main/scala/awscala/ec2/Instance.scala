@@ -10,7 +10,7 @@ object Instance {
   def apply(underlying: aws.model.Instance) = new Instance(underlying)
 }
 
-class Instance(underlying: aws.model.Instance) {
+class Instance(val underlying: aws.model.Instance) {
 
   def start()(implicit ec2: EC2) = ec2.start(this)
   def stop()(implicit ec2: EC2) = ec2.stop(this)
