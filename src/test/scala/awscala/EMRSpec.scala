@@ -175,8 +175,8 @@ class EMRSpec extends FlatSpec with ShouldMatchers {
       log.info(s" current state of cluster is $state")
 
       state should equal("STARTING")
-      val response_jobFlowId = emr.terminateCluster(job_flow_id)
-      state should equal("TERMINATED")
+/*      val response_jobFlowId = emr.terminateCluster(job_flow_id)
+      state should equal("TERMINATED")*/
 
     }
 

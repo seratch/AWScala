@@ -126,11 +126,11 @@ trait EMR extends aws.AmazonElasticMapReduce {
 
       for {
         step <- steps
-        val aStepConfigJar = new HadoopJarStepConfig(step.stepPath)
+        aStepConfigJar = new HadoopJarStepConfig(step.stepPath)
           .withMainClass(step.stepClass)
           .withArgs(step.stepArgs)
 
-        val aStepConfig = new StepConfig()
+        aStepConfig = new StepConfig()
           .withName(step.stepName)
           .withHadoopJarStep(aStepConfigJar)
       } yield {
