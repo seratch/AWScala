@@ -6,20 +6,19 @@ import org.scalatest.matchers._
 import awscala._
 import scala.collection.JavaConversions._
 
-class EMRSpec extends FlatSpec with ShouldMatchers with s3login {
+class EMRSpec extends FlatSpec with ShouldMatchers {
   behavior of "EMR"
- 
+
   implicit val emr = EMR.at(Region.US_EAST_1)
-   val log = LoggerFactory.getLogger(this.getClass)
- 
+  val log = LoggerFactory.getLogger(this.getClass)
+
   /**
    * starts an EMR cluster based on "on-demand" instances
    */
 
+  var job_flow_id: String = ""
   it should "cluster configurations on demand" in {
-        
 
-    
     //cluster nodes information
     val masterInstanceType = "c1.medium"
     val masterMarketType = "ON_DEMAND"
@@ -49,16 +48,15 @@ class EMRSpec extends FlatSpec with ShouldMatchers with s3login {
     val task = jobFlowInstancesConfig.getInstanceGroups()(2)
 
     // test for node configuration
-    
 
     master.toString() should equal("{Name: Master,Market: ON_DEMAND,InstanceRole: MASTER,InstanceType: c1.medium,InstanceCount: 1}")
-    
+
     core.getInstanceCount() should equal(1)
     core.getInstanceType() should equal("c1.medium")
     core.getInstanceRole() should equal("CORE")
     core.getMarket() should equal(coreMarketType)
-    core.getName()should equal("Core")
-    
+    core.getName() should equal("Core")
+
     core.toString() should equal("{Name: Core,Market: ON_DEMAND,InstanceRole: CORE,InstanceType: c1.medium,InstanceCount: 1}")
     task.toString() should equal("{Name: Task,Market: ON_DEMAND,InstanceRole: TASK,InstanceType: c1.medium,InstanceCount: 1}")
 
@@ -84,12 +82,11 @@ class EMRSpec extends FlatSpec with ShouldMatchers with s3login {
     }
 
     val runJobFlowRequest = emr.buildRunRequest(jobName, amiVersion, loggingURI, visibleToAllUsers, jobFlowInstancesConfig, jobFlowStepsRequest)
-   //uncomment to add steps on the server.  
-    
+    //uncomment to add steps on the server.  
+
     val runJobFlowResult = emr.runJobFlow(runJobFlowRequest)
-    val job_flow_id = runJobFlowResult.getJobFlowId()
-     
-    
+    job_flow_id = runJobFlowResult.getJobFlowId()
+    Thread.sleep(10000)
 
   }
 
@@ -184,31 +181,30 @@ class EMRSpec extends FlatSpec with ShouldMatchers with s3login {
     }
 
   it should "cluster shutdown" in {
-    val jobFlowId = "j-12CU6XBCMQ2TP"
-    val response_jobFlowId = emr.terminateCluster(jobFlowId)
 
-    jobFlowId should equal(response_jobFlowId)
+    val response_jobFlowId = emr.terminateCluster(job_flow_id)
+
+    job_flow_id should equal(response_jobFlowId)
 
   }
 
   it should "cluster status" in
     {
-      val jobFlowId = "j-3B6BS0TV2NVN9"
-      val state = emr.getClusterState(jobFlowId)
-      
-      val possible_States= List("TERMINATED" ,"TERMINATED_WITH_ERRORS" )
-      
+      val state = emr.getClusterState(job_flow_id)
+
+      val possible_States = List("TERMINATED", "TERMINATED_WITH_ERRORS")
+      println(state)
       possible_States should (contain(state))
-      
+
     }
 
   it should "custom define cluster information" in
     {
-      val jobFlowId = "j-12CU6XBCMQ2TP"
+
       def getClusterName(cluster: com.amazonaws.services.elasticmapreduce.model.Cluster): String = cluster.getName()
 
-      val ami_version = emr.getClusterDetail(jobFlowId, getClusterName)
-      ami_version should equal("country report")
+      val cluster_name = emr.getClusterDetail(job_flow_id, getClusterName)
+      cluster_name should equal("My Test Job")
     }
 
 }
