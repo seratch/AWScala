@@ -8,7 +8,7 @@ object AwscalaProject extends Build {
   lazy val mainSettings: Seq[Project.Setting[_]] = Defaults.defaultSettings ++ Seq(
     organization := "com.github.seratch",
     name := "awscala",
-    version := "0.1.2",
+    version := "0.1.3",
     scalaVersion := "2.10.3",
     crossScalaVersions := Seq("2.10.0"),
     publishTo <<= version { (v: String) => 
@@ -19,7 +19,7 @@ object AwscalaProject extends Build {
     publishMavenStyle := true,
     resolvers += "spray repo" at "http://repo.spray.io",
     libraryDependencies ++= Seq(
-      "com.amazonaws"    %  "aws-java-sdk"    % "[1.6,)",
+      "com.amazonaws"    %  "aws-java-sdk"    % "1.6.12",
       "joda-time"        %  "joda-time"       % "2.3",
       "org.joda"         %  "joda-convert"    % "1.5",
       "com.decodified"   %% "scala-ssh"       % "0.6.4"  % "provided",
