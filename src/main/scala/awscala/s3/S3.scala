@@ -4,13 +4,14 @@ import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ s3 => aws }
 import java.io.{ File, ByteArrayInputStream }
+import aws.model.{ Region => S3Region }
 
 object S3 {
 
   def apply(credentials: Credentials = Credentials.defaultEnv): S3 = new S3Client(credentials)
   def apply(accessKeyId: String, secretAccessKey: String): S3 = apply(Credentials(accessKeyId, secretAccessKey))
 
-  def at(region: Region): S3 = apply().at(region)
+  def at(region: Region, s3Region: S3Region = S3Region.US_Standard): S3 = apply().at(region).at(s3Region)
 }
 
 /**
@@ -19,11 +20,15 @@ object S3 {
  */
 trait S3 extends aws.AmazonS3 {
 
-  private[this] var region: aws.model.Region = aws.model.Region.fromValue(Region.default.getName)
+  private[this] var s3Region = S3Region.US_Standard
 
   def at(region: Region): S3 = {
     this.setRegion(region)
-    this.region = aws.model.Region.fromValue(region.getName)
+    this
+  }
+
+  def at(s3Region: S3Region): S3 = {
+    this.s3Region = s3Region
     this
   }
 
@@ -51,7 +56,7 @@ trait S3 extends aws.AmazonS3 {
   def versioningConfig(bucket: Bucket) = BucketVersioningConfiguration(bucket, getBucketVersioningConfiguration(bucket.name))
   def websiteConfig(bucket: Bucket) = BucketWebsiteConfiguration(bucket, getBucketWebsiteConfiguration(bucket.name))
 
-  def createBucket(name: String): Bucket = Bucket(createBucket(new aws.model.CreateBucketRequest(name, region)))
+  def createBucket(name: String): Bucket = Bucket(createBucket(new aws.model.CreateBucketRequest(name, s3Region)))
 
   def delete(bucket: Bucket): Unit = deleteBucket(bucket)
   def deleteBucket(bucket: Bucket): Unit = deleteBucket(bucket.name)
@@ -169,4 +174,3 @@ class S3Client(credentials: Credentials = Credentials.defaultEnv)
 
   override def createBucket(name: String): Bucket = super.createBucket(name)
 }
-
