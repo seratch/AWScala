@@ -6,7 +6,7 @@ import com.amazonaws.services.{ sqs => aws }
 
 object SQS {
 
-  def apply(credentials: Credentials = Credentials.defaultEnv): SQS = new SQSClient(credentials).at(Region.default)
+  def apply(credentials: Credentials = CredentialsLoader.load()): SQS = new SQSClient(credentials).at(Region.default)
   def apply(accessKeyId: String, secretAccessKey: String): SQS = apply(Credentials(accessKeyId, secretAccessKey)).at(Region.default)
 
   def at(region: Region): SQS = apply().at(region)
@@ -118,7 +118,7 @@ class SQSClientWithQueue(sqs: SQS, queue: Queue) {
  *
  * @param credentials credentials
  */
-class SQSClient(credentials: Credentials = Credentials.defaultEnv)
+class SQSClient(credentials: Credentials = CredentialsLoader.load())
   extends aws.AmazonSQSClient(credentials)
   with SQS
 

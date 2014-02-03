@@ -7,7 +7,7 @@ import com.amazonaws.services.{ elasticmapreduce => aws }
 import aws.model._
 
 object EMR {
-  def apply(credentials: Credentials = Credentials.defaultEnv): EMR = new EMRClient(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load()): EMR = new EMRClient(credentials)
   def apply(accessKeyId: String, secretAccessKey: String): EMR = apply(Credentials(accessKeyId, secretAccessKey))
   def at(region: Region): EMR = apply().at(region)
 }
@@ -215,4 +215,4 @@ trait EMR extends aws.AmazonElasticMapReduce {
 
 }
 
-class EMRClient(credentials: Credentials = Credentials.defaultEnv) extends aws.AmazonElasticMapReduceClient(credentials) with EMR
+class EMRClient(credentials: Credentials = CredentialsLoader.load()) extends aws.AmazonElasticMapReduceClient(credentials) with EMR

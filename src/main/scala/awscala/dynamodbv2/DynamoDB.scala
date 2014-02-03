@@ -6,7 +6,7 @@ import com.amazonaws.services.{ dynamodbv2 => aws }
 
 object DynamoDB {
 
-  def apply(credentials: Credentials = Credentials.defaultEnv): DynamoDB = new DynamoDBClient(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load()): DynamoDB = new DynamoDBClient(credentials)
   def apply(accessKeyId: String, secretAccessKey: String): DynamoDB = apply(Credentials(accessKeyId, secretAccessKey))
 
   def at(region: Region): DynamoDB = apply().at(region)
@@ -274,7 +274,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
  *
  * @param credentials credentials
  */
-class DynamoDBClient(credentials: Credentials = Credentials.defaultEnv)
+class DynamoDBClient(credentials: Credentials = CredentialsLoader.load())
   extends aws.AmazonDynamoDBClient(credentials)
   with DynamoDB
 

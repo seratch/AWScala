@@ -6,7 +6,7 @@ import com.amazonaws.util.json.JSONObject
 import java.net._
 
 object STS {
-  def apply(credentials: Credentials = Credentials.defaultEnv): STS = new STSClient(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load()): STS = new STSClient(credentials)
   def apply(accessKeyId: String, secretAccessKey: String): STS = {
     new STSClient(Credentials(accessKeyId, secretAccessKey))
   }
@@ -69,6 +69,6 @@ trait STS extends aws.AWSSecurityTokenService {
  *
  * @param credentials credentials
  */
-class STSClient(credentials: Credentials = Credentials.defaultEnv)
+class STSClient(credentials: Credentials = CredentialsLoader.load())
   extends aws.AWSSecurityTokenServiceClient(credentials)
   with STS
