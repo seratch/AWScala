@@ -17,7 +17,7 @@ class KeyPairSpec extends FlatSpec with ShouldMatchers {
   it should "properly implement the inherited Java methods" in {
     implicit val ec2 = EC2.at(Region.Tokyo)
 
-    val keyPairName = s"awscala-unit-test-keypair-${System.currentTimeMillis}"
+    val keyPairName = s"awscala-unit-test-keypair-${System.currentTimeMillis}-${new scala.util.Random().nextInt(100)}"
     val keyPair = ec2.createKeyPair(keyPairName)
 
     try {
