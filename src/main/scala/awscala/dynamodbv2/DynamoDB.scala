@@ -3,6 +3,7 @@ package awscala.dynamodbv2
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
+import com.amazonaws.services.dynamodbv2.model.KeysAndAttributes
 
 object DynamoDB {
 
@@ -10,6 +11,12 @@ object DynamoDB {
   def apply(accessKeyId: String, secretAccessKey: String): DynamoDB = apply(Credentials(accessKeyId, secretAccessKey))
 
   def at(region: Region): DynamoDB = apply().at(region)
+
+  def local(): DynamoDB = {
+    val client = DynamoDB("", "")
+    client.setEndpoint("http://localhost:8000")
+    client
+  }
 }
 
 /**
@@ -136,6 +143,22 @@ trait DynamoDB extends aws.AmazonDynamoDB {
           ).getItem))
         } catch { case e: aws.model.ResourceNotFoundException => None }
     }
+  }
+
+  def batchGet(tableAndAttributes: Map[Table, List[(String, Any)]]): Seq[Item] = {
+    val responses = batchGetItem(new aws.model.BatchGetItemRequest()
+      .withRequestItems(tableAndAttributes.map {
+        case (table, attributes) =>
+          table.name -> new KeysAndAttributes().withKeys(
+            attributes.map {
+              case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
+            }.asJava
+          )
+      }.asJava)).getResponses
+
+    responses.asScala.toSeq.map {
+      case (t, as) => table(t).map(table => as.asScala.toList.map { a => Item(table, a) })
+    }.flatten.flatten
   }
 
   def put(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
