@@ -45,6 +45,12 @@ class DynamoDBV2Spec extends FlatSpec with ShouldMatchers {
     val google: Option[Item] = companies.get("Google")
     google.get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.google.com/")
 
+    // batch get
+    val batchedCompanies: Seq[Item] = companies.batchGet(List(("Id", "Google"), ("Id", "Microsoft")))
+    batchedCompanies.size should equal(2)
+    batchedCompanies.map(item => item.attributes.find(_.name == "Id").get.value.s.get.equals("Google")
+      || item.attributes.find(_.name == "Id").get.value.s.get.equals("Microsoft")) should equal(Seq(true, true))
+
     // scan
     val foundCompanies: Seq[Item] = companies.scan(Seq("url" -> Condition.isNotNull))
     foundCompanies.size should equal(2)

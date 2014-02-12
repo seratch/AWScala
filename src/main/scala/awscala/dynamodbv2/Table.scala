@@ -25,6 +25,12 @@ case class Table(
     dynamoDB.get(this, hashPK, rangePK)
   }
 
+  def batchGet(attributes: List[(String, Any)])(implicit dynamoDB: DynamoDB): Seq[Item] = batchGetItems(attributes)
+
+  def batchGetItems(attributes: List[(String, Any)])(implicit dynamoDB: DynamoDB): Seq[Item] = {
+    dynamoDB.batchGet(Map(this -> attributes))
+  }
+
   def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB) = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB) = putItem(hashPK, rangePK, attributes: _*)
 
