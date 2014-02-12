@@ -14,7 +14,7 @@ class DynamoDBV2Spec extends FlatSpec with ShouldMatchers {
   val log = LoggerFactory.getLogger(this.getClass)
 
   it should "provide cool APIs for Hash PK tables" in {
-    implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
+    implicit val dynamoDB = DynamoDB.local()
 
     val tableName = s"Companies_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
@@ -59,7 +59,7 @@ class DynamoDBV2Spec extends FlatSpec with ShouldMatchers {
   }
 
   it should "provide cool APIs for Hash/Range PK tables" in {
-    implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
+    implicit val dynamoDB = DynamoDB.local()
 
     val tableName = s"Members_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(

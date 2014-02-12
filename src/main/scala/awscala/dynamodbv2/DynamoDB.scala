@@ -11,6 +11,12 @@ object DynamoDB {
   def apply(accessKeyId: String, secretAccessKey: String): DynamoDB = apply(Credentials(accessKeyId, secretAccessKey))
 
   def at(region: Region): DynamoDB = apply().at(region)
+
+  def local(): DynamoDB = {
+    val client = DynamoDB("", "")
+    client.setEndpoint("http://localhost:8000")
+    client
+  }
 }
 
 /**
