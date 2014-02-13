@@ -55,6 +55,10 @@ class DynamoDBV2Spec extends FlatSpec with ShouldMatchers {
     val foundCompanies: Seq[Item] = companies.scan(Seq("url" -> Condition.isNotNull))
     foundCompanies.size should equal(2)
 
+    // putAttributes
+    companies.putAttributes("Microsoft", Seq("url" -> "http://www.microsoft.com"))
+    companies.get("Microsoft").get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.microsoft.com")
+
     companies.destroy()
   }
 
@@ -97,6 +101,10 @@ class DynamoDBV2Spec extends FlatSpec with ShouldMatchers {
 
     val googlers: Seq[Item] = members.scan(Seq("Company" -> Condition.eq("Google")))
     googlers.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("Bob", "Alice"))
+
+    // putAttributes
+    members.putAttributes(3, "Japan", Seq("Company" -> "Microsoft"))
+    members.get(3, "Japan").get.attributes.find(_.name == "Company").get.value.s.get should equal("Microsoft")
 
     members.destroy()
   }
