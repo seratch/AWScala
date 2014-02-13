@@ -208,10 +208,15 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   private[dynamodbv2] def updateAttributes(
     table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]): Unit = {
 
-    updateItem(new aws.model.UpdateItemRequest().withAttributeUpdates(attributes.map {
-      case (key, value) =>
-        (key, new aws.model.AttributeValueUpdate().withAction(action).withValue(AttributeValue.toJavaValue(value)))
-    }.toMap.asJava))
+    val tableKeys = Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)) ++ rangePK.flatMap(rKey => table.rangePK.map(_ -> AttributeValue.toJavaValue(rKey)))
+
+    updateItem(new aws.model.UpdateItemRequest()
+      .withTableName(table.name)
+      .withKey(tableKeys.asJava)
+      .withAttributeUpdates(attributes.map {
+        case (key, value) =>
+          (key, new aws.model.AttributeValueUpdate().withAction(action).withValue(AttributeValue.toJavaValue(value)))
+      }.toMap.asJava))
   }
 
   def deleteItem(table: Table, hashPK: Any): Unit = {
