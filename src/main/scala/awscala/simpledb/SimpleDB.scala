@@ -6,7 +6,7 @@ import com.amazonaws.services.{ simpledb => aws }
 
 object SimpleDB {
 
-  def apply(credentials: Credentials = Credentials.defaultEnv): SimpleDB = new SimpleDBClient(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load()): SimpleDB = new SimpleDBClient(credentials)
   def apply(accessKeyId: String, secretAccessKey: String): SimpleDB = apply(Credentials(accessKeyId, secretAccessKey))
 
   def at(region: Region): SimpleDB = apply().at(region)
@@ -100,7 +100,7 @@ trait SimpleDB extends aws.AmazonSimpleDB {
  *
  * @param credentials credentials
  */
-class SimpleDBClient(credentials: Credentials = Credentials.defaultEnv)
+class SimpleDBClient(credentials: Credentials = CredentialsLoader.load())
   extends aws.AmazonSimpleDBClient(credentials)
   with SimpleDB
 

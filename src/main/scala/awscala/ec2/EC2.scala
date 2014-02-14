@@ -6,7 +6,7 @@ import com.amazonaws.services.{ ec2 => aws }
 
 object EC2 {
 
-  def apply(credentials: Credentials = Credentials.defaultEnv): EC2 = new EC2Client(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load()): EC2 = new EC2Client(credentials)
   def apply(accessKeyId: String, secretAccessKey: String): EC2 = apply(Credentials(accessKeyId, secretAccessKey))
 
   def at(region: Region): EC2 = apply().at(region)
@@ -118,6 +118,6 @@ trait EC2 extends aws.AmazonEC2 {
  *
  * @param credentials credentials
  */
-class EC2Client(credentials: Credentials = Credentials.defaultEnv)
+class EC2Client(credentials: Credentials = CredentialsLoader.load())
   extends aws.AmazonEC2Client(credentials)
   with EC2

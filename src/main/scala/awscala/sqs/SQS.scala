@@ -6,7 +6,7 @@ import com.amazonaws.services.{ sqs => aws }
 
 object SQS {
 
-  def apply(credentials: Credentials = Credentials.defaultEnv): SQS = new SQSClient(credentials).at(Region.default)
+  def apply(credentials: Credentials = CredentialsLoader.load()): SQS = new SQSClient(credentials).at(Region.default)
   def apply(accessKeyId: String, secretAccessKey: String): SQS = apply(Credentials(accessKeyId, secretAccessKey)).at(Region.default)
 
   def at(region: Region): SQS = apply().at(region)
@@ -27,7 +27,8 @@ trait SQS extends aws.AmazonSQS {
   // Queues
   // ------------------------------------------
 
-  def createQueue(name: String): Queue = {
+  // createQueue is added since SDK 1.7.x
+  def createQueueAndReturnQueueName(name: String): Queue = {
     val result = createQueue(new aws.model.CreateQueueRequest(name))
     Queue(result.getQueueUrl)
   }
@@ -118,7 +119,7 @@ class SQSClientWithQueue(sqs: SQS, queue: Queue) {
  *
  * @param credentials credentials
  */
-class SQSClient(credentials: Credentials = Credentials.defaultEnv)
+class SQSClient(credentials: Credentials = CredentialsLoader.load())
   extends aws.AmazonSQSClient(credentials)
   with SQS
 

@@ -6,7 +6,7 @@ import com.amazonaws.services.{ redshift => aws }
 
 object Redshift {
 
-  def apply(credentials: Credentials = Credentials.defaultEnv): Redshift = new RedshiftClient(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load()): Redshift = new RedshiftClient(credentials)
 
   def apply(accessKeyId: String, secretAccessKey: String): Redshift = apply(Credentials(accessKeyId, secretAccessKey))
 
@@ -313,7 +313,7 @@ trait Redshift extends aws.AmazonRedshift {
  *
  * @param credentials credentials
  */
-class RedshiftClient(credentials: Credentials = Credentials.defaultEnv)
+class RedshiftClient(credentials: Credentials = CredentialsLoader.load())
   extends aws.AmazonRedshiftClient(credentials)
   with Redshift
 
