@@ -21,7 +21,7 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 ## How to use
 
 ```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "[0.1,)"
+libraryDependencies += "com.github.seratch" %% "awscala" % "[0.2,)"
 ```
 
 ## Examples
