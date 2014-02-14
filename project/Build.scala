@@ -8,7 +8,7 @@ object AwscalaProject extends Build {
   lazy val mainSettings: Seq[Project.Setting[_]] = Defaults.defaultSettings ++ Seq(
     organization := "com.github.seratch",
     name := "awscala",
-    version := "0.2.0-SNAPSHOT",
+    version := "0.2.0",
     scalaVersion := "2.10.3",
     crossScalaVersions := Seq("2.10.0"),
     publishTo <<= version { (v: String) => 
@@ -19,13 +19,13 @@ object AwscalaProject extends Build {
     publishMavenStyle := true,
     resolvers += "spray repo" at "http://repo.spray.io",
     libraryDependencies ++= Seq(
-      "com.amazonaws"    %  "aws-java-sdk"    % "1.6.12",
+      "com.amazonaws"    %  "aws-java-sdk"    % "1.7.1",
       "joda-time"        %  "joda-time"       % "2.3",
       "org.joda"         %  "joda-convert"    % "1.5",
       "com.decodified"   %% "scala-ssh"       % "0.6.4"  % "provided",
       "org.bouncycastle" %  "bcprov-jdk16"    % "1.46"   % "provided",
       "ch.qos.logback"   %  "logback-classic" % "1.0.13" % "test",
-      "org.scalatest"    %% "scalatest"       % "1.9.2"  % "test"
+      "org.scalatest"    %% "scalatest"       % "2.0"    % "test"
     ),
     sbtPlugin := false,
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
