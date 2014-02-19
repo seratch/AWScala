@@ -27,7 +27,8 @@ trait SQS extends aws.AmazonSQS {
   // Queues
   // ------------------------------------------
 
-  def createQueue(name: String): Queue = {
+  // createQueue is added since SDK 1.7.x
+  def createQueueAndReturnQueueName(name: String): Queue = {
     val result = createQueue(new aws.model.CreateQueueRequest(name))
     Queue(result.getQueueUrl)
   }

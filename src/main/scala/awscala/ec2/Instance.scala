@@ -68,8 +68,6 @@ class Instance(val underlying: aws.model.Instance) {
 
   def launchTime: Date = underlying.getLaunchTime
 
-  def license: Option[InstanceLicense] = Option(underlying.getLicense).map(InstanceLicense(Instance.this, _))
-
   def monitoring: aws.model.Monitoring = underlying.getMonitoring
 
   def networkInterfaces: Seq[aws.model.InstanceNetworkInterface] = underlying.getNetworkInterfaces.asScala
