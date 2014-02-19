@@ -119,11 +119,13 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   def get(table: Table, hashPK: Any): Option[Item] = getItem(table, hashPK)
 
   def getItem(table: Table, hashPK: Any): Option[Item] = try {
-    Some(Item(table, getItem(new aws.model.GetItemRequest()
+    val attributes = getItem(new aws.model.GetItemRequest()
       .withTableName(table.name)
       .withKey(Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)).asJava)
       .withConsistentRead(consistentRead)
-    ).getItem))
+    ).getItem
+
+    Option(attributes).map(Item(table, _))
   } catch { case e: aws.model.ResourceNotFoundException => None }
 
   def get(table: Table, hashPK: Any, rangePK: Any): Option[Item] = getItem(table, hashPK, rangePK)
@@ -133,14 +135,16 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       case None => getItem(table, hashPK)
       case _ =>
         try {
-          Some(Item(table, getItem(new aws.model.GetItemRequest()
+          val attributes = getItem(new aws.model.GetItemRequest()
             .withTableName(table.name)
             .withKey(Map(
               table.hashPK -> AttributeValue.toJavaValue(hashPK),
               table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
             ).asJava)
             .withConsistentRead(consistentRead)
-          ).getItem))
+          ).getItem
+
+          Option(attributes).map(Item(table, _))
         } catch { case e: aws.model.ResourceNotFoundException => None }
     }
   }
