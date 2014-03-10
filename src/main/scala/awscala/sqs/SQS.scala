@@ -3,6 +3,7 @@ package awscala.sqs
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ sqs => aws }
+import com.amazonaws.auth.AWSSessionCredentials
 
 object SQS {
 
@@ -64,8 +65,11 @@ trait SQS extends aws.AmazonSQS {
   }
 
   def receive(queue: Queue): Seq[Message] = receiveMessage(queue)
-  def receiveMessage(queue: Queue): Seq[Message] = {
-    receiveMessage(new aws.model.ReceiveMessageRequest(queue.url)).getMessages.asScala.map(msg => Message(queue, msg)).toSeq
+  def receiveMessage(queue: Queue): Seq[Message] = receiveMessage(queue, 1)
+  def receiveMessage(queue: Queue, count: Int = 10, requestCredentials: Option[AWSSessionCredentials] = None): Seq[Message] = {
+    val req = new aws.model.ReceiveMessageRequest(queue.url).withMaxNumberOfMessages(count)
+    requestCredentials.foreach(c => req.setRequestCredentials(c))
+    receiveMessage(req).getMessages.asScala.map(msg => Message(queue, msg)).toSeq
   }
 
   def delete(message: Message) = deleteMessage(message)

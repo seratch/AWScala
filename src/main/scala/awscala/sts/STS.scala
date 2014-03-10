@@ -62,6 +62,14 @@ trait STS extends aws.AWSSecurityTokenService {
     s"${SIGNIN_URL}?Action=login&SigninToken=${token}&Issuer=${issuer}&Destination=${destination}"
   }
 
+  def assumeRole(id: String, arn: String, sessionKey: String): TemporaryCredentials = {
+    val assumeRoleReq = new aws.model.AssumeRoleRequest()
+    assumeRoleReq.setExternalId(id)
+    assumeRoleReq.setRoleArn(arn)
+    assumeRoleReq.setRoleSessionName(sessionKey)
+    val response = assumeRole(assumeRoleReq)
+    TemporaryCredentials(response.getCredentials)
+  }
 }
 
 /**
