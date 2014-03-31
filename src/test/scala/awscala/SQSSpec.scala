@@ -21,7 +21,7 @@ class SQSSpec extends FlatSpec with ShouldMatchers {
 
     // create new queue
     val newQueueName = s"sample-queue-${System.currentTimeMillis}"
-    val queue = sqs.createQueue(newQueueName)
+    val queue = sqs.createQueueAndReturnQueueName(newQueueName)
     val url = sqs.queueUrl(newQueueName)
     log.info(s"Created queue: ${queue}, url: ${url}")
 

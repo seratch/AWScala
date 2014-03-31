@@ -2,6 +2,7 @@ package awscala.sts
 
 import awscala._
 import com.amazonaws.services.{ securitytoken => aws }
+import com.amazonaws.auth.{ AWSSessionCredentials, BasicSessionCredentials }
 
 object TemporaryCredentials {
   def apply(c: aws.model.Credentials): TemporaryCredentials = new TemporaryCredentials(
@@ -22,4 +23,8 @@ case class TemporaryCredentials(
   setExpiration(expiration.toDate)
   setSecretAccessKey(secretAccessKey)
   setSessionToken(sessionToken)
+
+  def toSessionCredentials: AWSSessionCredentials = {
+    new BasicSessionCredentials(accessKeyId, secretAccessKey, sessionToken)
+  }
 }
