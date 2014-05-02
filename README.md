@@ -254,9 +254,12 @@ export AWS_ACCESS_KEY_ID=xxx
 export AWS_SECRET_ACCESS_KEY=yyy
 ```
 
-The dynamodb tests also require a locally running instance of dynamodb - see http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.DynamoDBLocal.html for more info.
+The DynamoDB tests also require a locally running instance of DynamoDB.
+An install script is provided as `bin/installDynamoDbLocal`.
+A launch script is provided as `bin/runDynamoDbLocal`.
+See http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.DynamoDBLocal.html for more info.
 
-And then, just run `sbt test`.
+To run the tests, just type `sbt test`.
 
 ## License
 
