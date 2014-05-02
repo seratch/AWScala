@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Run DynamoDB Local unit test dependency
+# Usage:launchDynamoDbLocal [DIR]
+# Where DIR defaults to /opt 
+
+if [ $# == 0 ]; then DEST=/opt; else DEST="$1"; fi
+DIR=$DEST/DynamoDBLocal
+
+java -Djava.library.path="$DIR" -jar $DIR/DynamoDBLocal.jar
+
