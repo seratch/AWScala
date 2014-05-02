@@ -12,12 +12,10 @@ object AttributeValue {
       case null => null
       case s: String => value.withS(s)
       case n: java.lang.Number => value.withN(n.toString)
-      case n: BigDecimal => value.withN(n.toString)
       case b: ByteBuffer => value.withB(b)
       case xs: Seq[_] => xs.headOption match {
         case Some(s: String) => value.withSS(xs.map(_.asInstanceOf[String]).asJava)
         case Some(n: java.lang.Number) => value.withSS(xs.map(_.toString).asJava)
-        case Some(n: BigDecimal) => value.withSS(xs.map(_.toString).asJava)
         case Some(s: ByteBuffer) => value.withBS(xs.map(_.asInstanceOf[ByteBuffer]).asJava)
         case Some(v) => value.withSS(xs.map(_.toString).asJava)
         case _ => null
