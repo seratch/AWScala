@@ -1,24 +1,34 @@
 #!/bin/bash
 
+SBT_VERSION=0.13.2
+sbtjar=sbt-launch.jar
+
+set -e
+
+# If sbtjar is present it is assumed to be ok
+function CHECK_SBT {
+  if [ ! -f $sbtjar ]; then
+    SBT_URL=http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/$SBT_VERSION
+    echo "Downloading $sbtjar v$SBT_VERSION" 1>&2
+    curl -O $SBT_URL/$sbtjar
+
+    MD5=$(curl -s $SBT_URL/jars/sbt-launch.jar.md5)
+    test -f $sbtjar || exit 1
+    sbtjar_md5=$(openssl md5 < $sbtjar|cut -f2 -d'='|awk '{print $1}')
+    if [ "${sbtjar_md5}" != $MD5 ]; then
+      echo "$sbtjar MD5 mismatch. This script expects SBT v$SBT_VERSION. If you have a different version, delete $sbtjar and try again." 1>&2
+      exit -1
+    fi
+  fi
+}
+
+# Not sure why this is here, perhaps it should be deleted:
 root=$(
   cd $(dirname $(readlink $0 || echo $0))/..
   /bin/pwd
 )
 
-sbtjar=sbt-launch.jar
-
-if [ ! -f $sbtjar ]; then
-  echo 'downloading '$sbtjar 1>&2
-  curl -O http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.2/$sbtjar
-fi
-
-test -f $sbtjar || exit 1
-sbtjar_md5=$(openssl md5 < $sbtjar|cut -f2 -d'='|awk '{print $1}')
-if [ "${sbtjar_md5}" != 3bc22e5885fa0792ff500a8e91d0936d ]; then
-  echo "$sbtjar MD5 mismatch!" 1>&2
-  exit 1
-fi
-
+CHECK_SBT
 
 test -f ~/.sbtconfig && . ~/.sbtconfig
 
