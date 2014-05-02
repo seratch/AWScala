@@ -1,6 +1,8 @@
 AWScala: AWS SDK on the Scala REPL
 =======
 
+[![Build Status](https://travis-ci.org/seratch/AWScala.svg)](https://travis-ci.org/seratch/AWScala)
+
 AWScala enables Scala developers to easily work with Amazon Web Services in the Scala way.
 
 Though AWScala objects basically extend AWS SDK for Java APIs, you can use them with less stress on Scala REPL or `sbt console`.
