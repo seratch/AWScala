@@ -1,4 +1,4 @@
-AWScala: AWS SDK on Scala REPL
+AWScala: AWS SDK on the Scala REPL
 =======
 
 AWScala enables Scala developers to easily work with Amazon Web Services in the Scala way.
@@ -21,7 +21,7 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 ## How to use
 
 ```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "[0.2,)"
+libraryDependencies += "com.github.seratch" %% "awscala" % "0.2.+"
 ```
 
 ## Examples
