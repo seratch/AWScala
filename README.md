@@ -130,7 +130,7 @@ val s3obj: Option[S3Object] = bucket.getObject("sample.txt")
 
 s3obj.foreach { obj =>
   obj.publicUrl // http://unique-name-xxx.s3.amazonaws.com/sample.txt
-  obj.get.generatePresignedUrl(DateTime.now.plusMinutes(10)) // ?Expires=....
+  obj.generatePresignedUrl(DateTime.now.plusMinutes(10)) // ?Expires=....
   bucket.delete(obj) // or obj.destroy()
 }
 ```
