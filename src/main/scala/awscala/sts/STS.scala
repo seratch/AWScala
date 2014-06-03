@@ -6,7 +6,7 @@ import com.amazonaws.util.json.JSONObject
 import java.net._
 
 object STS {
-  def apply(credentials: Credentials = Credentials.defaultEnv): STS = new STSClient(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load()): STS = new STSClient(credentials)
   def apply(accessKeyId: String, secretAccessKey: String): STS = {
     new STSClient(Credentials(accessKeyId, secretAccessKey))
   }
@@ -62,6 +62,14 @@ trait STS extends aws.AWSSecurityTokenService {
     s"${SIGNIN_URL}?Action=login&SigninToken=${token}&Issuer=${issuer}&Destination=${destination}"
   }
 
+  def assumeRole(id: String, arn: String, sessionKey: String): TemporaryCredentials = {
+    val assumeRoleReq = new aws.model.AssumeRoleRequest()
+    assumeRoleReq.setExternalId(id)
+    assumeRoleReq.setRoleArn(arn)
+    assumeRoleReq.setRoleSessionName(sessionKey)
+    val response = assumeRole(assumeRoleReq)
+    TemporaryCredentials(response.getCredentials)
+  }
 }
 
 /**
@@ -69,6 +77,6 @@ trait STS extends aws.AWSSecurityTokenService {
  *
  * @param credentials credentials
  */
-class STSClient(credentials: Credentials = Credentials.defaultEnv)
+class STSClient(credentials: Credentials = CredentialsLoader.load())
   extends aws.AWSSecurityTokenServiceClient(credentials)
   with STS

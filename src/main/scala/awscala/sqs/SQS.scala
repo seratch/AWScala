@@ -3,10 +3,11 @@ package awscala.sqs
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ sqs => aws }
+import com.amazonaws.auth.AWSSessionCredentials
 
 object SQS {
 
-  def apply(credentials: Credentials = Credentials.defaultEnv): SQS = new SQSClient(credentials).at(Region.default)
+  def apply(credentials: Credentials = CredentialsLoader.load()): SQS = new SQSClient(credentials).at(Region.default)
   def apply(accessKeyId: String, secretAccessKey: String): SQS = apply(Credentials(accessKeyId, secretAccessKey)).at(Region.default)
 
   def at(region: Region): SQS = apply().at(region)
@@ -27,7 +28,8 @@ trait SQS extends aws.AmazonSQS {
   // Queues
   // ------------------------------------------
 
-  def createQueue(name: String): Queue = {
+  // createQueue is added since SDK 1.7.x
+  def createQueueAndReturnQueueName(name: String): Queue = {
     val result = createQueue(new aws.model.CreateQueueRequest(name))
     Queue(result.getQueueUrl)
   }
@@ -63,23 +65,31 @@ trait SQS extends aws.AmazonSQS {
   }
 
   def receive(queue: Queue): Seq[Message] = receiveMessage(queue)
-  def receiveMessage(queue: Queue): Seq[Message] = {
-    receiveMessage(new aws.model.ReceiveMessageRequest(queue.url)).getMessages.asScala.map(msg => Message(queue, msg)).toSeq
+  def receiveMessage(queue: Queue): Seq[Message] = receiveMessage(queue, 1)
+  def receiveMessage(queue: Queue, count: Int = 10, requestCredentials: Option[AWSSessionCredentials] = None): Seq[Message] = {
+    val req = new aws.model.ReceiveMessageRequest(queue.url).withMaxNumberOfMessages(count)
+    requestCredentials.foreach(c => req.setRequestCredentials(c))
+    receiveMessage(req).getMessages.asScala.map(msg => Message(queue, msg)).toSeq
   }
 
   def delete(message: Message) = deleteMessage(message)
-  def deleteMessage(message: Message): Unit = {
-    deleteMessage(new aws.model.DeleteMessageRequest(message.queue.url, message.receiptHandle))
+  def deleteMessage(message: Message, requestCredentials: Option[AWSSessionCredentials] = None): Unit = {
+    val request = new aws.model.DeleteMessageRequest(message.queue.url, message.receiptHandle)
+    requestCredentials.foreach(c => request.setRequestCredentials(c))
+    deleteMessage(request)
   }
-  def deleteMessages(messages: Seq[Message]): Unit = {
+  def deleteMessages(messages: Seq[Message], requestCredentials: Option[AWSSessionCredentials] = None): Unit = {
     val batchId = Thread.currentThread.getId + "-" + System.nanoTime
     deleteMessageBatch(
       messages.head.queue,
-      messages.zipWithIndex.map { case (msg, idx) => new DeleteMessageBatchEntry(s"${batchId}-${idx}", msg.receiptHandle) })
+      messages.zipWithIndex.map { case (msg, idx) => new DeleteMessageBatchEntry(s"${batchId}-${idx}", msg.receiptHandle) },
+      requestCredentials)
   }
-  def deleteMessageBatch(queue: Queue, messages: Seq[DeleteMessageBatchEntry]): Unit = {
-    deleteMessageBatch(new aws.model.DeleteMessageBatchRequest(queue.url,
-      messages.map(_.asInstanceOf[aws.model.DeleteMessageBatchRequestEntry]).asJava))
+  def deleteMessageBatch(queue: Queue, messages: Seq[DeleteMessageBatchEntry], requestCredentials: Option[AWSSessionCredentials] = None): Unit = {
+    val request = new aws.model.DeleteMessageBatchRequest(queue.url,
+      messages.map(_.asInstanceOf[aws.model.DeleteMessageBatchRequestEntry]).asJava)
+    requestCredentials.foreach(c => request.setRequestCredentials(c))
+    deleteMessageBatch(request)
   }
 
 }
@@ -118,7 +128,7 @@ class SQSClientWithQueue(sqs: SQS, queue: Queue) {
  *
  * @param credentials credentials
  */
-class SQSClient(credentials: Credentials = Credentials.defaultEnv)
+class SQSClient(credentials: Credentials = CredentialsLoader.load())
   extends aws.AmazonSQSClient(credentials)
   with SQS
 

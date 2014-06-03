@@ -1,5 +1,7 @@
-AWScala: AWS SDK on Scala REPL
+AWScala: AWS SDK on the Scala REPL
 =======
+
+[![Build Status](https://travis-ci.org/seratch/AWScala.svg)](https://travis-ci.org/seratch/AWScala)
 
 AWScala enables Scala developers to easily work with Amazon Web Services in the Scala way.
 
@@ -21,7 +23,7 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 ## How to use
 
 ```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "[0.1,)"
+libraryDependencies += "com.github.seratch" %% "awscala" % "0.2.+"
 ```
 
 ## Examples
@@ -128,7 +130,7 @@ val s3obj: Option[S3Object] = bucket.getObject("sample.txt")
 
 s3obj.foreach { obj =>
   obj.publicUrl // http://unique-name-xxx.s3.amazonaws.com/sample.txt
-  obj.get.generatePresignedUrl(DateTime.now.plusMinutes(10)) // ?Expires=....
+  obj.generatePresignedUrl(DateTime.now.plusMinutes(10)) // ?Expires=....
   bucket.delete(obj) // or obj.destroy()
 }
 ```
@@ -231,6 +233,14 @@ https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/S
 
 https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala
 
+### Amazon Elastic MapReduce (Amazon EMR)
+
+Created by @CruncherBigData. If you have any feedback or questions, please contact @CruncherBigData.
+
+https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/emr/EMR.scala
+
+https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/EMRSpec.scala
+
 ## How to contribute
 
 If you're interested in contributing this project, please send pull requests!
@@ -244,7 +254,12 @@ export AWS_ACCESS_KEY_ID=xxx
 export AWS_SECRET_ACCESS_KEY=yyy
 ```
 
-And then, just run `sbt test`.
+The DynamoDB tests also require a locally running instance of DynamoDB.
+An install script is provided as `bin/installDynamoDbLocal`.
+A launch script is provided as `bin/runDynamoDbLocal`.
+See http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.DynamoDBLocal.html for more info.
+
+To run the tests, just type `sbt test`.
 
 ## License
 

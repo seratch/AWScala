@@ -10,7 +10,7 @@ object Instance {
   def apply(underlying: aws.model.Instance) = new Instance(underlying)
 }
 
-class Instance(underlying: aws.model.Instance) {
+class Instance(val underlying: aws.model.Instance) {
 
   def start()(implicit ec2: EC2) = ec2.start(this)
   def stop()(implicit ec2: EC2) = ec2.stop(this)
@@ -67,8 +67,6 @@ class Instance(underlying: aws.model.Instance) {
   def kernelId: String = underlying.getKernelId
 
   def launchTime: Date = underlying.getLaunchTime
-
-  def license: Option[InstanceLicense] = Option(underlying.getLicense).map(InstanceLicense(Instance.this, _))
 
   def monitoring: aws.model.Monitoring = underlying.getMonitoring
 

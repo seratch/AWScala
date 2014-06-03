@@ -3,13 +3,20 @@ package awscala.dynamodbv2
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
+import com.amazonaws.services.dynamodbv2.model.KeysAndAttributes
 
 object DynamoDB {
 
-  def apply(credentials: Credentials = Credentials.defaultEnv): DynamoDB = new DynamoDBClient(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load()): DynamoDB = new DynamoDBClient(credentials)
   def apply(accessKeyId: String, secretAccessKey: String): DynamoDB = apply(Credentials(accessKeyId, secretAccessKey))
 
   def at(region: Region): DynamoDB = apply().at(region)
+
+  def local(): DynamoDB = {
+    val client = DynamoDB("", "")
+    client.setEndpoint("http://localhost:8000")
+    client
+  }
 }
 
 /**
@@ -112,11 +119,13 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   def get(table: Table, hashPK: Any): Option[Item] = getItem(table, hashPK)
 
   def getItem(table: Table, hashPK: Any): Option[Item] = try {
-    Some(Item(table, getItem(new aws.model.GetItemRequest()
+    val attributes = getItem(new aws.model.GetItemRequest()
       .withTableName(table.name)
       .withKey(Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)).asJava)
       .withConsistentRead(consistentRead)
-    ).getItem))
+    ).getItem
+
+    Option(attributes).map(Item(table, _))
   } catch { case e: aws.model.ResourceNotFoundException => None }
 
   def get(table: Table, hashPK: Any, rangePK: Any): Option[Item] = getItem(table, hashPK, rangePK)
@@ -126,16 +135,34 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       case None => getItem(table, hashPK)
       case _ =>
         try {
-          Some(Item(table, getItem(new aws.model.GetItemRequest()
+          val attributes = getItem(new aws.model.GetItemRequest()
             .withTableName(table.name)
             .withKey(Map(
               table.hashPK -> AttributeValue.toJavaValue(hashPK),
               table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
             ).asJava)
             .withConsistentRead(consistentRead)
-          ).getItem))
+          ).getItem
+
+          Option(attributes).map(Item(table, _))
         } catch { case e: aws.model.ResourceNotFoundException => None }
     }
+  }
+
+  def batchGet(tableAndAttributes: Map[Table, List[(String, Any)]]): Seq[Item] = {
+    val responses = batchGetItem(new aws.model.BatchGetItemRequest()
+      .withRequestItems(tableAndAttributes.map {
+        case (table, attributes) =>
+          table.name -> new KeysAndAttributes().withKeys(
+            attributes.map {
+              case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
+            }.asJava
+          )
+      }.asJava)).getResponses
+
+    responses.asScala.toSeq.map {
+      case (t, as) => table(t).map(table => as.asScala.toList.map { a => Item(table, a) })
+    }.flatten.flatten
   }
 
   def put(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
@@ -185,10 +212,15 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   private[dynamodbv2] def updateAttributes(
     table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]): Unit = {
 
-    updateItem(new aws.model.UpdateItemRequest().withAttributeUpdates(attributes.map {
-      case (key, value) =>
-        (key, new aws.model.AttributeValueUpdate().withAction(action).withValue(AttributeValue.toJavaValue(value)))
-    }.toMap.asJava))
+    val tableKeys = Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)) ++ rangePK.flatMap(rKey => table.rangePK.map(_ -> AttributeValue.toJavaValue(rKey)))
+
+    updateItem(new aws.model.UpdateItemRequest()
+      .withTableName(table.name)
+      .withKey(tableKeys.asJava)
+      .withAttributeUpdates(attributes.map {
+        case (key, value) =>
+          (key, new aws.model.AttributeValueUpdate().withAction(action).withValue(AttributeValue.toJavaValue(value)))
+      }.toMap.asJava))
   }
 
   def deleteItem(table: Table, hashPK: Any): Unit = {
@@ -274,7 +306,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
  *
  * @param credentials credentials
  */
-class DynamoDBClient(credentials: Credentials = Credentials.defaultEnv)
+class DynamoDBClient(credentials: Credentials = CredentialsLoader.load())
   extends aws.AmazonDynamoDBClient(credentials)
   with DynamoDB
 

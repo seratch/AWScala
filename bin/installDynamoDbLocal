@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# **** Only tested on Ubuntu 14.04 ****
+
+# Install DynamoDB Local unit test dependency
+# Usage:installDynamoDbLocal [DIR]
+# Where DIR defaults to /opt 
+
+set -e
+
+if [ $# == 0 ]; then PARENT=/opt; else PARENT="$1"; fi
+TMP_DIR=/var/tmp/dynamoDB
+TMP_FILE=$TMP_DIR/dynamo.tar.gz
+DYNAMO_DIR=DynamoDBLocal
+DEST=$PARENT/$DYNAMO_DIR
+
+mkdir -p $TMP_DIR
+wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest -O $TMP_FILE
+cd $TMP_DIR
+if [ -d "$DEST/" ]; then 
+  echo "Replacing $DEST/"
+  rm -rf $DEST/
+fi
+mkdir -p $DEST
+tar xzf $TMP_FILE && mv *.jar $DEST/ && mv DynamoDBLocal_lib/ $DEST/
+cd - >/dev/null
+rm -rf $TMP_DIR
+echo "Installed to $DEST/"
+
