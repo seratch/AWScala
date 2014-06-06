@@ -251,7 +251,7 @@ Tests requires aws credentials with Administrator permissions:
 
 ```
 export AWS_ACCESS_KEY_ID=xxx
-export AWS_SECRET_ACCESS_KEY=yyy
+export AWS_SECRET_KEY=yyy
 ```
 
 The DynamoDB tests also require a locally running instance of DynamoDB.
