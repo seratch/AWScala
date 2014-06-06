@@ -37,7 +37,8 @@ trait SQS extends aws.AmazonSQS {
   def deleteQueue(queue: Queue): Unit = deleteQueue(new aws.model.DeleteQueueRequest(queue.url))
 
   def queues: Seq[Queue] = listQueues().getQueueUrls.asScala.map(url => Queue(url)).toSeq
-  def queue(name: String): Option[Queue] = queues.find(_.url.endsWith(name))
+
+  def queue(name: String): Option[Queue] = queues.find(_.url.split("/").last == name)
 
   def queueUrl(name: String): Option[String] = try {
     Some(getQueueUrl(new aws.model.GetQueueUrlRequest(name)).getQueueUrl)
