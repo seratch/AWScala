@@ -104,13 +104,13 @@ trait S3 extends aws.AmazonS3 {
 
   // listObjects
   def objectSummaries(bucket: Bucket): Seq[S3ObjectSummary] = objectSummaries(bucket, "")
-    
-  def objectSummaries(bucket: Bucket, prefix: String)  : Stream[S3ObjectSummary] = {
+
+  def objectSummaries(bucket: Bucket, prefix: String): Stream[S3ObjectSummary] = {
     import com.amazonaws.services.s3.model.ObjectListing
 
-    case class Placeholder(objectSummaries: Seq[S3ObjectSummary], prefixes: Seq[String], objectListing: Option[ObjectListing])
+    case class Placeholder(objectSummaries: List[S3ObjectSummary], prefixes: List[String], objectListing: Option[ObjectListing])
 
-    def getSummaries(listing: ObjectListing) = listing.getObjectSummaries().asScala map { s => S3ObjectSummary(bucket, s) }
+    def getSummaries(listing: ObjectListing) = (listing.getObjectSummaries().asScala map { s => S3ObjectSummary(bucket, s) }).toList
     def getPlaceholder(listing: ObjectListing) = Placeholder(getSummaries(listing), getPrefixes(listing), Some(listing))
     def getPrefixes(listing: ObjectListing) = listing.getCommonPrefixes().asScala.toList
     def getListing(prefix: String) = listObjects(bucket.name, prefix)
