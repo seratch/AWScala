@@ -11,6 +11,32 @@ class S3Spec extends FlatSpec with ShouldMatchers {
   behavior of "S3"
 
   val log = LoggerFactory.getLogger(this.getClass)
+  
+  it should "handle buckest with > 1000 objects in them " in {
+    implicit val s3 = S3.at(Region.Tokyo)
+
+    // buckets
+    val buckets = s3.buckets
+    log.info(s"Buckets: ${buckets}")
+
+    val newBucketName = s"awscala-unit-test-${System.currentTimeMillis}"
+    val bucket = s3.createBucket(newBucketName)
+    log.info(s"Created Bucket: ${bucket}")
+
+    // create/update objectes
+    val file = new java.io.File("src/main/scala/awscala/s3/S3.scala")
+    for( i <- 1 to 1002 ) {
+      bucket.put("S3.scala-" + i, file)
+    }
+ 
+    // delete objects
+    val summaries = bucket.objectSummaries.toList 
+    
+    summaries foreach {
+      o =>  log.info( "deleting ${o.getKey}" ); bucket.get(o.getKey) map { bucket.delete(_) }
+    }
+    bucket.destroy()
+  }
 
   it should "provide cool APIs" in {
     implicit val s3 = S3.at(Region.Tokyo)
