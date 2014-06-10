@@ -42,13 +42,14 @@ object SecurityGroup {
 
 object IpPermission {
   def apply(i: aws.model.IpPermission): IpPermission = {
-    IpPermission(
-      fromPort = i.getFromPort,
-      toPort = i.getToPort,
-      ipRanges = i.getIpRanges.asScala,
-      ipProtocol = i.getIpProtocol,
-      userIdGroupPairs = i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_))
+      IpPermission(
+        fromPort = if( i.getFromPort == null ) -1 else i.getFromPort,
+        toPort = if( i.getToPort == null ) -1 else i.getToPort,
+        ipRanges = i.getIpRanges.asScala,
+        ipProtocol = i.getIpProtocol,
+        userIdGroupPairs = i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_))
     )
+
   }
 }
 case class IpPermission(
