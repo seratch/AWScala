@@ -23,7 +23,7 @@ class S3Spec extends FlatSpec with ShouldMatchers {
     val bucket = s3.createBucket(newBucketName)
     log.info(s"Created Bucket: ${bucket}")
 
-    // create/update objectes
+    // create/update objects
     val file = new java.io.File("src/main/scala/awscala/s3/S3.scala")
     for( i <- 1 to 1002 ) {
       bucket.put("S3.scala-" + i, file)
@@ -33,7 +33,7 @@ class S3Spec extends FlatSpec with ShouldMatchers {
     val summaries = bucket.objectSummaries.toList 
     
     summaries foreach {
-      o =>  log.info( "deleting ${o.getKey}" ); bucket.get(o.getKey) map { bucket.delete(_) }
+      o =>  { log.info( "deleting ${o.getKey}" ); s3.deleteObject(bucket.name, o.getKey) }
     }
     bucket.destroy()
   }
