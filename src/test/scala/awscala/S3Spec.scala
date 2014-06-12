@@ -4,14 +4,13 @@ import awscala._, s3._
 
 import org.slf4j._
 import org.scalatest._
-import org.scalatest.matchers._
 
-class S3Spec extends FlatSpec with ShouldMatchers {
+class S3Spec extends FlatSpec with Matchers {
 
   behavior of "S3"
 
   val log = LoggerFactory.getLogger(this.getClass)
-  
+
   it should "handle buckest with > 1000 objects in them " in {
     implicit val s3 = S3.at(Region.Tokyo)
 
@@ -25,15 +24,15 @@ class S3Spec extends FlatSpec with ShouldMatchers {
 
     // create/update objects
     val file = new java.io.File("src/main/scala/awscala/s3/S3.scala")
-    for( i <- 1 to 1002 ) {
+    for (i <- 1 to 1002) {
       bucket.put("S3.scala-" + i, file)
     }
- 
+
     // delete objects
-    val summaries = bucket.objectSummaries.toList 
-    
+    val summaries = bucket.objectSummaries.toList
+
     summaries foreach {
-      o =>  { log.info( "deleting ${o.getKey}" ); s3.deleteObject(bucket.name, o.getKey) }
+      o => { log.info("deleting ${o.getKey}"); s3.deleteObject(bucket.name, o.getKey) }
     }
     bucket.destroy()
   }
@@ -62,7 +61,7 @@ class S3Spec extends FlatSpec with ShouldMatchers {
 
     // delete objects
     s3obj.foreach(o => { o.content.close(); bucket.delete(o) })
-    bucket.get("S3Spec.scala").map{ o=> o.content.close(); o.destroy() } // working with implicit S3 instance
+    bucket.get("S3Spec.scala").map { o => o.content.close(); o.destroy() } // working with implicit S3 instance
 
     bucket.destroy()
   }

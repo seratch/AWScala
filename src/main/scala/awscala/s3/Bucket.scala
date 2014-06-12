@@ -28,7 +28,7 @@ case class Bucket(name: String) extends aws.model.Bucket(name) {
   // object metadata
   def getMetadata(key: String)(implicit s3: S3) = s3.getObjectMetadata(name, key)
   def getMetadata(key: String, versionId: String)(implicit s3: S3) = s3.getObjectMetadata(new GetObjectMetadataRequest(name, key, versionId))
-  
+
   // object
   def get(key: String)(implicit s3: S3) = getObject(key)
   def getObject(key: String)(implicit s3: S3) = s3.get(this, key)
