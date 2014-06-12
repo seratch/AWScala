@@ -4,6 +4,7 @@ import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ s3 => aws }
 import java.io.{ File, ByteArrayInputStream }
+import scala.annotation.tailrec
 
 object S3 {
 
@@ -102,12 +103,39 @@ trait S3 extends aws.AmazonS3 {
   def metadata(bucket: Bucket, key: String) = getObjectMetadata(bucket.name, key)
 
   // listObjects
-  def objectSummaries(bucket: Bucket): Seq[S3ObjectSummary] = {
-    listObjects(bucket.name).getObjectSummaries.asScala.map(s => S3ObjectSummary(bucket, s)).toSeq
-  }
+  def objectSummaries(bucket: Bucket): Seq[S3ObjectSummary] = objectSummaries(bucket, "")
 
-  def objectSummaries(bucket: Bucket, prefix: String): Seq[S3ObjectSummary] = {
-    listObjects(bucket.name, prefix).getObjectSummaries.asScala.map(s => S3ObjectSummary(bucket, s)).toSeq
+  def objectSummaries(bucket: Bucket, prefix: String): Stream[S3ObjectSummary] = {
+    import com.amazonaws.services.s3.model.ObjectListing
+
+    case class Placeholder(objectSummaries: List[S3ObjectSummary], prefixes: List[String], objectListing: Option[ObjectListing])
+
+    def getSummaries(listing: ObjectListing) = (listing.getObjectSummaries().asScala map { s => S3ObjectSummary(bucket, s) }).toList
+    def getPlaceholder(listing: ObjectListing) = Placeholder(getSummaries(listing), getPrefixes(listing), Some(listing))
+    def getPrefixes(listing: ObjectListing) = listing.getCommonPrefixes().asScala.toList
+    def getListing(prefix: String) = listObjects(bucket.name, prefix)
+
+    def stream(work: List[Placeholder]): Stream[S3ObjectSummary] = next(work) match {
+      case (Some(e), more) => Stream.cons(e, stream(more))
+      case (None, more) => Stream.empty
+    }
+
+    @tailrec
+    def next(work: List[Placeholder]): (Option[S3ObjectSummary], List[Placeholder]) = {
+      work match {
+        case Nil => (None, Nil)
+        case (head :: tail) => {
+          head match {
+            case Placeholder(shead :: stail, prefixes, listing) => (Some(shead), Placeholder(stail, prefixes, listing) :: tail)
+            case Placeholder(Nil, phead :: ptail, listing) => next(getPlaceholder(getListing(phead)) :: Placeholder(Nil, ptail, listing) :: tail)
+            case Placeholder(Nil, Nil, Some(listing)) if listing.isTruncated() => next(getPlaceholder(listNextBatchOfObjects(listing)) :: tail)
+            case Placeholder(Nil, Nil, _) => next(tail)
+          }
+        }
+      }
+    }
+
+    stream(Placeholder(Nil, prefix :: Nil, None) :: Nil)
   }
 
   def keys(bucket: Bucket): Seq[String] = objectSummaries(bucket).map(os => os.getKey)

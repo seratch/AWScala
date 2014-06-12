@@ -8,7 +8,7 @@ object AwscalaProject extends Build {
   lazy val mainSettings = Seq(
     organization := "com.github.seratch",
     name := "awscala",
-    version := "0.2.3",
+    version := "0.2.4",
     scalaVersion := "2.10.4",
     crossScalaVersions := Seq("2.11.1", "2.10.4"),
     publishTo <<= version { (v: String) => 
@@ -25,7 +25,7 @@ object AwscalaProject extends Build {
       "com.decodified"   %% "scala-ssh"       % "0.6.4"  % "provided",
       "org.bouncycastle" %  "bcprov-jdk16"    % "1.46"   % "provided",
       "ch.qos.logback"   %  "logback-classic" % "1.1.2"  % "test",
-      "org.scalatest"    %% "scalatest"       % "2.1.7"  % "test"
+      "org.scalatest"    %% "scalatest"       % "2.2.0"  % "test"
     ),
     sbtPlugin := false,
     transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
