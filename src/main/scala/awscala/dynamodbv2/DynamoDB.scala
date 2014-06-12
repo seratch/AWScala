@@ -171,10 +171,11 @@ trait DynamoDB extends aws.AmazonDynamoDB {
         case (None, _) => Stream.Empty
       }
     
-    def toItems( result: BatchGetItemResult ) : Seq[Item] =
-      result.getResponses.asScala.toSeq.map {
-        case (t, as) => table(t).map(table => as.asScala.toList.map { a => Item(table, a) })
-      }.flatten.flatten
+    def toItems( result: BatchGetItemResult ) : Seq[Item] = {
+      result.getResponses.asScala.toSeq.flatMap {
+        case (t, as) => { table(t).map(table => as.asScala.toSeq.map { a => Item(table, a) }).getOrElse(Nil) }
+      }
+    }
     
     def toJava(tableAndAttributes: Map[Table, List[(String, Any)]]) =
       tableAndAttributes.map {
