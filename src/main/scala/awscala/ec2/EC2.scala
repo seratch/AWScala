@@ -7,6 +7,8 @@ import com.amazonaws.services.ec2.model.TagDescription
 import com.amazonaws.services.ec2.model.DescribeTagsRequest
 import com.amazonaws.services.ec2.model.InstanceStatus
 import com.amazonaws.services.ec2.model.DescribeInstanceStatusRequest
+import com.amazonaws.services.ec2.model.ReservedInstancesOffering
+import com.amazonaws.services.ec2.model.DescribeReservedInstancesOfferingsRequest
 
 object EC2 {
 
@@ -159,6 +161,29 @@ trait EC2 extends aws.AmazonEC2 {
 
     val result = describeInstanceStatus()
     toStream(ISState(result.getInstanceStatuses().asScala.toList, Option(result.getNextToken())))
+  }
+  
+  def reservedInstanceOfferings: Seq[ReservedInstancesOffering] = {
+    case class RIState(items: List[ReservedInstancesOffering], nextToken: Option[String])
+
+    @scala.annotation.tailrec
+    def next(state: RIState): (Option[ReservedInstancesOffering], RIState) = state match {
+      case RIState(head :: tail, nextToken) => (Some(head), RIState(tail, nextToken))
+      case RIState(Nil, Some(nextToken)) => {
+        val result = describeReservedInstancesOfferings(new DescribeReservedInstancesOfferingsRequest().withNextToken(nextToken))
+        next(RIState(result.getReservedInstancesOfferings().asScala.toList, Option(result.getNextToken())))
+      }
+      case RIState(Nil, None) => (None, state)
+    }
+
+    def toStream(state: RIState): Stream[ReservedInstancesOffering] =
+      next(state) match {
+        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
+        case (None, _) => Stream.Empty
+      }
+
+    val result = describeReservedInstancesOfferings()
+    toStream(RIState(result.getReservedInstancesOfferings().asScala.toList, Option(result.getNextToken())))
   }
 
 }
