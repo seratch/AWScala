@@ -128,25 +128,27 @@ trait EC2 extends aws.AmazonEC2 {
    tagsSequencer.sequence 
   }
  
-  def instanceStatuses: Seq[InstanceStatus] = {
+  def instanceStatuses(includeAll: Boolean = false, instanceIds: Seq[String] = Nil, filters: Seq[com.amazonaws.services.ec2.model.Filter] = Nil): Seq[InstanceStatus] = {
     import com.amazonaws.services.ec2.model.DescribeInstanceStatusResult
 
     object instanceStatusSequencer extends Sequencer[InstanceStatus,DescribeInstanceStatusResult,String] {
-      def getInitial = describeInstanceStatus()
+      val baseRequest = new DescribeInstanceStatusRequest().withIncludeAllInstances(includeAll).withInstanceIds(instanceIds.asJava).withFilters(filters.asJava)
+      def getInitial = describeInstanceStatus(baseRequest)
       def getMarker(r: DescribeInstanceStatusResult)= r.getNextToken()
-      def getFromMarker(marker: String) = describeInstanceStatus(new DescribeInstanceStatusRequest().withNextToken(marker))
+      def getFromMarker(marker: String) = describeInstanceStatus(baseRequest.withNextToken(marker))
       def getList(r: DescribeInstanceStatusResult) = r.getInstanceStatuses()
     } 
     instanceStatusSequencer.sequence 
   }
   
-  def reservedInstanceOfferings: Seq[ReservedInstancesOffering] = {
+  def reservedInstanceOfferings(availabilityZone: Option[String] = None): Seq[ReservedInstancesOffering] = {
     import com.amazonaws.services.ec2.model.DescribeReservedInstancesOfferingsResult
 
     object reservedSequencer extends Sequencer[ReservedInstancesOffering,DescribeReservedInstancesOfferingsResult,String] {
-      def getInitial = describeReservedInstancesOfferings()
+      val base = if( availabilityZone == None) new DescribeReservedInstancesOfferingsRequest() else new DescribeReservedInstancesOfferingsRequest().withAvailabilityZone(availabilityZone.get)
+      def getInitial = describeReservedInstancesOfferings(base)
       def getMarker(r: DescribeReservedInstancesOfferingsResult)= r.getNextToken()
-      def getFromMarker(marker: String) = describeReservedInstancesOfferings(new DescribeReservedInstancesOfferingsRequest().withNextToken(marker))
+      def getFromMarker(marker: String) = describeReservedInstancesOfferings(base.withNextToken(marker))
       def getList(r: DescribeReservedInstancesOfferingsResult) = r.getReservedInstancesOfferings()
     } 
     reservedSequencer.sequence 
