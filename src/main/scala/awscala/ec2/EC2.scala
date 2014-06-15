@@ -5,6 +5,8 @@ import scala.collection.JavaConverters._
 import com.amazonaws.services.{ ec2 => aws }
 import com.amazonaws.services.ec2.model.TagDescription
 import com.amazonaws.services.ec2.model.DescribeTagsRequest
+import com.amazonaws.services.ec2.model.InstanceStatus
+import com.amazonaws.services.ec2.model.DescribeInstanceStatusRequest
 
 object EC2 {
 
@@ -134,6 +136,29 @@ trait EC2 extends aws.AmazonEC2 {
 
     val result = describeTags()
     toStream(State(result.getTags().asScala.toList, Option(result.getNextToken())))
+  }
+  
+  def instanceStatuses: Seq[InstanceStatus] = {
+    case class ISState(items: List[InstanceStatus], nextToken: Option[String])
+
+    @scala.annotation.tailrec
+    def next(state: ISState): (Option[InstanceStatus], ISState) = state match {
+      case ISState(head :: tail, nextToken) => (Some(head), ISState(tail, nextToken))
+      case ISState(Nil, Some(nextToken)) => {
+        val result = describeInstanceStatus(new DescribeInstanceStatusRequest().withNextToken(nextToken))
+        next(ISState(result.getInstanceStatuses().asScala.toList, Option(result.getNextToken())))
+      }
+      case ISState(Nil, None) => (None, state)
+    }
+
+    def toStream(state: ISState): Stream[InstanceStatus] =
+      next(state) match {
+        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
+        case (None, _) => Stream.Empty
+      }
+
+    val result = describeInstanceStatus()
+    toStream(ISState(result.getInstanceStatuses().asScala.toList, Option(result.getNextToken())))
   }
 
 }
