@@ -69,9 +69,27 @@ trait SimpleDB extends aws.AmazonSimpleDB {
   // ------------------------------------------
 
   def select(domain: Domain, expression: String, consistentRead: Boolean = false): Seq[Item] = {
-    select(new aws.model.SelectRequest()
-      .withSelectExpression(expression)
-      .withConsistentRead(consistentRead)).getItems.asScala.map(i => Item(domain, i)).toSeq
+    
+    case class State(items: List[Item], nextToken: Option[String])
+
+    @scala.annotation.tailrec
+    def next(state: State): (Option[Item], State) = state match {
+      case State(head :: tail, nextToken) => (Some(Item(domain, head)), State(tail, nextToken))
+      case State(Nil, Some(nextToken)) => {
+        val result = select(new aws.model.SelectRequest() .withSelectExpression(expression) .withConsistentRead(consistentRead)).withNextToken(nextToken)
+        next(State(result.getItems().asScala.map(i => Item(domain, i)).toList, Option(result.getNextToken())))
+      }
+      case State(Nil, None) => (None, state)
+    }
+
+    def toStream(state: State): Stream[Item] =
+      next(state) match {
+        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
+        case (None, _) => Stream.Empty
+      }
+
+    val result = select(new aws.model.SelectRequest().withSelectExpression(expression) .withConsistentRead(consistentRead))
+    toStream(State(result.getItems().asScala.map(i => Item(domain, i)).toList, Option(result.getNextToken())))   
   }
 
   def attributes(item: Item): Seq[Attribute] = {
