@@ -117,75 +117,40 @@ trait EC2 extends aws.AmazonEC2 {
     deleteSecurityGroup(new aws.model.DeleteSecurityGroupRequest().withGroupName(name))
   }
   
-  def tags() {   
-    case class State(items: List[TagDescription], nextToken: Option[String])
-
-    @scala.annotation.tailrec
-    def next(state: State): (Option[TagDescription], State) = state match {
-      case State(head :: tail, nextToken) => (Some(head), State(tail, nextToken))
-      case State(Nil, Some(nextToken)) => {
-        val result = describeTags(new DescribeTagsRequest().withNextToken(nextToken))
-        next(State(result.getTags().asScala.toList, Option(result.getNextToken())))
-      }
-      case State(Nil, None) => (None, state)
-    }
-
-    def toStream(state: State): Stream[TagDescription] =
-      next(state) match {
-        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
-        case (None, _) => Stream.Empty
-      }
-
-    val result = describeTags()
-    toStream(State(result.getTags().asScala.toList, Option(result.getNextToken())))
+  def tags : Seq[TagDescription] = {
+    import com.amazonaws.services.ec2.model.DescribeTagsResult
+    object tagsSequencer extends Sequencer[TagDescription,DescribeTagsResult,String] {
+      def getInitial = describeTags()
+      def getMarker(r: DescribeTagsResult)= r.getNextToken()
+      def getFromMarker(marker: String) = describeTags(new DescribeTagsRequest().withNextToken(marker))
+      def getList(r: DescribeTagsResult) = r.getTags()
+   } 
+   tagsSequencer.sequence 
   }
-  
+ 
   def instanceStatuses: Seq[InstanceStatus] = {
-    case class ISState(items: List[InstanceStatus], nextToken: Option[String])
+    import com.amazonaws.services.ec2.model.DescribeInstanceStatusResult
 
-    @scala.annotation.tailrec
-    def next(state: ISState): (Option[InstanceStatus], ISState) = state match {
-      case ISState(head :: tail, nextToken) => (Some(head), ISState(tail, nextToken))
-      case ISState(Nil, Some(nextToken)) => {
-        val result = describeInstanceStatus(new DescribeInstanceStatusRequest().withNextToken(nextToken))
-        next(ISState(result.getInstanceStatuses().asScala.toList, Option(result.getNextToken())))
-      }
-      case ISState(Nil, None) => (None, state)
-    }
-
-    def toStream(state: ISState): Stream[InstanceStatus] =
-      next(state) match {
-        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
-        case (None, _) => Stream.Empty
-      }
-
-    val result = describeInstanceStatus()
-    toStream(ISState(result.getInstanceStatuses().asScala.toList, Option(result.getNextToken())))
+    object instanceStatusSequencer extends Sequencer[InstanceStatus,DescribeInstanceStatusResult,String] {
+      def getInitial = describeInstanceStatus()
+      def getMarker(r: DescribeInstanceStatusResult)= r.getNextToken()
+      def getFromMarker(marker: String) = describeInstanceStatus(new DescribeInstanceStatusRequest().withNextToken(marker))
+      def getList(r: DescribeInstanceStatusResult) = r.getInstanceStatuses()
+    } 
+    instanceStatusSequencer.sequence 
   }
   
   def reservedInstanceOfferings: Seq[ReservedInstancesOffering] = {
-    case class RIState(items: List[ReservedInstancesOffering], nextToken: Option[String])
+    import com.amazonaws.services.ec2.model.DescribeReservedInstancesOfferingsResult
 
-    @scala.annotation.tailrec
-    def next(state: RIState): (Option[ReservedInstancesOffering], RIState) = state match {
-      case RIState(head :: tail, nextToken) => (Some(head), RIState(tail, nextToken))
-      case RIState(Nil, Some(nextToken)) => {
-        val result = describeReservedInstancesOfferings(new DescribeReservedInstancesOfferingsRequest().withNextToken(nextToken))
-        next(RIState(result.getReservedInstancesOfferings().asScala.toList, Option(result.getNextToken())))
-      }
-      case RIState(Nil, None) => (None, state)
-    }
-
-    def toStream(state: RIState): Stream[ReservedInstancesOffering] =
-      next(state) match {
-        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
-        case (None, _) => Stream.Empty
-      }
-
-    val result = describeReservedInstancesOfferings()
-    toStream(RIState(result.getReservedInstancesOfferings().asScala.toList, Option(result.getNextToken())))
+    object reservedSequencer extends Sequencer[ReservedInstancesOffering,DescribeReservedInstancesOfferingsResult,String] {
+      def getInitial = describeReservedInstancesOfferings()
+      def getMarker(r: DescribeReservedInstancesOfferingsResult)= r.getNextToken()
+      def getFromMarker(marker: String) = describeReservedInstancesOfferings(new DescribeReservedInstancesOfferingsRequest().withNextToken(marker))
+      def getList(r: DescribeReservedInstancesOfferingsResult) = r.getReservedInstancesOfferings()
+    } 
+    reservedSequencer.sequence 
   }
-
 }
 
 /**

@@ -194,6 +194,52 @@ trait EMR extends aws.AmazonElasticMapReduce {
 
     runJobFlow(runJobFlowRequest)
   }
+  
+  def bootstrapActions: Seq[Command] = {
+    case class BAState(items: List[Command], nextToken: Option[String])
+
+    @scala.annotation.tailrec
+    def next(state: BAState): (Option[Command], BAState) = state match {
+      case BAState(head :: tail, nextMarker) => (Some(head), BAState(tail, nextMarker))
+      case BAState(Nil, Some(nextMarker)) => {
+        val result = listBootstrapActions(new ListBootstrapActionsRequest().withMarker(nextMarker))
+        next(BAState(result.getBootstrapActions().asScala.toList, Option(result.getMarker())))
+      }
+      case BAState(Nil, None) => (None, state)
+    }
+
+    def toStream(state: BAState): Stream[Command] =
+      next(state) match {
+        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
+        case (None, _) => Stream.Empty
+      }
+
+    val result = listBootstrapActions()
+    toStream(BAState(result.getBootstrapActions().asScala.toList, Option(result.getMarker())))
+  }
+  
+  def steps: Seq[StepSummary] = {
+    case class SSState(items: List[StepSummary], nextToken: Option[String])
+
+    @scala.annotation.tailrec
+    def next(state: SSState): (Option[StepSummary], SSState) = state match {
+      case SSState(head :: tail, nextMarker) => (Some(head), SSState(tail, nextMarker))
+      case SSState(Nil, Some(nextMarker)) => {
+        val result = listSteps(new ListStepsRequest().withMarker(nextMarker))
+        next(SSState(result.getSteps().asScala.toList, Option(result.getMarker())))
+      }
+      case SSState(Nil, None) => (None, state)
+    }
+
+    def toStream(state: SSState): Stream[StepSummary] =
+      next(state) match {
+        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
+        case (None, _) => Stream.Empty
+      }
+
+    val result = listSteps()
+    toStream(SSState(result.getSteps().asScala.toList, Option(result.getMarker())))
+  }
 
   def getClusterDetail[T](jobFlowId: String, op: aws.model.Cluster => T): T = {
     val describeClusterRequest = new DescribeClusterRequest().withClusterId(jobFlowId)
