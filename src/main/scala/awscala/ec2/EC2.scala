@@ -9,6 +9,7 @@ import com.amazonaws.services.ec2.model.InstanceStatus
 import com.amazonaws.services.ec2.model.DescribeInstanceStatusRequest
 import com.amazonaws.services.ec2.model.ReservedInstancesOffering
 import com.amazonaws.services.ec2.model.DescribeReservedInstancesOfferingsRequest
+import com.amazonaws.services.ec2.model.Filter
 
 object EC2 {
 
@@ -117,18 +118,19 @@ trait EC2 extends aws.AmazonEC2 {
     deleteSecurityGroup(new aws.model.DeleteSecurityGroupRequest().withGroupName(name))
   }
   
-  def tags : Seq[TagDescription] = {
+  def tags(filters: Seq[Filter] = Nil) : Seq[TagDescription] = {
     import com.amazonaws.services.ec2.model.DescribeTagsResult
     object tagsSequencer extends Sequencer[TagDescription,DescribeTagsResult,String] {
-      def getInitial = describeTags()
+      val baseRequest = new DescribeTagsRequest().withFilters(filters.asJava)
+      def getInitial = describeTags(baseRequest)
       def getMarker(r: DescribeTagsResult)= r.getNextToken()
-      def getFromMarker(marker: String) = describeTags(new DescribeTagsRequest().withNextToken(marker))
+      def getFromMarker(marker: String) = describeTags(baseRequest.withNextToken(marker))
       def getList(r: DescribeTagsResult) = r.getTags()
    } 
    tagsSequencer.sequence 
   }
  
-  def instanceStatuses(includeAll: Boolean = false, instanceIds: Seq[String] = Nil, filters: Seq[com.amazonaws.services.ec2.model.Filter] = Nil): Seq[InstanceStatus] = {
+  def instanceStatuses(includeAll: Boolean = false, instanceIds: Seq[String] = Nil, filters: Seq[Filter] = Nil): Seq[InstanceStatus] = {
     import com.amazonaws.services.ec2.model.DescribeInstanceStatusResult
 
     object instanceStatusSequencer extends Sequencer[InstanceStatus,DescribeInstanceStatusResult,String] {
@@ -141,11 +143,12 @@ trait EC2 extends aws.AmazonEC2 {
     instanceStatusSequencer.sequence 
   }
   
-  def reservedInstanceOfferings(availabilityZone: Option[String] = None): Seq[ReservedInstancesOffering] = {
+  def reservedInstanceOfferings(availabilityZone: Option[String] = None, filters: Seq[Filter] = Nil): Seq[ReservedInstancesOffering] = {
     import com.amazonaws.services.ec2.model.DescribeReservedInstancesOfferingsResult
 
     object reservedSequencer extends Sequencer[ReservedInstancesOffering,DescribeReservedInstancesOfferingsResult,String] {
-      val base = if( availabilityZone == None) new DescribeReservedInstancesOfferingsRequest() else new DescribeReservedInstancesOfferingsRequest().withAvailabilityZone(availabilityZone.get)
+      val baseRequest = new DescribeReservedInstancesOfferingsRequest().withFilters(filters.asJava)
+      val base = if( availabilityZone == None) baseRequest else baseRequest.withAvailabilityZone(availabilityZone.get)
       def getInitial = describeReservedInstancesOfferings(base)
       def getMarker(r: DescribeReservedInstancesOfferingsResult)= r.getNextToken()
       def getFromMarker(marker: String) = describeReservedInstancesOfferings(base.withNextToken(marker))
