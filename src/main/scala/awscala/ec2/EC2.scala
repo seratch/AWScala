@@ -3,6 +3,8 @@ package awscala.ec2
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ ec2 => aws }
+import com.amazonaws.services.ec2.model.TagDescription
+import com.amazonaws.services.ec2.model.DescribeTagsRequest
 
 object EC2 {
 
@@ -109,6 +111,29 @@ trait EC2 extends aws.AmazonEC2 {
   def delete(securityGroup: SecurityGroup): Unit = deleteSecurityGroup(securityGroup.groupName)
   def deleteSecurityGroup(name: String): Unit = {
     deleteSecurityGroup(new aws.model.DeleteSecurityGroupRequest().withGroupName(name))
+  }
+  
+  def tags() {   
+    case class State(items: List[TagDescription], nextToken: Option[String])
+
+    @scala.annotation.tailrec
+    def next(state: State): (Option[TagDescription], State) = state match {
+      case State(head :: tail, nextToken) => (Some(head), State(tail, nextToken))
+      case State(Nil, Some(nextToken)) => {
+        val result = describeTags(new DescribeTagsRequest().withNextToken(nextToken))
+        next(State(result.getTags().asScala.toList, Option(result.getNextToken())))
+      }
+      case State(Nil, None) => (None, state)
+    }
+
+    def toStream(state: State): Stream[TagDescription] =
+      next(state) match {
+        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
+        case (None, _) => Stream.Empty
+      }
+
+    val result = describeTags()
+    toStream(State(result.getTags().asScala.toList, Option(result.getNextToken())))
   }
 
 }
