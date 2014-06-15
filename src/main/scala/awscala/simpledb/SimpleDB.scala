@@ -3,6 +3,7 @@ package awscala.simpledb
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ simpledb => aws }
+import com.amazonaws.services.simpledb.model.ListDomainsRequest
 
 object SimpleDB {
 
@@ -27,7 +28,29 @@ trait SimpleDB extends aws.AmazonSimpleDB {
   // Domains
   // ------------------------------------------
 
-  def domains: Seq[Domain] = listDomains.getDomainNames.asScala.map(name => Domain(name)).toSeq
+  def domains: Seq[Domain] = {
+    case class State(items: List[String], nextToken: Option[String])
+
+    @scala.annotation.tailrec
+    def next(state: State): (Option[Domain], State) = state match {
+      case State(head :: tail, nextToken) => (Some(Domain(head)), State(tail, nextToken))
+      case State(Nil, Some(nextToken)) => {
+        val result = listDomains(new ListDomainsRequest().withNextToken(nextToken))
+        next(State(result.getDomainNames().asScala.toList, Option(result.getNextToken())))
+      }
+      case State(Nil, None) => (None, state)
+    }
+
+    def toStream(state: State): Stream[Domain] =
+      next(state) match {
+        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
+        case (None, _) => Stream.Empty
+      }
+
+    val result = listDomains
+    toStream(State(result.getDomainNames().asScala.toList, Option(result.getNextToken())))
+  }
+  
   def domain(name: String): Option[Domain] = domains.find(_.name == name)
 
   def domainMetadata(domain: Domain): DomainMetadata = {
