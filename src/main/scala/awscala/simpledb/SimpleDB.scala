@@ -29,26 +29,16 @@ trait SimpleDB extends aws.AmazonSimpleDB {
   // ------------------------------------------
 
   def domains: Seq[Domain] = {
-    case class State(items: List[String], nextToken: Option[String])
+    import com.amazonaws.services.simpledb.model.ListDomainsResult
 
-    @scala.annotation.tailrec
-    def next(state: State): (Option[Domain], State) = state match {
-      case State(head :: tail, nextToken) => (Some(Domain(head)), State(tail, nextToken))
-      case State(Nil, Some(nextToken)) => {
-        val result = listDomains(new ListDomainsRequest().withNextToken(nextToken))
-        next(State(result.getDomainNames().asScala.toList, Option(result.getNextToken())))
-      }
-      case State(Nil, None) => (None, state)
-    }
-
-    def toStream(state: State): Stream[Domain] =
-      next(state) match {
-        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
-        case (None, _) => Stream.Empty
-      }
-
-    val result = listDomains
-    toStream(State(result.getDomainNames().asScala.toList, Option(result.getNextToken())))
+    object domainsSequencer extends Sequencer[Domain,ListDomainsResult,String] {
+      val baseRequest = new ListDomainsRequest()
+      def getInitial = listDomains(baseRequest)
+      def getMarker(r: ListDomainsResult)= r.getNextToken()
+      def getFromMarker(marker: String) = listDomains(baseRequest.withNextToken(marker))
+      def getList(r: ListDomainsResult) = (r.getDomainNames().asScala.toList map { x => Domain(x) }).asJava
+    } 
+    domainsSequencer.sequence 
   }
   
   def domain(name: String): Option[Domain] = domains.find(_.name == name)
