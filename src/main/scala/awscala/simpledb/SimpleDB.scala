@@ -58,28 +58,18 @@ trait SimpleDB extends aws.AmazonSimpleDB {
   // Items/Attributes
   // ------------------------------------------
 
+  
   def select(domain: Domain, expression: String, consistentRead: Boolean = false): Seq[Item] = {
-    
-    case class State(items: List[Item], nextToken: Option[String])
+    import com.amazonaws.services.simpledb.model.SelectResult
 
-    @scala.annotation.tailrec
-    def next(state: State): (Option[Item], State) = state match {
-      case State(head :: tail, nextToken) => (Some(Item(domain, head)), State(tail, nextToken))
-      case State(Nil, Some(nextToken)) => {
-        val result = select(new aws.model.SelectRequest() .withSelectExpression(expression) .withConsistentRead(consistentRead)).withNextToken(nextToken)
-        next(State(result.getItems().asScala.map(i => Item(domain, i)).toList, Option(result.getNextToken())))
-      }
-      case State(Nil, None) => (None, state)
-    }
-
-    def toStream(state: State): Stream[Item] =
-      next(state) match {
-        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
-        case (None, _) => Stream.Empty
-      }
-
-    val result = select(new aws.model.SelectRequest().withSelectExpression(expression) .withConsistentRead(consistentRead))
-    toStream(State(result.getItems().asScala.map(i => Item(domain, i)).toList, Option(result.getNextToken())))   
+    object selectSequencer extends Sequencer[Item,SelectResult,String] {
+      val baseRequest = new aws.model.SelectRequest().withSelectExpression(expression).withConsistentRead(consistentRead)
+      def getInitial = select(baseRequest)
+      def getMarker(r: SelectResult)= r.getNextToken()
+      def getFromMarker(marker: String) = select(baseRequest.withNextToken(marker))
+      def getList(r: SelectResult) = (r.getItems().asScala.toList map { x => Item(domain,x) }).asJava
+    } 
+    selectSequencer.sequence 
   }
 
   def attributes(item: Item): Seq[Attribute] = {
