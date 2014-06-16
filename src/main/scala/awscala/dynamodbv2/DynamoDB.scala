@@ -150,7 +150,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   }
 
   def batchGet(tableAndAttributes: Map[Table, List[(String, Any)]]): Seq[Item] = {
-    import com.amazonaws.services.dynamodbv2.model.{BatchGetItemRequest,BatchGetItemResult}
+    import com.amazonaws.services.dynamodbv2.model.{ BatchGetItemRequest, BatchGetItemResult }
 
     case class State(items: List[Item], keys: java.util.Map[String, KeysAndAttributes])
 
@@ -164,19 +164,19 @@ trait DynamoDB extends aws.AmazonDynamoDB {
         }
         case State(Nil, remaining) if remaining.isEmpty => (None, state)
       }
-    
-    def toStream(state: State): Stream[Item] = 
+
+    def toStream(state: State): Stream[Item] =
       next(state) match {
         case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
         case (None, _) => Stream.Empty
       }
-    
-    def toItems( result: BatchGetItemResult ) : Seq[Item] = {
+
+    def toItems(result: BatchGetItemResult): Seq[Item] = {
       result.getResponses.asScala.toSeq.flatMap {
         case (t, as) => { table(t).map(table => as.asScala.toSeq.map { a => Item(table, a) }).getOrElse(Nil) }
       }
     }
-    
+
     def toJava(tableAndAttributes: Map[Table, List[(String, Any)]]) =
       tableAndAttributes.map {
         case (table, attributes) =>

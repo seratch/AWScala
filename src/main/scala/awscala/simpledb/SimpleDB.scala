@@ -31,16 +31,16 @@ trait SimpleDB extends aws.AmazonSimpleDB {
   def domains: Seq[Domain] = {
     import com.amazonaws.services.simpledb.model.ListDomainsResult
 
-    object domainsSequencer extends Sequencer[Domain,ListDomainsResult,String] {
+    object domainsSequencer extends Sequencer[Domain, ListDomainsResult, String] {
       val baseRequest = new ListDomainsRequest()
       def getInitial = listDomains(baseRequest)
-      def getMarker(r: ListDomainsResult)= r.getNextToken()
+      def getMarker(r: ListDomainsResult) = r.getNextToken()
       def getFromMarker(marker: String) = listDomains(baseRequest.withNextToken(marker))
       def getList(r: ListDomainsResult) = (r.getDomainNames().asScala.toList map { x => Domain(x) }).asJava
-    } 
-    domainsSequencer.sequence 
+    }
+    domainsSequencer.sequence
   }
-  
+
   def domain(name: String): Option[Domain] = domains.find(_.name == name)
 
   def domainMetadata(domain: Domain): DomainMetadata = {
@@ -58,18 +58,17 @@ trait SimpleDB extends aws.AmazonSimpleDB {
   // Items/Attributes
   // ------------------------------------------
 
-  
   def select(domain: Domain, expression: String, consistentRead: Boolean = false): Seq[Item] = {
     import com.amazonaws.services.simpledb.model.SelectResult
 
-    object selectSequencer extends Sequencer[Item,SelectResult,String] {
+    object selectSequencer extends Sequencer[Item, SelectResult, String] {
       val baseRequest = new aws.model.SelectRequest().withSelectExpression(expression).withConsistentRead(consistentRead)
       def getInitial = select(baseRequest)
-      def getMarker(r: SelectResult)= r.getNextToken()
+      def getMarker(r: SelectResult) = r.getNextToken()
       def getFromMarker(marker: String) = select(baseRequest.withNextToken(marker))
-      def getList(r: SelectResult) = (r.getItems().asScala.toList map { x => Item(domain,x) }).asJava
-    } 
-    selectSequencer.sequence 
+      def getList(r: SelectResult) = (r.getItems().asScala.toList map { x => Item(domain, x) }).asJava
+    }
+    selectSequencer.sequence
   }
 
   def attributes(item: Item): Seq[Attribute] = {
