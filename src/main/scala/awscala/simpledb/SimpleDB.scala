@@ -29,7 +29,7 @@ trait SimpleDB extends aws.AmazonSimpleDB {
   // ------------------------------------------
 
   def domains: Seq[Domain] = {
-    import com.amazonaws.services.simpledb.model.ListDomainsResult
+    import aws.model.ListDomainsResult
 
     object domainsSequencer extends Sequencer[Domain, ListDomainsResult, String] {
       val baseRequest = new ListDomainsRequest()
@@ -59,7 +59,7 @@ trait SimpleDB extends aws.AmazonSimpleDB {
   // ------------------------------------------
 
   def select(domain: Domain, expression: String, consistentRead: Boolean = false): Seq[Item] = {
-    import com.amazonaws.services.simpledb.model.SelectResult
+    import aws.model.SelectResult
 
     object selectSequencer extends Sequencer[Item, SelectResult, String] {
       val baseRequest = new aws.model.SelectRequest().withSelectExpression(expression).withConsistentRead(consistentRead)
