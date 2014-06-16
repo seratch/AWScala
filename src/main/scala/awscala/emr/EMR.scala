@@ -4,6 +4,7 @@ import awscala._
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ elasticmapreduce => aws }
+import scala.collection.JavaConverters._
 import aws.model._
 
 object EMR {
@@ -207,10 +208,11 @@ trait EMR extends aws.AmazonElasticMapReduce {
    actionSequencer.sequence 
   }
   
-  def steps : Seq[StepSummary] = {
+  def steps(clusterId: Option[String] = None, stepStates: Seq[String] = Nil ) : Seq[StepSummary] = {
     import com.amazonaws.services.elasticmapreduce.model.ListStepsResult
     object stepsSequencer extends Sequencer[StepSummary,ListStepsResult,String] {
-      val baseRequest = new ListStepsRequest()
+      val base = if( clusterId == None ) new ListStepsRequest() else new ListStepsRequest().withClusterId(clusterId.get)
+      val baseRequest = base.withStepStates(stepStates.toList.asJava)
       def getInitial = listSteps(baseRequest)
       def getMarker(r: ListStepsResult)= r.getMarker()
       def getFromMarker(marker: String) = listSteps(baseRequest.withMarker(marker))
