@@ -1,14 +1,15 @@
-/**
- *
- */
 package awscala
 
-/**
- * @author Derrick Burns <derrick.burns@rincaro.com>
- *
- */
 import scala.collection.JavaConverters._
 
+/**
+ * Sequencer is a trait that provides a method to returns a Stream over a list of items from AWS
+ * that are normally returned in chunks by repeated calls to the AWS APIs.  
+ * 
+ * @param Item is the type of the item in the sequence
+ * @param Result is the type of the AWS *Result object
+ * @param Marker is the type of the continuation token returned by AWS, usually String
+ */
 trait Sequencer[Item, Result, Marker] {
   def getInitial: Result
   def getMarker(r: Result): Marker
