@@ -212,11 +212,16 @@ trait S3 extends aws.AmazonS3 {
     deleteVersion(new aws.model.DeleteVersionRequest(obj.bucket.name, obj.key, versionId))
   }
 
-  def deleteObjects(objs: Seq[S3Object]): Unit = objs.headOption.map {
-    obj =>
-      val req = new aws.model.DeleteObjectsRequest(obj.bucket.name)
-      req.setKeys(objs.map(obj => new aws.model.DeleteObjectsRequest.KeyVersion(obj.key, obj.versionId)).asJava)
-      deleteObjects(req)
+  def deleteObjects(objs: Seq[S3Object]): Unit = {
+    objs.groupBy(_.bucket) map {
+      x =>
+        x._2.headOption.map {
+          obj =>
+            val req = new aws.model.DeleteObjectsRequest(obj.bucket.name)
+            req.setKeys(x._2.map(obj => new aws.model.DeleteObjectsRequest.KeyVersion(obj.key, obj.versionId)).asJava)
+            deleteObjects(req)
+        }
+    }
   }
 
   // presignedUrl
