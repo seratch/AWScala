@@ -201,7 +201,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
     object clustersSequencer extends Sequencer[ClusterSummary,ListClustersResult,String] {
       val base = new ListClustersRequest().withClusterStates(clusterStates.toList.asJava)
       val baseRequest1 = if( createdBefore == None ) base else base.withCreatedBefore(createdBefore.get)
-      val baseRequest2 = if( createdAfter == None ) base else base.withCreatedAfter(createdAfter.get)
+      val baseRequest2 = if( createdAfter == None ) baseRequest1 else baseRequest1.withCreatedAfter(createdAfter.get)
       def getInitial = listClusters(baseRequest2)
       def getMarker(r: ListClustersResult)= r.getMarker()
       def getFromMarker(marker: String) = listClusters(baseRequest2.withMarker(marker))
