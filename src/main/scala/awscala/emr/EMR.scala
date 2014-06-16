@@ -196,10 +196,10 @@ trait EMR extends aws.AmazonElasticMapReduce {
     runJobFlow(runJobFlowRequest)
   }
   
-  def bootstrapActions : Seq[Command] = {
+  def bootstrapActions(clusterId: Option[String] = None) : Seq[Command] = {
     import com.amazonaws.services.elasticmapreduce.model.ListBootstrapActionsResult
     object actionSequencer extends Sequencer[Command,ListBootstrapActionsResult,String] {
-      val baseRequest = new ListBootstrapActionsRequest()
+      val baseRequest = if( clusterId == None ) new ListBootstrapActionsRequest() else new ListBootstrapActionsRequest().withClusterId(clusterId.get)
       def getInitial = listBootstrapActions(baseRequest)
       def getMarker(r: ListBootstrapActionsResult)= r.getMarker()
       def getFromMarker(marker: String) = listBootstrapActions(baseRequest.withMarker(marker))
