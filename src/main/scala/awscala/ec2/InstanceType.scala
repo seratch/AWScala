@@ -22,5 +22,19 @@ object InstanceType {
   val M3_2xlarge = aws.model.InstanceType.M32xlarge
   val M3_Xlarge = aws.model.InstanceType.M3Xlarge
   val T1_Micro = aws.model.InstanceType.T1Micro
-
+  val C3_2xlarge = aws.model.InstanceType.C32xlarge
+  val C3_4xlarge = aws.model.InstanceType.C34xlarge
+  val C3_8xlarge = aws.model.InstanceType.C38xlarge
+  val C3_Large = aws.model.InstanceType.C3Large
+  val C3_Xlarge = aws.model.InstanceType.C3Xlarge
+  val G2_2xlarge = aws.model.InstanceType.G22xlarge
+  val I2_2xlarge = aws.model.InstanceType.I22xlarge
+  val I2_4xlarge =  aws.model.InstanceType.I24xlarge
+  val I2_8xlarge = aws.model.InstanceType.I28xlarge
+  val I2_Xlarge = aws.model.InstanceType.I2Xlarge
+  val R3_2xlarge = aws.model.InstanceType.R32xlarge
+  val R3_4xlarge = aws.model.InstanceType.R34xlarge
+  val R3_8xlarge = aws.model.InstanceType.R38xlarge
+  val R3_Large = aws.model.InstanceType.R3Large
+  val R3_Xlarge = aws.model.InstanceType.R3Xlarge
 }
