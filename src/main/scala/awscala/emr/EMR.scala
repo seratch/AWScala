@@ -4,7 +4,6 @@ import awscala._
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ elasticmapreduce => aws }
-import scala.collection.JavaConverters._
 import aws.model._
 
 object EMR {
