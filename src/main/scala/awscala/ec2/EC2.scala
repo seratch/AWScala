@@ -4,7 +4,6 @@ import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ ec2 => aws }
 
-
 object EC2 {
 
   def apply(credentials: Credentials = CredentialsLoader.load()): EC2 = new EC2Client(credentials)
@@ -115,40 +114,41 @@ trait EC2 extends aws.AmazonEC2 {
   def tags(filters: Seq[aws.model.Filter] = Nil) : Seq[aws.model.TagDescription] = {
     import aws.model.DescribeTagsResult
     object tagsSequencer extends Sequencer[aws.model.TagDescription,DescribeTagsResult,String] {
+
       val baseRequest = new aws.model.DescribeTagsRequest().withFilters(filters.asJava)
       def getInitial = describeTags(baseRequest)
-      def getMarker(r: DescribeTagsResult)= r.getNextToken()
+      def getMarker(r: DescribeTagsResult) = r.getNextToken()
       def getFromMarker(marker: String) = describeTags(baseRequest.withNextToken(marker))
       def getList(r: DescribeTagsResult) = r.getTags()
-   } 
-   tagsSequencer.sequence 
+    }
+    tagsSequencer.sequence
   }
- 
+
   def instanceStatuses(includeAll: Boolean = false, instanceIds: Seq[String] = Nil, filters: Seq[aws.model.Filter] = Nil): Seq[aws.model.InstanceStatus] = {
     import aws.model.DescribeInstanceStatusResult
 
-    object instanceStatusSequencer extends Sequencer[aws.model.InstanceStatus,DescribeInstanceStatusResult,String] {
+    object instanceStatusSequencer extends Sequencer[aws.model.InstanceStatus, DescribeInstanceStatusResult, String] {
       val baseRequest = new aws.model.DescribeInstanceStatusRequest().withIncludeAllInstances(includeAll).withInstanceIds(instanceIds.asJava).withFilters(filters.asJava)
       def getInitial = describeInstanceStatus(baseRequest)
-      def getMarker(r: DescribeInstanceStatusResult)= r.getNextToken()
+      def getMarker(r: DescribeInstanceStatusResult) = r.getNextToken()
       def getFromMarker(marker: String) = describeInstanceStatus(baseRequest.withNextToken(marker))
       def getList(r: DescribeInstanceStatusResult) = r.getInstanceStatuses()
-    } 
-    instanceStatusSequencer.sequence 
+    }
+    instanceStatusSequencer.sequence
   }
-  
+
   def reservedInstanceOfferings(availabilityZone: Option[String] = None, filters: Seq[aws.model.Filter] = Nil): Seq[aws.model.ReservedInstancesOffering] = {
     import aws.model.DescribeReservedInstancesOfferingsResult
 
-    object reservedSequencer extends Sequencer[aws.model.ReservedInstancesOffering,DescribeReservedInstancesOfferingsResult,String] {
+    object reservedSequencer extends Sequencer[aws.model.ReservedInstancesOffering, DescribeReservedInstancesOfferingsResult, String] {
       val baseRequest = new aws.model.DescribeReservedInstancesOfferingsRequest().withFilters(filters.asJava)
-      val base = if( availabilityZone == None) baseRequest else baseRequest.withAvailabilityZone(availabilityZone.get)
+      val base = if (availabilityZone == None) baseRequest else baseRequest.withAvailabilityZone(availabilityZone.get)
       def getInitial = describeReservedInstancesOfferings(base)
-      def getMarker(r: DescribeReservedInstancesOfferingsResult)= r.getNextToken()
+      def getMarker(r: DescribeReservedInstancesOfferingsResult) = r.getNextToken()
       def getFromMarker(marker: String) = describeReservedInstancesOfferings(base.withNextToken(marker))
       def getList(r: DescribeReservedInstancesOfferingsResult) = r.getReservedInstancesOfferings()
-    } 
-    reservedSequencer.sequence 
+    }
+    reservedSequencer.sequence
   }
 }
 
