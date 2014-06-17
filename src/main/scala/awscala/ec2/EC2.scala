@@ -3,6 +3,7 @@ package awscala.ec2
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ ec2 => aws }
+import scala.annotation.tailrec
 
 object EC2 {
 
@@ -16,7 +17,7 @@ object EC2 {
  * Amazon EC2 Java client wrapper
  * @see "http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/"
  */
-trait EC2 extends aws.AmazonEC2 {
+trait EC2 extends aws.AmazonEC2Async {
 
   lazy val CHECK_INTERVAL = 5000L
 
@@ -37,6 +38,11 @@ trait EC2 extends aws.AmazonEC2 {
     describeInstances(new aws.model.DescribeInstancesRequest().withInstanceIds(instanceId: _*))
       .getReservations.asScala.flatMap(_.getInstances.asScala).map(Instance(_))
   }
+  
+  def instances(instanceIds: Seq[String] = Nil, filters: Seq[aws.model.Filter] = Nil): Seq[Instance] = {
+    describeInstances(new aws.model.DescribeInstancesRequest().withInstanceIds(instanceIds.asJava).withFilters(filters.asJava))
+      .getReservations.asScala.flatMap(_.getInstances.asScala).map(Instance(_))
+  }
 
   def runAndAwait(
     imageId: String,
@@ -48,19 +54,18 @@ trait EC2 extends aws.AmazonEC2 {
     runAndAwait(new RunInstancesRequest(imageId, min, max).withKeyName(keyPair.name).withInstanceType(instanceType))
   }
 
-  def runAndAwait(request: aws.model.RunInstancesRequest): Seq[Instance] = {
-    var requestedInstances: Seq[Instance] = runInstances(request).getReservation.getInstances.asScala.map(Instance(_))
-    val ids = requestedInstances.map(_.instanceId)
-
-    def checkStatus(checkIds: Seq[String]): Seq[Instance] = instances.filter(i => checkIds.contains(i.instanceId))
-
-    val pendingState = new aws.model.InstanceState().withName(aws.model.InstanceStateName.Pending)
-    while (requestedInstances.exists(_.state.getName == pendingState.getName)) {
+  @tailrec
+  final def awaitInstances(awaiting: Seq[Instance]): Seq[Instance] = {
+    val requested = instances(awaiting.map(_.instanceId))
+    if (requested.exists(_.state.getName == aws.model.InstanceStateName.Pending.name())) {
       Thread.sleep(CHECK_INTERVAL)
-      requestedInstances = checkStatus(ids)
+      awaitInstances(awaiting)
+    } else {
+      requested
     }
-    requestedInstances
   }
+
+  def runAndAwait(request: aws.model.RunInstancesRequest): Seq[Instance] = awaitInstances(runInstances(request).getReservation.getInstances.asScala.map(Instance(_)))
 
   def start(instance: Instance*) = startInstances(new aws.model.StartInstancesRequest()
     .withInstanceIds(instance.map(_.instanceId): _*))
@@ -158,5 +163,5 @@ trait EC2 extends aws.AmazonEC2 {
  * @param credentials credentials
  */
 class EC2Client(credentials: Credentials = CredentialsLoader.load())
-  extends aws.AmazonEC2Client(credentials)
+  extends aws.AmazonEC2AsyncClient(credentials)
   with EC2
