@@ -19,8 +19,6 @@ object EC2 {
  */
 trait EC2 extends aws.AmazonEC2Async {
 
-  lazy val CHECK_INTERVAL = 5000L
-
   def at(region: Region): EC2 = {
     this.setRegion(region)
     this
@@ -55,10 +53,10 @@ trait EC2 extends aws.AmazonEC2Async {
   }
 
   @tailrec
-  final def awaitInstances(awaiting: Seq[Instance]): Seq[Instance] = {
+  final def awaitInstances(awaiting: Seq[Instance], checkInterval: Long = 5000L): Seq[Instance] = {
     val requested = instances(awaiting.map(_.instanceId))
     if (requested.exists(_.state.getName == aws.model.InstanceStateName.Pending.name())) {
-      Thread.sleep(CHECK_INTERVAL)
+      Thread.sleep(checkInterval)
       awaitInstances(awaiting)
     } else {
       requested
