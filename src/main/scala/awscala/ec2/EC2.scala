@@ -57,7 +57,7 @@ trait EC2 extends aws.AmazonEC2Async {
     val requested = instances(awaiting.map(_.instanceId))
     if (requested.exists(_.state.getName == aws.model.InstanceStateName.Pending.name())) {
       Thread.sleep(checkInterval)
-      awaitInstances(awaiting)
+      awaitInstances(awaiting, checkInterval)
     } else {
       requested
     }
