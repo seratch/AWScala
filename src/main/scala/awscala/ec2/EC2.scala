@@ -36,7 +36,7 @@ trait EC2 extends aws.AmazonEC2Async {
     describeInstances(new aws.model.DescribeInstancesRequest().withInstanceIds(instanceId: _*))
       .getReservations.asScala.flatMap(_.getInstances.asScala).map(Instance(_))
   }
-  
+
   def instances(instanceIds: Seq[String] = Nil, filters: Seq[aws.model.Filter] = Nil): Seq[Instance] = {
     describeInstances(new aws.model.DescribeInstancesRequest().withInstanceIds(instanceIds.asJava).withFilters(filters.asJava))
       .getReservations.asScala.flatMap(_.getInstances.asScala).map(Instance(_))
@@ -113,10 +113,10 @@ trait EC2 extends aws.AmazonEC2Async {
   def deleteSecurityGroup(name: String): Unit = {
     deleteSecurityGroup(new aws.model.DeleteSecurityGroupRequest().withGroupName(name))
   }
-  
-  def tags(filters: Seq[aws.model.Filter] = Nil) : Seq[aws.model.TagDescription] = {
+
+  def tags(filters: Seq[aws.model.Filter] = Nil): Seq[aws.model.TagDescription] = {
     import aws.model.DescribeTagsResult
-    object tagsSequencer extends Sequencer[aws.model.TagDescription,DescribeTagsResult,String] {
+    object tagsSequencer extends Sequencer[aws.model.TagDescription, DescribeTagsResult, String] {
 
       val baseRequest = new aws.model.DescribeTagsRequest().withFilters(filters.asJava)
       def getInitial = describeTags(baseRequest)

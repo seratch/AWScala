@@ -29,7 +29,7 @@ object InstanceType {
   val C3_Xlarge = aws.model.InstanceType.C3Xlarge
   val G2_2xlarge = aws.model.InstanceType.G22xlarge
   val I2_2xlarge = aws.model.InstanceType.I22xlarge
-  val I2_4xlarge =  aws.model.InstanceType.I24xlarge
+  val I2_4xlarge = aws.model.InstanceType.I24xlarge
   val I2_8xlarge = aws.model.InstanceType.I28xlarge
   val I2_Xlarge = aws.model.InstanceType.I2Xlarge
   val R3_2xlarge = aws.model.InstanceType.R32xlarge
