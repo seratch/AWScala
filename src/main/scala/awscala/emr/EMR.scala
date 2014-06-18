@@ -250,7 +250,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
     getClusterDetail(jobFlowId, getName)
   }
 
-  def terminateCluster(jobFlowId: String) = new TerminateJobFlowsRequest().withJobFlowIds(jobFlowId).getJobFlowIds().get(0)
+  def terminateCluster(jobFlowId: String) : Unit = terminateJobFlows(new TerminateJobFlowsRequest().withJobFlowIds(jobFlowId))
 
 }
 
