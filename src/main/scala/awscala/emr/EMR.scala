@@ -197,13 +197,16 @@ trait EMR extends aws.AmazonElasticMapReduce {
     runJobFlow(runJobFlowRequest)
   }
 
-  def clusters(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[Cluster] =
-    clusterSummaries(clusterStates, createdBefore, createdAfter) map { x => Cluster(x.getId()) }
+  def clusters(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[aws.model.Cluster] =
+    clusterSummaries(clusterStates, createdBefore, createdAfter) map { x => toCluster(x) }
+
+  private def toCluster(summary: ClusterSummary) : aws.model.Cluster =
+    describeCluster(new DescribeClusterRequest().withClusterId(summary.getId)).getCluster()
 
   def runningClusters() = clusters(Seq("RUNNING"))
 
   def recentClusters(duration: Duration = 1 hour) =
-    clusters(Nil, None, Some(new DateTime().minusMillis(duration.toMillis.toInt).toDate()))
+    clusterSummaries(Nil, None, Some(new DateTime().minusMillis(duration.toMillis.toInt).toDate())).toList.sortBy(x => x.getStatus().getTimeline().getCreationDateTime()) map { x => toCluster(x) }
 
   def clusterSummaries(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[ClusterSummary] = {
     import aws.model.ListClustersResult
