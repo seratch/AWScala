@@ -194,9 +194,12 @@ trait EMR extends aws.AmazonElasticMapReduce {
 
     runJobFlow(runJobFlowRequest)
   }
+  
+  def clusters(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[Cluster] =
+    clusterSummaries(clusterStates, createdBefore, createdAfter) map { x => Cluster(x.getId())}
 
-  def clusters(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[ClusterSummary] = {
-    import com.amazonaws.services.elasticmapreduce.model.ListClustersResult
+  def clusterSummaries(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[ClusterSummary] = {
+    import aws.model.ListClustersResult
     object clustersSequencer extends Sequencer[ClusterSummary, ListClustersResult, String] {
       val base = new ListClustersRequest().withClusterStates(clusterStates.toList.asJava)
       val baseRequest1 = if (createdBefore == None) base else base.withCreatedBefore(createdBefore.get)
@@ -210,7 +213,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
   }
 
   def bootstrapActions(clusterId: Option[String] = None): Seq[Command] = {
-    import com.amazonaws.services.elasticmapreduce.model.ListBootstrapActionsResult
+    import aws.model.ListBootstrapActionsResult
     object actionSequencer extends Sequencer[Command, ListBootstrapActionsResult, String] {
       val baseRequest = if (clusterId == None) new ListBootstrapActionsRequest() else new ListBootstrapActionsRequest().withClusterId(clusterId.get)
       def getInitial = listBootstrapActions(baseRequest)
@@ -221,8 +224,8 @@ trait EMR extends aws.AmazonElasticMapReduce {
     actionSequencer.sequence
   }
 
-  def steps(clusterId: Option[String] = None, stepStates: Seq[String] = Nil): Seq[StepSummary] = {
-    import com.amazonaws.services.elasticmapreduce.model.ListStepsResult
+  def stepSummaries(clusterId: Option[String] = None, stepStates: Seq[String] = Nil): Seq[StepSummary] = {
+    import aws.model.ListStepsResult
     object stepsSequencer extends Sequencer[StepSummary, ListStepsResult, String] {
       val base = if (clusterId == None) new ListStepsRequest() else new ListStepsRequest().withClusterId(clusterId.get)
       val baseRequest = base.withStepStates(stepStates.toList.asJava)
