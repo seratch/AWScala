@@ -1,6 +1,8 @@
 package awscala.emr
 
 import com.amazonaws.services.{ elasticmapreduce => aws }
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 case class Cluster(in: aws.model.Cluster) extends aws.model.Cluster {
   setApplications(in.getApplications())
@@ -18,6 +20,17 @@ case class Cluster(in: aws.model.Cluster) extends aws.model.Cluster {
 
   private var cachedBootstrapActions: Option[Seq[aws.model.Command]] = None
   private var cachedStepSummares: Option[Seq[aws.model.StepSummary]] = None
+  
+  def name = getName()
+  def id = getId()
+  lazy val applications = getApplications().asScala
+  def autoTerminate = getAutoTerminate()
+  def logUri = getLogUri()
+  def requestedAmiVersion = getRequestedAmiVersion()
+  def runningAmiVersion = getRunningAmiVersion()
+  lazy val tags = getTags().asScala
+  def terminationProtected = getTerminationProtected()
+  def visibleToAllUsers = getVisibleToAllUsers()
 
   def bootstrapActions(implicit emr: EMR): Seq[aws.model.Command] = {
     cachedBootstrapActions match {
