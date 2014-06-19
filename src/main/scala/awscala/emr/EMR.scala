@@ -197,11 +197,11 @@ trait EMR extends aws.AmazonElasticMapReduce {
     runJobFlow(runJobFlowRequest)
   }
 
-  def clusters(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[aws.model.Cluster] =
+  def clusters(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[awscala.emr.Cluster] =
     clusterSummaries(clusterStates, createdBefore, createdAfter) map { x => toCluster(x) }
 
-  private def toCluster(summary: ClusterSummary) : aws.model.Cluster =
-    describeCluster(new DescribeClusterRequest().withClusterId(summary.getId)).getCluster()
+  private def toCluster(summary: ClusterSummary): awscala.emr.Cluster =
+    Cluster(describeCluster(new DescribeClusterRequest().withClusterId(summary.getId)).getCluster())
 
   def runningClusters() = clusters(Seq("RUNNING"))
 
