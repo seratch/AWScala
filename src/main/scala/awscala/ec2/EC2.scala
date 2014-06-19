@@ -7,10 +7,10 @@ import scala.annotation.tailrec
 
 object EC2 {
 
-  def apply(credentials: Credentials = CredentialsLoader.load()): EC2 = new EC2Client(credentials)
-  def apply(accessKeyId: String, secretAccessKey: String): EC2 = apply(Credentials(accessKeyId, secretAccessKey))
+  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): EC2 = new EC2Client(credentials).at(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): EC2 = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
 
-  def at(region: Region): EC2 = apply().at(region)
+  def at(region: Region): EC2 = apply()(region)
 }
 
 /**

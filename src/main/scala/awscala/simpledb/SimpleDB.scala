@@ -7,10 +7,10 @@ import com.amazonaws.services.simpledb.model.ListDomainsRequest
 
 object SimpleDB {
 
-  def apply(credentials: Credentials = CredentialsLoader.load()): SimpleDB = new SimpleDBClient(credentials)
-  def apply(accessKeyId: String, secretAccessKey: String): SimpleDB = apply(Credentials(accessKeyId, secretAccessKey))
+  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): SimpleDB = new SimpleDBClient(credentials).at(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): SimpleDB = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
 
-  def at(region: Region): SimpleDB = apply().at(region)
+  def at(region: Region): SimpleDB = apply()(region)
 }
 
 /**
