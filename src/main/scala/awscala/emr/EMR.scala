@@ -7,9 +7,9 @@ import com.amazonaws.services.{ elasticmapreduce => aws }
 import aws.model._
 
 object EMR {
-  def apply(credentials: Credentials = CredentialsLoader.load()): EMR = new EMRClient(credentials)
-  def apply(accessKeyId: String, secretAccessKey: String): EMR = apply(Credentials(accessKeyId, secretAccessKey))
-  def at(region: Region): EMR = apply().at(region)
+  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): EMR = new EMRClient(credentials).at(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): EMR = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
+  def at(region: Region): EMR = apply()(region)
 }
 
 trait EMR extends aws.AmazonElasticMapReduce {
@@ -194,9 +194,11 @@ trait EMR extends aws.AmazonElasticMapReduce {
 
     runJobFlow(runJobFlowRequest)
   }
-  
+
   def clusters(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[Cluster] =
-    clusterSummaries(clusterStates, createdBefore, createdAfter) map { x => Cluster(x.getId())}
+    clusterSummaries(clusterStates, createdBefore, createdAfter) map { x => Cluster(x.getId()) }
+
+  def runningClusters() = clusters(Seq("RUNNING"))
 
   def clusterSummaries(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[ClusterSummary] = {
     import aws.model.ListClustersResult

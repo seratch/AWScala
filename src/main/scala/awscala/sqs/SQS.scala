@@ -7,10 +7,10 @@ import com.amazonaws.auth.AWSSessionCredentials
 
 object SQS {
 
-  def apply(credentials: Credentials = CredentialsLoader.load()): SQS = new SQSClient(credentials).at(Region.default)
-  def apply(accessKeyId: String, secretAccessKey: String): SQS = apply(Credentials(accessKeyId, secretAccessKey)).at(Region.default)
+  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): SQS = new SQSClient(credentials).at(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): SQS = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
 
-  def at(region: Region): SQS = apply().at(region)
+  def at(region: Region): SQS = apply()(region)
 }
 
 /**

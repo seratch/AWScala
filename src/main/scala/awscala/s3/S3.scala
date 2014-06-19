@@ -8,11 +8,11 @@ import scala.annotation.tailrec
 
 object S3 {
 
-  def apply(credentials: Credentials = CredentialsLoader.load()): S3 = new S3Client(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): S3 = new S3Client(credentials).at(region)
 
-  def apply(accessKeyId: String, secretAccessKey: String): S3 = apply(Credentials(accessKeyId, secretAccessKey))
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
 
-  def at(region: Region): S3 = apply().at(region)
+  def at(region: Region): S3 = apply()(region)
 }
 
 /**

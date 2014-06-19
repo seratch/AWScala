@@ -7,13 +7,13 @@ import com.amazonaws.services.dynamodbv2.model.KeysAndAttributes
 
 object DynamoDB {
 
-  def apply(credentials: Credentials = CredentialsLoader.load()): DynamoDB = new DynamoDBClient(credentials)
-  def apply(accessKeyId: String, secretAccessKey: String): DynamoDB = apply(Credentials(accessKeyId, secretAccessKey))
+  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): DynamoDB = new DynamoDBClient(credentials).at(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
 
-  def at(region: Region): DynamoDB = apply().at(region)
+  def at(region: Region): DynamoDB = apply()(region)
 
   def local(): DynamoDB = {
-    val client = DynamoDB("", "")
+    val client = DynamoDB("", "")(Region.default())
     client.setEndpoint("http://localhost:8000")
     client
   }

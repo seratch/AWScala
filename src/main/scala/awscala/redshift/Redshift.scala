@@ -6,11 +6,11 @@ import com.amazonaws.services.{ redshift => aws }
 
 object Redshift {
 
-  def apply(credentials: Credentials = CredentialsLoader.load()): Redshift = new RedshiftClient(credentials)
+  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): Redshift = new RedshiftClient(credentials).at(region)
 
-  def apply(accessKeyId: String, secretAccessKey: String): Redshift = apply(Credentials(accessKeyId, secretAccessKey))
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): Redshift = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
 
-  def at(region: Region): Redshift = apply().at(region)
+  def at(region: Region): Redshift = apply()(region)
 }
 
 /**
