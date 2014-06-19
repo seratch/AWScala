@@ -3,6 +3,8 @@ package awscala.emr
 import awscala._
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import scala.concurrent.duration._
+import scala.language.postfixOps
 import com.amazonaws.services.{ elasticmapreduce => aws }
 import aws.model._
 
@@ -199,6 +201,9 @@ trait EMR extends aws.AmazonElasticMapReduce {
     clusterSummaries(clusterStates, createdBefore, createdAfter) map { x => Cluster(x.getId()) }
 
   def runningClusters() = clusters(Seq("RUNNING"))
+
+  def recentClusters(duration: Duration = 1 hour) =
+    clusters(Nil, None, Some(new DateTime().minusMillis(duration.toMillis.toInt).toDate()))
 
   def clusterSummaries(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[ClusterSummary] = {
     import aws.model.ListClustersResult
