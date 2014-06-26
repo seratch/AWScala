@@ -13,7 +13,7 @@ object PutObjectResult {
     contentMd5 = null,
     expirationTime = new DateTime(obj.getExpirationTime),
     expirationTimeRuleId = obj.getExpirationTimeRuleId,
-    serverSideEncryption = obj.getServerSideEncryption
+    serverSideEncryption = obj.getSSEAlgorithm
   )
 
   def apply(bucket: Bucket, key: String, obj: aws.model.PutObjectResult): PutObjectResult = new PutObjectResult(
@@ -24,7 +24,7 @@ object PutObjectResult {
     contentMd5 = obj.getContentMd5,
     expirationTime = new DateTime(obj.getExpirationTime),
     expirationTimeRuleId = obj.getExpirationTimeRuleId,
-    serverSideEncryption = obj.getServerSideEncryption
+    serverSideEncryption = obj.getSSEAlgorithm
   )
 }
 
@@ -37,6 +37,6 @@ case class PutObjectResult(bucket: Bucket, key: String, versionId: String,
   setContentMd5(contentMd5)
   setExpirationTime(expirationTime.toDate)
   setExpirationTimeRuleId(expirationTimeRuleId)
-  setServerSideEncryption(serverSideEncryption)
+  setSSEAlgorithm(serverSideEncryption)
 }
 
