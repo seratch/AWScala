@@ -13,7 +13,7 @@ object PutObjectResult {
     contentMd5 = null,
     expirationTime = new DateTime(obj.getExpirationTime),
     expirationTimeRuleId = obj.getExpirationTimeRuleId,
-    serverSideEncryption = obj.getServerSideEncryption
+    sseAlgorithm = obj.getSSEAlgorithm
   )
 
   def apply(bucket: Bucket, key: String, obj: aws.model.PutObjectResult): PutObjectResult = new PutObjectResult(
@@ -24,19 +24,22 @@ object PutObjectResult {
     contentMd5 = obj.getContentMd5,
     expirationTime = new DateTime(obj.getExpirationTime),
     expirationTimeRuleId = obj.getExpirationTimeRuleId,
-    serverSideEncryption = obj.getServerSideEncryption
+    sseAlgorithm = obj.getSSEAlgorithm
   )
 }
 
 case class PutObjectResult(bucket: Bucket, key: String, versionId: String,
-  eTag: String, contentMd5: String, expirationTime: DateTime, expirationTimeRuleId: String, serverSideEncryption: String)
+  eTag: String, contentMd5: String, expirationTime: DateTime, expirationTimeRuleId: String, sseAlgorithm: String)
     extends aws.model.PutObjectResult {
+
+  @deprecated("Use #sseAlgorithm instead", "0.3.0")
+  def serverSideEncryption = sseAlgorithm
 
   setVersionId(versionId)
   setETag(eTag)
   setContentMd5(contentMd5)
   setExpirationTime(expirationTime.toDate)
   setExpirationTimeRuleId(expirationTimeRuleId)
-  setServerSideEncryption(serverSideEncryption)
+  setSSEAlgorithm(sseAlgorithm)
 }
 
