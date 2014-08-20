@@ -19,13 +19,13 @@ object AwscalaProject extends Build {
     publishMavenStyle := true,
     resolvers += "spray repo" at "http://repo.spray.io",
     libraryDependencies ++= Seq(
-      "com.amazonaws"    %  "aws-java-sdk"    % "1.8.6",
+      "com.amazonaws"    %  "aws-java-sdk"    % "1.8.9.1",
       "joda-time"        %  "joda-time"       % "2.4",
-      "org.joda"         %  "joda-convert"    % "1.6",
+      "org.joda"         %  "joda-convert"    % "1.7",
       "com.decodified"   %% "scala-ssh"       % "0.6.4"  % "provided",
       "org.bouncycastle" %  "bcprov-jdk16"    % "1.46"   % "provided",
       "ch.qos.logback"   %  "logback-classic" % "1.1.2"  % "test",
-      "org.scalatest"    %% "scalatest"       % "2.2.0"  % "test"
+      "org.scalatest"    %% "scalatest"       % "2.2.2"  % "test"
     ),
     sbtPlugin := false,
     transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
