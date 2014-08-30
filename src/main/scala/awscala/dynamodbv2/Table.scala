@@ -8,6 +8,7 @@ case class Table(
     rangePK: Option[String] = None,
     attributes: Seq[AttributeDefinition] = Nil,
     localSecondaryIndexes: Seq[LocalSecondaryIndex] = Nil,
+    globalSecondaryIndexes: Seq[GlobalSecondaryIndex] = Nil,
     provisionedThroughput: Option[ProvisionedThroughput] = None) {
 
   // ------------------------------------------
@@ -52,7 +53,7 @@ case class Table(
   }
 
   def queryWithIndex(
-    index: LocalSecondaryIndex,
+    index: SecondaryIndex,
     keyConditions: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
