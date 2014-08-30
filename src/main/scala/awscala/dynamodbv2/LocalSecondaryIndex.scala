@@ -14,7 +14,7 @@ object LocalSecondaryIndex {
 case class LocalSecondaryIndex(
     name: String,
     keySchema: Seq[KeySchema],
-    projection: Projection) extends aws.model.LocalSecondaryIndex {
+    projection: Projection) extends aws.model.LocalSecondaryIndex with SecondaryIndex {
 
   setIndexName(name)
   setKeySchema(keySchema.map(_.asInstanceOf[aws.model.KeySchemaElement]).asJava)

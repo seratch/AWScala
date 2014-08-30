@@ -97,8 +97,12 @@ trait DynamoDB extends aws.AmazonDynamoDB {
           ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10)
         }
       )
+
     if (!table.localSecondaryIndexes.isEmpty) {
       req.setLocalSecondaryIndexes(table.localSecondaryIndexes.map(_.asInstanceOf[aws.model.LocalSecondaryIndex]).asJava)
+    }
+    if (!table.globalSecondaryIndexes.isEmpty) {
+      req.setGlobalSecondaryIndexes(table.globalSecondaryIndexes.map(_.asInstanceOf[aws.model.GlobalSecondaryIndex]).asJava)
     }
 
     TableMeta(createTable(req).getTableDescription)
@@ -262,7 +266,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   }
 
   def queryWithIndex(table: Table,
-    index: LocalSecondaryIndex,
+    index: SecondaryIndex,
     keyConditions: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
