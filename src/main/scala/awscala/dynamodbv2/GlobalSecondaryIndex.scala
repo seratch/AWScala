@@ -14,10 +14,10 @@ object GlobalSecondaryIndex {
 
 }
 case class GlobalSecondaryIndex(
-                                name: String,
-                                keySchema: Seq[KeySchema],
-                                projection: Projection,
-                                provisionedThroughput: ProvisionedThroughput) extends aws.model.GlobalSecondaryIndex with SecondaryIndex {
+    name: String,
+    keySchema: Seq[KeySchema],
+    projection: Projection,
+    provisionedThroughput: ProvisionedThroughput) extends aws.model.GlobalSecondaryIndex with SecondaryIndex {
 
   setIndexName(name)
   setKeySchema(keySchema.map(_.asInstanceOf[aws.model.KeySchemaElement]).asJava)
