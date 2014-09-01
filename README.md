@@ -23,7 +23,7 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 ## How to use
 
 ```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "0.2.+"
+libraryDependencies += "com.github.seratch" %% "awscala" % "0.3.+"
 ```
 
 ## Examples
@@ -262,6 +262,8 @@ See http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.Dynamo
 To run the tests, just type `sbt test`.
 
 ## License
+
+Copyright 2013 - 2014 AWScala Developers
 
 Apache License, Version 2.0
 
