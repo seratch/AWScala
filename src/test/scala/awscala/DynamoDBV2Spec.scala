@@ -1,13 +1,11 @@
 package awscala
 
-import awscala._, dynamodbv2._
-
-import org.slf4j._
-import org.scalatest._
-import org.scalatest.matchers._
+import awscala.dynamodbv2._
 import com.amazonaws.services.{ dynamodbv2 => aws }
+import org.scalatest._
+import org.slf4j._
 
-class DynamoDBV2Spec extends FlatSpec with ShouldMatchers {
+class DynamoDBV2Spec extends FlatSpec with Matchers {
 
   behavior of "DynamoDB"
 
@@ -122,6 +120,58 @@ class DynamoDBV2Spec extends FlatSpec with ShouldMatchers {
     members.get(3, "Japan").get.attributes.find(_.name == "Company").get.value.s.get should equal("Microsoft")
 
     members.destroy()
+  }
+
+  it should "provide cool APIs to use global secondary index" in {
+    implicit val dynamoDB = DynamoDB.local()
+
+    val tableName = s"Users_${System.currentTimeMillis}"
+    val globalSecondaryIndex = GlobalSecondaryIndex(
+      name = "SexIndex",
+      keySchema = Seq(KeySchema("Sex", KeyType.Hash), KeySchema("Age", KeyType.Range)),
+      projection = Projection(ProjectionType.Include, Seq("Name")),
+      provisionedThroughput = ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10)
+    )
+    val table = Table(
+      name = tableName,
+      hashPK = "Id",
+      attributes = Seq(
+        AttributeDefinition("Id", AttributeType.Number),
+        AttributeDefinition("Sex", AttributeType.String),
+        AttributeDefinition("Age", AttributeType.Number)
+      ),
+      globalSecondaryIndexes = Seq(globalSecondaryIndex)
+    )
+    val createdTableMeta: TableMeta = dynamoDB.createTable(table)
+    log.info(s"Created Table: ${createdTableMeta}")
+
+    println(s"Waiting for DynamoDB table activation...")
+    var isTableActivated = false
+    while (!isTableActivated) {
+      dynamoDB.describe(createdTableMeta.table).map { meta =>
+        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
+      }
+      Thread.sleep(1000L)
+      print(".")
+    }
+    println("")
+    println(s"Created DynamoDB table has been activated.")
+
+    val users: Table = dynamoDB.table(tableName).get
+
+    users.put(1, "Name" -> "John", "Sex" -> "Male", "Age" -> 12)
+    users.put(2, "Name" -> "Bob", "Sex" -> "Male", "Age" -> 14)
+    users.put(3, "Name" -> "Chris", "Sex" -> "Female", "Age" -> 9)
+    users.put(4, "Name" -> "Michael", "Sex" -> "Male", "Age" -> 65)
+
+    val teenageBoys: Seq[Item] = users.queryWithIndex(
+      index = globalSecondaryIndex,
+      keyConditions = Seq("Sex" -> Condition.eq("Male"), "Age" -> Condition.lt(20))
+    )
+
+    teenageBoys.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("John", "Bob"))
+
+    users.destroy()
   }
 
 }
