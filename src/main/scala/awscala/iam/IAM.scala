@@ -176,7 +176,7 @@ trait IAM extends aws.AmazonIdentityManagement {
 
   def delete(accessKey: AccessKey) = deleteAccessKey(accessKey)
   def deleteAccessKey(accessKey: AccessKey): Unit = {
-    deleteAccessKey(new aws.model.DeleteAccessKeyRequest(accessKey.accessKeyId))
+    deleteAccessKey(new aws.model.DeleteAccessKeyRequest(accessKey.userName, accessKey.accessKeyId))
   }
 
   // ------------------------------------------

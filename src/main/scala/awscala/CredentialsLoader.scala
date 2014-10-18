@@ -13,7 +13,10 @@ object CredentialsLoader {
       .getOrElse { throw new IllegalStateException(s"Failed to load AWS credentials! Make sure about environment or configuration.") }
   }
 
-  private[this] def asScala(c: AWSCredentials): Credentials = Credentials(c.getAWSAccessKeyId, c.getAWSSecretKey)
+  private[this] def asScala(c: AWSCredentials): Credentials = c match {
+    case sc: AWSSessionCredentials => Credentials(sc.getAWSAccessKeyId, sc.getAWSSecretKey, sc.getSessionToken)
+    case _ => Credentials(c.getAWSAccessKeyId, c.getAWSSecretKey)
+  }
 
   private[this] def tryCredentials(provider: AWSCredentialsProvider): Option[Credentials] = {
     try Option(asScala(provider.getCredentials))

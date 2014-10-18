@@ -4,11 +4,10 @@ import awscala._, ec2._
 
 import org.slf4j._
 import org.scalatest._
-import org.scalatest.matchers._
 
 import java.io._
 
-class KeyPairSpec extends FlatSpec with ShouldMatchers {
+class KeyPairSpec extends FlatSpec with Matchers {
 
   behavior of "KeyPair"
 
