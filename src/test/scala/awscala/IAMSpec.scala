@@ -4,9 +4,8 @@ import awscala._, iam._
 
 import org.slf4j._
 import org.scalatest._
-import org.scalatest.matchers._
 
-class IAMSpec extends FlatSpec with ShouldMatchers {
+class IAMSpec extends FlatSpec with Matchers {
 
   behavior of "IAM"
 

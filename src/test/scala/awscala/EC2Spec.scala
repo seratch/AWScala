@@ -4,11 +4,10 @@ import awscala._, ec2._
 
 import org.slf4j._
 import org.scalatest._
-import org.scalatest.matchers._
 
 import java.io._
 
-class EC2Spec extends FlatSpec with ShouldMatchers {
+class EC2Spec extends FlatSpec with Matchers {
 
   behavior of "EC2"
 
