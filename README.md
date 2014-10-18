@@ -22,9 +22,18 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 
 ## How to use
 
+### Latest veresion
+
+```scala
+libraryDependencies += "com.github.seratch" %% "awscala" % "0.4.+"
+```
+
+### Java SDK 1.8.x compatible
+
 ```scala
 libraryDependencies += "com.github.seratch" %% "awscala" % "0.3.+"
 ```
+
 
 ## Examples
 
