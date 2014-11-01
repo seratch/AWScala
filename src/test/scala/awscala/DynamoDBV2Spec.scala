@@ -129,7 +129,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     val globalSecondaryIndex = GlobalSecondaryIndex(
       name = "SexIndex",
       keySchema = Seq(KeySchema("Sex", KeyType.Hash), KeySchema("Age", KeyType.Range)),
-      projection = Projection(ProjectionType.Include, Seq("Name")),
+      projection = Projection(ProjectionType.All),
       provisionedThroughput = ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10)
     )
     val table = Table(
