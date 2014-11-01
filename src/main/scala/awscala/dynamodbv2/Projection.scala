@@ -12,6 +12,11 @@ object Projection {
 
 case class Projection(projectionType: ProjectionType, nonKeyAttributes: Seq[String] = Nil) extends aws.model.Projection {
   setProjectionType(projectionType)
-  setNonKeyAttributes(nonKeyAttributes.asJava)
+
+  if (projectionType == ProjectionType.Include) {
+    setNonKeyAttributes(nonKeyAttributes.asJava)
+  } else if (!nonKeyAttributes.isEmpty) {
+    throw new IllegalArgumentException("You shouldn't specify `nonKeyAttributes` when ProjectionType is other than INCLUDE.")
+  }
 }
 
