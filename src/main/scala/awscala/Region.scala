@@ -21,6 +21,12 @@ object Region {
   val AP_SOUTHEAST_2 = apply(awsregions.Regions.AP_SOUTHEAST_2)
   val Sydney = AP_SOUTHEAST_2
 
+  val CN_NORTH_1 = apply(awsregions.Regions.CN_NORTH_1)
+  val Beijing = CN_NORTH_1
+
+  val EU_CENTRAL_1 = apply(awsregions.Regions.EU_CENTRAL_1)
+  val Frankfurt = EU_CENTRAL_1
+
   val EU_WEST_1 = apply(awsregions.Regions.EU_WEST_1)
   val Ireland = EU_WEST_1
 
@@ -38,6 +44,7 @@ object Region {
   val US_WEST_2 = apply(awsregions.Regions.US_WEST_2)
   val Oregon = US_WEST_2
 
-  lazy val all: Seq[Region] = Seq(Tokyo, Singapore, Sydney, Ireland, GovCloud, SaoPaulo, NorthernVirginia, NorthernCalifornia, Oregon)
+  lazy val all: Seq[Region] = Seq(Tokyo, Singapore, Sydney, Ireland, GovCloud, SaoPaulo, NorthernVirginia,
+                                  NorthernCalifornia, Oregon, Frankfurt, Beijing)
 
 }
