@@ -1,12 +1,11 @@
 package awscala.s3
 
 import awscala._
-import awscala.s3.S3Object
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ s3 => aws }
 import java.io.{ File, ByteArrayInputStream }
 import scala.annotation.tailrec
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Try}
 
 object S3 {
 
@@ -90,13 +89,25 @@ trait S3 extends aws.AmazonS3 {
 
   def get(bucket: Bucket, key: String, versionId: String) = getObject(bucket, key, versionId)
 
-  def getObject(bucket: Bucket, key: String): Try[S3Object] = {
+  def getObject(bucket: Bucket, key: String): Option[S3Object] = try {
+    Option(getObject(new aws.model.GetObjectRequest(bucket.name, key))).map(obj => S3Object(bucket, obj))
+  } catch {
+    case e: aws.model.AmazonS3Exception => None
+  }
+
+  def getObject(bucket: Bucket, key: String, versionId: String): Option[S3Object] = try {
+    Option(getObject(new aws.model.GetObjectRequest(bucket.name, key, versionId))).map(obj => S3Object(bucket, obj))
+  } catch {
+    case e: aws.model.AmazonS3Exception => None
+  }
+
+  def tryToGetObject(bucket: Bucket, key: String): Try[S3Object] = {
     Try(S3Object(bucket, getObject(new aws.model.GetObjectRequest(bucket.name, key)))).recoverWith {
       case e: aws.model.AmazonS3Exception => Failure(new AWSException("Error getting S3 object " + key, e))
     }
   }
 
-  def getObject(bucket: Bucket, key: String, versionId: String): Try[S3Object] = {
+  def tryToGetObject(bucket: Bucket, key: String, versionId: String): Try[S3Object] = {
     Try(S3Object(bucket, getObject(new aws.model.GetObjectRequest(bucket.name, key, versionId)))).recoverWith {
       case e: aws.model.AmazonS3Exception => Failure(new AWSException("Error getting S3 object " + key, e))
     }
