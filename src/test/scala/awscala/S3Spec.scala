@@ -5,6 +5,8 @@ import awscala._, s3._
 import org.slf4j._
 import org.scalatest._
 
+import scala.util.Try
+
 class S3Spec extends FlatSpec with Matchers {
 
   behavior of "S3"
@@ -54,7 +56,7 @@ class S3Spec extends FlatSpec with Matchers {
     bucket.put("S3Spec.scala", new java.io.File("src/test/scala/awscala/S3Spec.scala"))
 
     // get objects
-    val s3obj: Option[S3Object] = bucket.get("S3.scala")
+    val s3obj: Try[S3Object] = bucket.get("S3.scala")
     log.info(s"Object: ${s3obj}")
     val summaries = bucket.objectSummaries
     log.info(s"Object Summaries: ${summaries}")
