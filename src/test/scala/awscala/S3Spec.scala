@@ -5,8 +5,6 @@ import awscala._, s3._
 import org.slf4j._
 import org.scalatest._
 
-import scala.util.Try
-
 class S3Spec extends FlatSpec with Matchers {
 
   behavior of "S3"
