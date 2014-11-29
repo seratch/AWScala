@@ -45,6 +45,6 @@ object Region {
   val Oregon = US_WEST_2
 
   lazy val all: Seq[Region] = Seq(Tokyo, Singapore, Sydney, Ireland, GovCloud, SaoPaulo, NorthernVirginia,
-                                  NorthernCalifornia, Oregon, Frankfurt, Beijing)
+    NorthernCalifornia, Oregon, Frankfurt, Beijing)
 
 }
