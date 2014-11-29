@@ -22,7 +22,7 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 
 ## How to use
 
-### Latest veresion
+### Latest version
 
 ```scala
 libraryDependencies += "com.github.seratch" %% "awscala" % "0.4.+"
@@ -256,7 +256,7 @@ If you're interested in contributing this project, please send pull requests!
 
 ### Running tests
 
-Tests requires aws credentials with Administrator permissions:
+Tests require aws credentials with Administrator permissions:
 
 ```
 export AWS_ACCESS_KEY_ID=xxx
