@@ -48,8 +48,8 @@ trait SQS extends aws.AmazonSQS {
 
   def withQueue[A](queue: Queue)(op: (SQSClientWithQueue) => A): A = op(new SQSClientWithQueue(this, queue))
 
-  def queueAttributes(name: String, attributeName: String): Map[String, String] = {
-    val result = getQueueAttributes(new aws.model.GetQueueAttributesRequest(queueUrl(name).get, List(attributeName).asJava))
+  def queueAttributes(queue: Queue, attributeName: String): Map[String, String] = {
+    val result = getQueueAttributes(new aws.model.GetQueueAttributesRequest(queue.url, List(attributeName).asJava))
     result.getAttributes.asScala.toMap
   }
 
@@ -126,7 +126,7 @@ class SQSClientWithQueue(sqs: SQS, queue: Queue) {
   def deleteMessage(message: Message) = sqs.deleteMessage(message)
   def deleteMessages(messages: Message*) = sqs.deleteMessages(messages)
   def deleteMessageBatch(messages: DeleteMessageBatchEntry*) = sqs.deleteMessageBatch(queue, messages)
-
+  def queueAttributes(attributeName: String) = sqs.queueAttributes(queue, attributeName)
 }
 
 /**
