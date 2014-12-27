@@ -24,11 +24,27 @@ class SQSSpec extends FlatSpec with Matchers {
     val url = sqs.queueUrl(newQueueName)
     log.info(s"Created queue: ${queue}, url: ${url}")
 
+    // get queue attributes before inserting any message
+    val attribute = sqs.queueAttributes(newQueueName, "ApproximateNumberOfMessages")
+    log.info(s"Attribute for queue before inserting any message")
+    attribute.keys.foreach { i =>
+      log.info(s"Attribute Name = ${i}")
+      log.info(s"Value = ${attribute}(${i})")
+    }
+
     // send messages
     val sent = queue.add("some message!")
     log.info(s"Sent : ${sent}")
     val sendMessages = queue.add("first", "second", "third")
     log.info(s"Batch Sent : ${sendMessages}")
+
+    // get queue attributes after inserting any message
+    val attribute2 = sqs.queueAttributes(newQueueName, "ApproximateNumberOfMessages")
+    log.info(s"Attribute for queue after inserting any message")
+    attribute2.keys.foreach { i =>
+      log.info(s"Attribute Name = ${i}")
+      log.info(s"Value = ${attribute2}(${i})")
+    }
 
     // receive messages
     val receivedMessages = queue.messages // or sqs.receiveMessage(queue)
@@ -47,6 +63,7 @@ class SQSSpec extends FlatSpec with Matchers {
     // delete a queue
     queue.destroy() // or sqs.deleteQueue(queue)
     log.info(s"Deleted queue: ${queue}")
+
   }
 
 }
