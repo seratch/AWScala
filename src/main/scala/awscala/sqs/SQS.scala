@@ -48,6 +48,11 @@ trait SQS extends aws.AmazonSQS {
 
   def withQueue[A](queue: Queue)(op: (SQSClientWithQueue) => A): A = op(new SQSClientWithQueue(this, queue))
 
+  def queueAttributes(name: String, attributeName: String): Map[String, String] = {
+    val result = getQueueAttributes(new aws.model.GetQueueAttributesRequest(queueUrl(name).get, List(attributeName).asJava))
+    result.getAttributes.asScala.toMap
+  }
+
   // ------------------------------------------
   // Messages
   // ------------------------------------------
