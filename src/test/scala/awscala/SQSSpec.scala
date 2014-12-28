@@ -25,7 +25,7 @@ class SQSSpec extends FlatSpec with Matchers {
     log.info(s"Created queue: ${queue}, url: ${url}")
 
     // get queue attributes before inserting any message
-    val attribute = sqs.queueAttributes(newQueueName, "ApproximateNumberOfMessages")
+    val attribute = sqs.queueAttributes(queue, "ApproximateNumberOfMessages")
     log.info(s"Attribute for queue before inserting any message")
     attribute.keys.foreach { i =>
       log.info(s"Attribute Name = ${i}")
@@ -39,7 +39,7 @@ class SQSSpec extends FlatSpec with Matchers {
     log.info(s"Batch Sent : ${sendMessages}")
 
     // get queue attributes after inserting any message
-    val attribute2 = sqs.queueAttributes(newQueueName, "ApproximateNumberOfMessages")
+    val attribute2 = sqs.queueAttributes(queue, "ApproximateNumberOfMessages")
     log.info(s"Attribute for queue after inserting any message")
     attribute2.keys.foreach { i =>
       log.info(s"Attribute Name = ${i}")
