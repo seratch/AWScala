@@ -72,8 +72,8 @@ trait SQS extends aws.AmazonSQS {
 
   def receive(queue: Queue): Seq[Message] = receiveMessage(queue)
   def receiveMessage(queue: Queue): Seq[Message] = receiveMessage(queue, 1)
-  def receiveMessage(queue: Queue, count: Int = 10, requestCredentials: Option[AWSSessionCredentials] = None): Seq[Message] = {
-    val req = new aws.model.ReceiveMessageRequest(queue.url).withMaxNumberOfMessages(count)
+  def receiveMessage(queue: Queue, count: Int = 10, wait: Int = 0, requestCredentials: Option[AWSSessionCredentials] = None): Seq[Message] = {
+    val req = new aws.model.ReceiveMessageRequest(queue.url).withMaxNumberOfMessages(count).withWaitTimeSeconds(wait)
     requestCredentials.foreach(c => req.setRequestCredentials(c))
     receiveMessage(req).getMessages.asScala.map(msg => Message(queue, msg)).toSeq
   }
