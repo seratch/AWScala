@@ -17,8 +17,8 @@ class Instance(val underlying: aws.model.Instance) {
   def terminate()(implicit ec2: EC2) = ec2.terminate(this)
   def reboot()(implicit ec2: EC2) = ec2.reboot(this)
 
-  def withKeyPair(keyPairFile: File)(f: InstanceWithKeyPair => Unit): Unit = {
-    f(InstanceWithKeyPair(underlying, keyPairFile))
+  def withKeyPair(keyPairFile: File, user: String = "ec2-user", connectionTimeout: Int = 30000)(f: InstanceWithKeyPair => Unit): Unit = {
+    f(InstanceWithKeyPair(underlying, keyPairFile, user, connectionTimeout))
   }
 
   def createImage(imageName: String)(implicit ec2: EC2) = {
