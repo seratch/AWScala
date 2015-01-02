@@ -8,20 +8,21 @@ import com.amazonaws.AmazonClientException
  */
 object CredentialsLoader {
 
-  def load(): Credentials = {
-    tryCredentials(new DefaultAWSCredentialsProviderChain)
-      .getOrElse { throw new IllegalStateException(s"Failed to load AWS credentials! Make sure about environment or configuration.") }
+  def load(): CredentialsProvider = {
+    val provider = DefaultCredentialsProvider()
+    if (tryCredentials(provider)) {
+      provider
+    } else {
+      throw new IllegalStateException(s"Failed to load AWS credentials! Make sure about environment or configuration.")
+    }
   }
 
-  private[this] def asScala(c: AWSCredentials): Credentials = c match {
-    case sc: AWSSessionCredentials => Credentials(sc.getAWSAccessKeyId, sc.getAWSSecretKey, sc.getSessionToken)
-    case _ => Credentials(c.getAWSAccessKeyId, c.getAWSSecretKey)
-  }
-
-  private[this] def tryCredentials(provider: AWSCredentialsProvider): Option[Credentials] = {
-    try Option(asScala(provider.getCredentials))
-    catch {
-      case e: AmazonClientException => None
+  private[this] def tryCredentials(provider: CredentialsProvider): Boolean = {
+    try {
+      provider.getCredentials
+      true
+    } catch {
+      case e: AmazonClientException => false
     }
   }
 

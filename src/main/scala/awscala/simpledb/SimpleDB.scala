@@ -7,8 +7,9 @@ import com.amazonaws.services.simpledb.model.ListDomainsRequest
 
 object SimpleDB {
 
-  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): SimpleDB = new SimpleDBClient(credentials).at(region)
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): SimpleDB = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): SimpleDB = new SimpleDBClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
+  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): SimpleDB = new SimpleDBClient(credentialsProvider).at(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): SimpleDB = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
   def at(region: Region): SimpleDB = apply()(region)
 }
@@ -120,7 +121,7 @@ trait SimpleDB extends aws.AmazonSimpleDB {
  *
  * @param credentials credentials
  */
-class SimpleDBClient(credentials: Credentials = CredentialsLoader.load())
-  extends aws.AmazonSimpleDBClient(credentials)
+class SimpleDBClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonSimpleDBClient(credentialsProvider)
   with SimpleDB
 

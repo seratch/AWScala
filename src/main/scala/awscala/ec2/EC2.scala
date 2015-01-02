@@ -7,8 +7,9 @@ import scala.annotation.tailrec
 
 object EC2 {
 
-  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): EC2 = new EC2Client(credentials).at(region)
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): EC2 = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): EC2 = new EC2Client(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
+  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): EC2 = new EC2Client(credentialsProvider).at(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): EC2 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
   def at(region: Region): EC2 = apply()(region)
 }
@@ -160,6 +161,6 @@ trait EC2 extends aws.AmazonEC2Async {
  *
  * @param credentials credentials
  */
-class EC2Client(credentials: Credentials = CredentialsLoader.load())
-  extends aws.AmazonEC2AsyncClient(credentials)
+class EC2Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonEC2AsyncClient(credentialsProvider)
   with EC2

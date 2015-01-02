@@ -7,8 +7,9 @@ import com.amazonaws.auth.AWSSessionCredentials
 
 object SQS {
 
-  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): SQS = new SQSClient(credentials).at(region)
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): SQS = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): SQS = new SQSClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
+  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): SQS = new SQSClient(credentialsProvider).at(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): SQS = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
   def at(region: Region): SQS = apply()(region)
 }
@@ -134,7 +135,7 @@ class SQSClientWithQueue(sqs: SQS, queue: Queue) {
  *
  * @param credentials credentials
  */
-class SQSClient(credentials: Credentials = CredentialsLoader.load())
-  extends aws.AmazonSQSClient(credentials)
+class SQSClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonSQSClient(credentialsProvider)
   with SQS
 

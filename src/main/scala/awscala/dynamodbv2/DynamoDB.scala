@@ -7,8 +7,9 @@ import com.amazonaws.services.dynamodbv2.model.KeysAndAttributes
 
 object DynamoDB {
 
-  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): DynamoDB = new DynamoDBClient(credentials).at(region)
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): DynamoDB = new DynamoDBClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
+  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): DynamoDB = new DynamoDBClient(credentialsProvider).at(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = new DynamoDBClient(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
   def at(region: Region): DynamoDB = apply()(region)
 
@@ -334,7 +335,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
  *
  * @param credentials credentials
  */
-class DynamoDBClient(credentials: Credentials = CredentialsLoader.load())
-  extends aws.AmazonDynamoDBClient(credentials)
+class DynamoDBClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonDynamoDBClient(credentialsProvider)
   with DynamoDB
 

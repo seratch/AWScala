@@ -5,9 +5,10 @@ import scala.collection.JavaConverters._
 import com.amazonaws.services.{ identitymanagement => aws }
 
 object IAM {
-  def apply(credentials: Credentials = CredentialsLoader.load()): IAM = new IAMClient(credentials)
+  def apply(credentials: Credentials): IAM = new IAMClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))
+  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load()): IAM = new IAMClient(credentialsProvider)
   def apply(accessKeyId: String, secretAccessKey: String): IAM = {
-    new IAMClient(Credentials(accessKeyId, secretAccessKey))
+    new IAMClient(BasicCredentialsProvider(accessKeyId, secretAccessKey))
   }
 }
 
@@ -327,6 +328,6 @@ trait IAM extends aws.AmazonIdentityManagement {
  *
  * @param credentials credentials
  */
-class IAMClient(credentials: Credentials = CredentialsLoader.load())
-  extends aws.AmazonIdentityManagementClient(credentials)
+class IAMClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonIdentityManagementClient(credentialsProvider)
   with IAM
