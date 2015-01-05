@@ -3,8 +3,11 @@ package awscala.ec2
 import awscala._
 import com.amazonaws.services.{ ec2 => aws }
 
-case class InstanceWithKeyPair(override val underlying: aws.model.Instance, keyPairFile: File)
-    extends Instance(underlying) {
+case class InstanceWithKeyPair(
+    override val underlying: aws.model.Instance,
+    keyPairFile: File,
+    user: String,
+    connectionTimeout: Int) extends Instance(underlying) {
 
   import com.decodified.scalassh._
 
@@ -16,9 +19,9 @@ case class InstanceWithKeyPair(override val underlying: aws.model.Instance, keyP
         Right("dummy_source" -> (
           Seq(
             "login-type = keyfile",
-            "username = ec2-user",
+            s"username = $user",
             s"keyfile = ${keyPairFile.getAbsolutePath}",
-            "command-timeout = 30000",
+            s"command-timeout = $connectionTimeout",
             "fingerprint = any" //TODO: ask if user will trust any host key provided by the server. Currently it's always YES.
           )))
       } else {
