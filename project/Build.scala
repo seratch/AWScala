@@ -8,9 +8,9 @@ object AwscalaProject extends Build {
   lazy val mainSettings = Seq(
     organization := "com.github.seratch",
     name := "awscala",
-    version := "0.4.3",
+    version := "0.4.4",
     scalaVersion := "2.11.5",
-    crossScalaVersions := Seq("2.11.5", "2.10.5"),
+    crossScalaVersions := Seq("2.11.5", "2.10.4"),
     publishTo <<= version { (v: String) =>
       val nexus = "https://oss.sonatype.org/"
       if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
