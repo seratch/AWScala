@@ -49,7 +49,7 @@ case class Table(
     dynamoDB.deleteItem(this, hashPK)
   }
   def deleteItem(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB) = {
-    dynamoDB.deleteItem(this, hashPK, Some(rangePK))
+    dynamoDB.deleteItem(this, hashPK, rangePK)
   }
 
   def queryWithIndex(
