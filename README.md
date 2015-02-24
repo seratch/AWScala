@@ -157,7 +157,7 @@ implicit val sqs = SQS.at(Region.Tokyo)
 val queue: Queue = sqs.createQueue("sample-queue")
 
 queue.add("message body")
-qeueu.add("first", "second", "third")
+queue.add("first", "second", "third")
 
 val messages: Seq[Message] = queue.messages
 queue.removeAll(messages)
