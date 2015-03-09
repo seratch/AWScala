@@ -8,9 +8,9 @@ object AwscalaProject extends Build {
   lazy val mainSettings = Seq(
     organization := "com.github.seratch",
     name := "awscala",
-    version := "0.4.5-SNAPSHOT",
-    scalaVersion := "2.11.5",
-    crossScalaVersions := Seq("2.11.5", "2.10.4"),
+    version := "0.5.0-SNAPSHOT",
+    scalaVersion := "2.11.6",
+    crossScalaVersions := Seq("2.11.6", "2.10.5"),
     publishTo <<= version { (v: String) =>
       val nexus = "https://oss.sonatype.org/"
       if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
@@ -19,7 +19,7 @@ object AwscalaProject extends Build {
     publishMavenStyle := true,
     resolvers += "spray repo" at "http://repo.spray.io",
     libraryDependencies ++= Seq(
-      "com.amazonaws"    %  "aws-java-sdk"    % "1.9.17",
+      "com.amazonaws"    %  "aws-java-sdk"    % "1.9.23",
       "joda-time"        %  "joda-time"       % "2.7",
       "org.joda"         %  "joda-convert"    % "1.7",
       "com.decodified"   %% "scala-ssh"       % "0.7.0"  % "provided",
