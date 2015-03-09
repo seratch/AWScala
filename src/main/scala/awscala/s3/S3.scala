@@ -8,9 +8,11 @@ import scala.annotation.tailrec
 
 object S3 {
 
-  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): S3 = new S3Client(credentials).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): S3 = new S3Client(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
 
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
+  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): S3 = new S3Client(credentialsProvider).at(region)
+
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
   def at(region: Region): S3 = apply()(region)
 }
@@ -236,8 +238,8 @@ trait S3 extends aws.AmazonS3 {
  *
  * @param credentials credentials
  */
-class S3Client(credentials: Credentials = CredentialsLoader.load())
-    extends aws.AmazonS3Client(credentials)
+class S3Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+    extends aws.AmazonS3Client(credentialsProvider)
     with S3 {
 
   override def createBucket(name: String): Bucket = super.createBucket(name)

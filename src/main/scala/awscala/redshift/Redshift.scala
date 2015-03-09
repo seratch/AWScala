@@ -6,9 +6,11 @@ import com.amazonaws.services.{ redshift => aws }
 
 object Redshift {
 
-  def apply(credentials: Credentials = CredentialsLoader.load())(implicit region: Region = Region.default()): Redshift = new RedshiftClient(credentials).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): Redshift = new RedshiftClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
 
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): Redshift = apply(Credentials(accessKeyId, secretAccessKey)).at(region)
+  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): Redshift = new RedshiftClient(credentialsProvider).at(region)
+
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): Redshift = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
   def at(region: Region): Redshift = apply()(region)
 }
@@ -313,7 +315,7 @@ trait Redshift extends aws.AmazonRedshift {
  *
  * @param credentials credentials
  */
-class RedshiftClient(credentials: Credentials = CredentialsLoader.load())
-  extends aws.AmazonRedshiftClient(credentials)
+class RedshiftClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonRedshiftClient(credentialsProvider)
   with Redshift
 
