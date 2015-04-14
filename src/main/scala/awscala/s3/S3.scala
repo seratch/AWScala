@@ -144,6 +144,35 @@ trait S3 extends aws.AmazonS3 {
 
   def keys(bucket: Bucket, prefix: String): Seq[String] = objectSummaries(bucket, prefix).map(os => os.getKey)
 
+  // ls
+  /**
+   *  List the directories and objects under a prefix, use "/" as delimiter.
+   *
+   *  Here is how to show the directories and objects as Strings:
+   *  {{{
+   *  ls(bucket, "my-directory/").map {
+   *    case Left(directoryPrefix) => directoryPrefix
+   *    case Right(s3ObjectSummary) => s3ObjectSummary.getKey
+   *  }
+   *  }}}
+   */
+  def ls(bucket: Bucket, prefix: String): Stream[Either[String, S3ObjectSummary]] = {
+    import com.amazonaws.services.s3.model.{ ListObjectsRequest, ObjectListing }
+
+    val request = new ListObjectsRequest().withBucketName(bucket.getName).withPrefix(prefix).withDelimiter("/")
+
+    val firstListing = listObjects(request)
+
+    def completeStream(listing: ObjectListing): Stream[Either[String, S3ObjectSummary]] = {
+      val prefixes = listing.getCommonPrefixes.asScala.map(pre => Left(pre)).toStream
+      val objects = listing.getObjectSummaries.asScala.map(s => Right(S3ObjectSummary(bucket, s))).toStream
+
+      prefixes #::: objects #::: (if (listing.isTruncated) completeStream(listNextBatchOfObjects(listing)) else Stream.empty)
+    }
+
+    completeStream(firstListing)
+  }
+
   // acl
   def acl(obj: S3Object): AccessControlList = acl(obj.bucket, obj.key)
 
