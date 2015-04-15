@@ -3,7 +3,9 @@ package awscala.ec2
 import com.amazonaws.services.{ ec2 => aws }
 
 object InstanceType {
-
+  val T2_Small = aws.model.InstanceType.T2Small
+  val T2_Micro = aws.model.InstanceType.T2Micro
+  val T2_Medium = aws.model.InstanceType.T2Medium
   val C1_Medium = aws.model.InstanceType.C1Medium
   val C1_Xlarge = aws.model.InstanceType.C1Xlarge
   val Cc1_4xlarge = aws.model.InstanceType.Cc14xlarge
@@ -21,12 +23,19 @@ object InstanceType {
   val M2_Xlarge = aws.model.InstanceType.M2Xlarge
   val M3_2xlarge = aws.model.InstanceType.M32xlarge
   val M3_Xlarge = aws.model.InstanceType.M3Xlarge
+  val M3_Medium = aws.model.InstanceType.M3Medium
+  val M3_Large = aws.model.InstanceType.M3Large
   val T1_Micro = aws.model.InstanceType.T1Micro
   val C3_2xlarge = aws.model.InstanceType.C32xlarge
   val C3_4xlarge = aws.model.InstanceType.C34xlarge
   val C3_8xlarge = aws.model.InstanceType.C38xlarge
   val C3_Large = aws.model.InstanceType.C3Large
   val C3_Xlarge = aws.model.InstanceType.C3Xlarge
+  val C4_Large = aws.model.InstanceType.C4Large
+  val C4_Xlarge = aws.model.InstanceType.C4Xlarge
+  val C4_2xlarge = aws.model.InstanceType.C42xlarge
+  val C4_4xlarge = aws.model.InstanceType.C44xlarge
+  val C4_8xlarge = aws.model.InstanceType.C48xlarge
   val G2_2xlarge = aws.model.InstanceType.G22xlarge
   val I2_2xlarge = aws.model.InstanceType.I22xlarge
   val I2_4xlarge = aws.model.InstanceType.I24xlarge
