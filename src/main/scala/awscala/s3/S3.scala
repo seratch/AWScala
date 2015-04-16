@@ -23,11 +23,23 @@ object S3 {
  */
 trait S3 extends aws.AmazonS3 {
 
-  private[this] var region: aws.model.Region = aws.model.Region.fromValue(Region.default.getName)
+  /*
+   * This method is a workaround for the fact that the AWS S3 SDK represents the us-east-1 region via either null or "US",
+   * but the AWS Core SDK represents the region as "us-east-1". The AWS S3 SDK (com.amazonaws.services.s3.model.Region) is not able
+   * to determine the region when it is specified as "us-east-1".
+   */
+  private def s3RegionHack(regionName: String): String = {
+    regionName match {
+      case "us-east-1" => "US"
+      case _ => regionName
+    }
+  }
+
+  private[this] var region: aws.model.Region = aws.model.Region.fromValue(s3RegionHack(Region.default.getName))
 
   def at(region: Region): S3 = {
     this.setRegion(region)
-    this.region = aws.model.Region.fromValue(region.getName)
+    this.region = aws.model.Region.fromValue(s3RegionHack(region.getName))
     this
   }
 
