@@ -10,8 +10,8 @@ object TableMeta {
     sizeBytes = t.getTableSizeBytes,
     itemCount = t.getItemCount,
     status = aws.model.TableStatus.fromValue(t.getTableStatus),
-    attributes = t.getAttributeDefinitions.asScala.map(a => AttributeDefinition(a)).toSeq,
-    keySchema = t.getKeySchema.asScala.map(s => KeySchema(s)).toSeq,
+    attributes = Option(t.getAttributeDefinitions).map { _.asScala.map(a => AttributeDefinition(a)).toSeq }.getOrElse(Nil),
+    keySchema = Option(t.getKeySchema).map { _.asScala.map(s => KeySchema(s)).toSeq }.getOrElse(Nil),
     localSecondaryIndexes = Option(t.getLocalSecondaryIndexes).map { indexes =>
       indexes.asScala.map(i => LocalSecondaryIndexMeta(i)).toSeq
     }.getOrElse(Nil),
