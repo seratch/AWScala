@@ -3,6 +3,8 @@ import Keys._
 
 object AwscalaProject extends Build {
 
+  lazy val awsJavaSdkVersion = "1.9.31"
+
   lazy val root = Project("root", file("."), settings = mainSettings)
 
   lazy val mainSettings = Seq(
@@ -19,7 +21,15 @@ object AwscalaProject extends Build {
     publishMavenStyle := true,
     resolvers += "spray repo" at "http://repo.spray.io",
     libraryDependencies ++= Seq(
-      "com.amazonaws"    %  "aws-java-sdk"    % "1.9.30",
+      "com.amazonaws"    %  "aws-java-sdk-iam"      % awsJavaSdkVersion,
+      "com.amazonaws"    %  "aws-java-sdk-sts"      % awsJavaSdkVersion,
+      "com.amazonaws"    %  "aws-java-sdk-ec2"      % awsJavaSdkVersion,
+      "com.amazonaws"    %  "aws-java-sdk-s3"       % awsJavaSdkVersion,
+      "com.amazonaws"    %  "aws-java-sdk-sqs"      % awsJavaSdkVersion,
+      "com.amazonaws"    %  "aws-java-sdk-emr"      % awsJavaSdkVersion,
+      "com.amazonaws"    %  "aws-java-sdk-redshift" % awsJavaSdkVersion,
+      "com.amazonaws"    %  "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
+      "com.amazonaws"    %  "aws-java-sdk-simpledb" % awsJavaSdkVersion,
       "joda-time"        %  "joda-time"       % "2.7",
       "org.joda"         %  "joda-convert"    % "1.7",
       "com.decodified"   %% "scala-ssh"       % "0.7.0"  % "provided",
