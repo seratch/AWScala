@@ -1,6 +1,6 @@
 package awscala
 
-object Region {
+object Region0 {
 
   import com.amazonaws.{ regions => awsregions }
 

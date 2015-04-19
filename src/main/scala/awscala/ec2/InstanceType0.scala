@@ -2,7 +2,7 @@ package awscala.ec2
 
 import com.amazonaws.services.{ ec2 => aws }
 
-object InstanceType {
+object InstanceType0 {
   val T2_Small = aws.model.InstanceType.T2Small
   val T2_Micro = aws.model.InstanceType.T2Micro
   val T2_Medium = aws.model.InstanceType.T2Medium
