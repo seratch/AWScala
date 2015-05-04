@@ -13,11 +13,6 @@ object AwscalaProject extends Build {
     version := "0.5.2",
     scalaVersion := "2.11.6",
     crossScalaVersions := Seq("2.11.6", "2.10.5"),
-    publishTo <<= version { (v: String) =>
-      val nexus = "https://oss.sonatype.org/"
-      if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
-      else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    },
     publishMavenStyle := true,
     resolvers += "spray repo" at "http://repo.spray.io",
     libraryDependencies ++= Seq(
