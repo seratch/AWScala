@@ -8,10 +8,12 @@ import java.util.{ Map => JMap }
 object AttributeValue {
 
   def recurseMapValue(valueMap: Map[String, Any]): Map[String, aws.model.AttributeValue] = valueMap.map {
+    case (key, xs:Seq[_]) =>
+      key -> toJavaValue(xs)
     case (key, vl: Map[String, Any]) =>
       key -> new aws.model.AttributeValue().withM(recurseMapValue(vl).asJava)
     case (key: String, vl: Object) =>
-      key -> new aws.model.AttributeValue(vl.toString)
+      key -> toJavaValue(vl)
   }
 
   def toJavaValue(v: Any): aws.model.AttributeValue = {
