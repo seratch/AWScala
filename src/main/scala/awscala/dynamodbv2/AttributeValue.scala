@@ -3,8 +3,16 @@ package awscala.dynamodbv2
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
+import java.util.{ Map => JMap }
 
 object AttributeValue {
+
+  def recurseMapValue(valueMap: Map[String, Any]): Map[String, aws.model.AttributeValue] = valueMap.map {
+    case (key, vl: Map[String, Any]) =>
+      key -> new aws.model.AttributeValue().withM(recurseMapValue(vl).asJava)
+    case (key: String, vl: Object) =>
+      key -> new aws.model.AttributeValue(vl.toString)
+  }
 
   def toJavaValue(v: Any): aws.model.AttributeValue = {
     val value = new aws.model.AttributeValue
@@ -20,6 +28,7 @@ object AttributeValue {
         case Some(v) => value.withSS(xs.map(_.toString).asJava)
         case _ => null
       }
+      case m: Map[String, Any] => value.withM(recurseMapValue(m).asJava)
       case _ => null
     }
   }
@@ -28,6 +37,7 @@ object AttributeValue {
     s = Option(v.getS),
     n = Option(v.getN),
     b = Option(v.getB),
+    m = Option(v.getM),
     ss = Option(v.getSS).map(_.asScala).getOrElse(Nil),
     ns = Option(v.getNS).map(_.asScala).getOrElse(Nil),
     bs = Option(v.getBS).map(_.asScala).getOrElse(Nil)
@@ -38,6 +48,7 @@ case class AttributeValue(
     s: Option[String] = None,
     n: Option[String] = None,
     b: Option[ByteBuffer] = None,
+    m: Option[JMap[String, aws.model.AttributeValue]] = None,
     ss: Seq[String] = Nil,
     ns: Seq[String] = Nil,
     bs: Seq[ByteBuffer] = Nil) extends aws.model.AttributeValue {
@@ -45,6 +56,7 @@ case class AttributeValue(
   setS(s.orNull[String])
   setN(n.orNull[String])
   setB(b.orNull[ByteBuffer])
+  setM(m.orNull[JMap[String, aws.model.AttributeValue]])
   setSS(ss.asJava)
   setNS(ns.asJava)
   setBS(bs.asJava)
