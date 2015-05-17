@@ -158,8 +158,8 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     members.put(1, "Japan", "Name" -> Map("foo" -> Map("bar" -> "brack")), "Age" -> 23, "Company" -> "Google")
     members.get(1, "Japan").get.attributes.find(_.name == "Name").get.value.m.get.get("foo").getM().get("bar").getS() should equal("brack")
 
-    members.put(2, "Micronesia", "Name" -> Map("aliases" -> List("foo","bar","other")), "Age"->26, "Company"->"Spotify")
-    members.get(2, "Micronesia").get.attributes.find(_.name == "Name").get.value.m.get.get("aliases").getSS() should contain allOf("foo","bar","other")
+    members.put(2, "Micronesia", "Name" -> Map("aliases" -> List("foo", "bar", "other")), "Age" -> 26, "Company" -> "Spotify")
+    members.get(2, "Micronesia").get.attributes.find(_.name == "Name").get.value.m.get.get("aliases").getSS() should contain allOf ("foo", "bar", "other")
   }
 
   it should "provide cool APIs to use global secondary index" in {
