@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SBT_VERSION=0.13.2
+SBT_VERSION=0.13.8
 sbtjar=sbt-launch.jar
 
 set -e
