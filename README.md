@@ -34,6 +34,9 @@ libraryDependencies += "com.github.seratch" %% "awscala" % "0.5.+"
 libraryDependencies += "com.github.seratch" %% "awscala" % "0.3.+"
 ```
 
+Configure credentials in the AWS Java SDK way.
+
+http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/credentials.html
 
 ## Examples
 
@@ -260,7 +263,7 @@ Tests require aws credentials with Administrator permissions:
 
 ```
 export AWS_ACCESS_KEY_ID=xxx
-export AWS_SECRET_KEY=yyy
+export AWS_SECRET_ACCESS_KEY=yyy
 ```
 
 The DynamoDB tests also require a locally running instance of DynamoDB.
