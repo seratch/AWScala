@@ -56,10 +56,10 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     batchedNonExistant.size should equal(0)
 
     // scan
-    val foundCompanies: Seq[Item] = companies.scan(Seq("url" -> Condition.isNotNull))
+    val foundCompanies: Seq[Item] = companies.scan(Seq("url" -> cond.isNotNull))
     foundCompanies.size should equal(2)
 
-    val scanNonExistant: Seq[Item] = companies.scan(Seq("url" -> Condition.eq("I Don't Exist")))
+    val scanNonExistant: Seq[Item] = companies.scan(Seq("url" -> cond.eq("I Don't Exist")))
     scanNonExistant.size should equal(0)
 
     // putAttributes
@@ -109,10 +109,10 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     val nonExistant: Option[Item] = members.get(4, "U.K.")
     nonExistant.isDefined should not be true
 
-    val googlers: Seq[Item] = members.scan(Seq("Company" -> Condition.eq("Google")))
+    val googlers: Seq[Item] = members.scan(Seq("Company" -> cond.eq("Google")))
     googlers.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("Bob", "Alice"))
 
-    val scanNonExistant: Seq[Item] = members.scan(Seq("Company" -> Condition.eq("I Don't Exist")))
+    val scanNonExistant: Seq[Item] = members.scan(Seq("Company" -> cond.eq("I Don't Exist")))
     scanNonExistant.size should equal(0)
 
     // putAttributes
@@ -166,7 +166,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
     val teenageBoys: Seq[Item] = users.queryWithIndex(
       index = globalSecondaryIndex,
-      keyConditions = Seq("Sex" -> Condition.eq("Male"), "Age" -> Condition.lt(20))
+      keyConditions = Seq("Sex" -> cond.eq("Male"), "Age" -> cond.lt(20))
     )
 
     teenageBoys.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("John", "Bob"))

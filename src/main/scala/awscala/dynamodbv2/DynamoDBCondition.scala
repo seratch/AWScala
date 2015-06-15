@@ -3,7 +3,7 @@ package awscala.dynamodbv2
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
-object Condition {
+object DynamoDBCondition {
 
   def eq(values: Any*) = new aws.model.Condition()
     .withComparisonOperator(aws.model.ComparisonOperator.EQ)
