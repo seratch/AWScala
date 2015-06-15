@@ -3,7 +3,7 @@ import Keys._
 
 object AwscalaProject extends Build {
 
-  lazy val awsJavaSdkVersion = "1.9.39"
+  lazy val awsJavaSdkVersion = "1.10.0"
 
   lazy val root = Project("root", file("."), settings = mainSettings)
 
