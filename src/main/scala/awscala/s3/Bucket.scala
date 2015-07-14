@@ -1,6 +1,6 @@
 package awscala.s3
 
-import java.io.File
+import java.io.{ InputStream, File }
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ s3 => aws }
 import com.amazonaws.services.s3.model.GetObjectMetadataRequest
@@ -56,6 +56,7 @@ case class Bucket(name: String) extends aws.model.Bucket(name) {
 
   // put object from byte array
   def putObject(key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata)(implicit s3: S3) = s3.putObject(this, key, bytes, metadata)
+  def putObject(key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata)(implicit s3: S3) = s3.putObject(this, key, inputStream, metadata)
   def putObjectAsPublicRead(key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata)(implicit s3: S3) = s3.putObjectAsPublicRead(this, key, bytes, metadata)
 
   def delete(key: String)(implicit s3: S3) = s3.deleteObject(name, key)
