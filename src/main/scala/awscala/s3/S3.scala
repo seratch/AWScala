@@ -1,10 +1,12 @@
 package awscala.s3
 
+import java.io.{ ByteArrayInputStream, File, InputStream }
+
 import awscala._
-import scala.collection.JavaConverters._
 import com.amazonaws.services.{ s3 => aws }
-import java.io.{ File, ByteArrayInputStream }
+
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 
 object S3 {
 
@@ -223,8 +225,11 @@ trait S3 extends aws.AmazonS3 {
   def putAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObjectAsPublicRead(bucket, key, bytes, metadata)
 
   def putObject(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult =
+    putObject(bucket, key, new ByteArrayInputStream(bytes), metadata)
+
+  def putObject(bucket: Bucket, key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata): PutObjectResult =
     PutObjectResult(bucket, key, putObject(
-      new aws.model.PutObjectRequest(bucket.name, key, new ByteArrayInputStream(bytes), metadata)
+      new aws.model.PutObjectRequest(bucket.name, key, inputStream, metadata)
     ))
 
   def putObjectAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
