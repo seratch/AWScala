@@ -4,6 +4,7 @@ import awscala.dynamodbv2._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 import org.scalatest._
 import org.slf4j._
+import scala.util.Try
 
 class DynamoDBV2Spec extends FlatSpec with Matchers {
 
@@ -118,6 +119,13 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     // putAttributes
     members.putAttributes(3, "Japan", Seq("Company" -> "Microsoft"))
     members.get(3, "Japan").get.attributes.find(_.name == "Company").get.value.s.get should equal("Microsoft")
+
+    val exp = DynamoDBExpectedAttributeValue
+    Try(dynamoDB.putConditional(tableName, "Id" -> 3, "Country" -> "Japan",
+      "Name" -> "Kris")(Seq("Age" -> exp.lt(29)))) should be a 'failure
+
+    Try(dynamoDB.putConditional(tableName, "Id" -> 3, "Country" -> "Japan",
+      "Name" -> "Kris")(Seq("Age" -> exp.lt(30)))) should be a 'success
 
     members.destroy()
   }
