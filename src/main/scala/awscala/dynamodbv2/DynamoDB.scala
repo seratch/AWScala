@@ -208,13 +208,21 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     put(table, Seq(table.hashPK -> hashPK, table.rangePK.get -> rangePK) ++: attributes: _*)
   }
 
+  def attributeValues(attributes: Seq[(String, Any)]): java.util.Map[String, aws.model.AttributeValue] =
+    attributes.toMap.mapValues(AttributeValue.toJavaValue(_)).asJava
+
   def put(table: Table, attributes: (String, Any)*): Unit = putItem(table.name, attributes: _*)
   def putItem(tableName: String, attributes: (String, Any)*): Unit = {
-    val values: Map[String, aws.model.AttributeValue] = attributes.map {
-      case (key, value) =>
-        (key, AttributeValue.toJavaValue(value))
-    }.toMap
-    putItem(new aws.model.PutItemRequest().withTableName(tableName).withItem(values.asJava))
+    putItem(new aws.model.PutItemRequest()
+      .withTableName(tableName)
+      .withItem(attributeValues(attributes)))
+  }
+
+  def putConditional(tableName: String, attributes: (String, Any)*)(cond: Seq[(String, aws.model.ExpectedAttributeValue)]): Unit = {
+    putItem(new aws.model.PutItemRequest()
+      .withTableName(tableName)
+      .withItem(attributeValues(attributes))
+      .withExpected(cond.toMap.asJava))
   }
 
   def addAttributes(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
