@@ -3,16 +3,16 @@ import Keys._
 
 object AwscalaProject extends Build {
 
-  lazy val awsJavaSdkVersion = "1.10.1"
+  lazy val awsJavaSdkVersion = "1.10.26"
 
   lazy val root = Project("root", file("."), settings = mainSettings)
 
   lazy val mainSettings = Seq(
     organization := "com.github.seratch",
     name := "awscala",
-    version := "0.5.4-SNAPSHOT",
-    scalaVersion := "2.11.6",
-    crossScalaVersions := Seq("2.11.6", "2.10.5"),
+    version := "0.5.4",
+    scalaVersion := "2.11.7",
+    crossScalaVersions := Seq("2.11.7", "2.10.6"),
     publishMavenStyle := true,
     resolvers += "spray repo" at "http://repo.spray.io",
     libraryDependencies ++= Seq(
@@ -25,8 +25,8 @@ object AwscalaProject extends Build {
       "com.amazonaws"    %  "aws-java-sdk-redshift" % awsJavaSdkVersion,
       "com.amazonaws"    %  "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
       "com.amazonaws"    %  "aws-java-sdk-simpledb" % awsJavaSdkVersion,
-      "joda-time"        %  "joda-time"       % "2.8.1",
-      "org.joda"         %  "joda-convert"    % "1.7",
+      "joda-time"        %  "joda-time"       % "2.8.2",
+      "org.joda"         %  "joda-convert"    % "1.8.1",
       "com.decodified"   %% "scala-ssh"       % "0.7.0"  % "provided",
       "org.bouncycastle" %  "bcprov-jdk16"    % "1.46"   % "provided",
       "ch.qos.logback"   %  "logback-classic" % "1.1.3"  % "test",
