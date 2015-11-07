@@ -122,6 +122,46 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     members.destroy()
   }
 
+  it should "convert maps to attribute values implicitly" in {
+    implicit val dynamoDB = DynamoDB.local()
+
+    val tableName = s"Members_${System.currentTimeMillis}"
+    val createdTableMeta: TableMeta = dynamoDB.createTable(
+      name = tableName,
+      hashPK = "Id" -> AttributeType.Number,
+      rangePK = "Country" -> AttributeType.String,
+      otherAttributes = Seq("Company" -> AttributeType.String),
+      indexes = Seq(
+        LocalSecondaryIndex(
+          name = "CompanyIndex",
+          keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
+          projection = Projection(ProjectionType.Include, Seq("Company"))
+        )
+      )
+    )
+    log.info(s"Created Table: ${createdTableMeta}")
+
+    println(s"Waiting for DynamoDB table activation...")
+    var isTableActivated = false
+    while (!isTableActivated) {
+      dynamoDB.describe(createdTableMeta.table).map { meta =>
+        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
+      }
+      Thread.sleep(1000L)
+      print(".")
+    }
+    println("")
+    println(s"Created DynamoDB table has been activated.")
+
+    val members: Table = dynamoDB.table(tableName).get
+
+    members.put(1, "Japan", "Name" -> Map("foo" -> Map("bar" -> "brack")), "Age" -> 23, "Company" -> "Google")
+    members.get(1, "Japan").get.attributes.find(_.name == "Name").get.value.m.get.get("foo").getM().get("bar").getS() should equal("brack")
+
+    members.put(2, "Micronesia", "Name" -> Map("aliases" -> List("foo", "bar", "other")), "Age" -> 26, "Company" -> "Spotify")
+    members.get(2, "Micronesia").get.attributes.find(_.name == "Name").get.value.m.get.get("aliases").getSS() should contain allOf ("foo", "bar", "other")
+  }
+
   it should "provide cool APIs to use global secondary index" in {
     implicit val dynamoDB = DynamoDB.local()
 
