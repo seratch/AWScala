@@ -292,12 +292,14 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     keyConditions: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
+    scanIndexForward: Boolean = true,
     consistentRead: Boolean = false): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
       .withTableName(table.name)
       .withKeyConditions(keyConditions.toMap.asJava)
       .withSelect(select)
+      .withScanIndexForward(scanIndexForward)
       .withConsistentRead(consistentRead)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
