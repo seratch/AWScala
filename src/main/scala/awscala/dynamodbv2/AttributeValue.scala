@@ -24,6 +24,7 @@ object AttributeValue {
       case n: java.lang.Number => value.withN(n.toString)
       case b: ByteBuffer => value.withB(b)
       case xs: Seq[_] => xs.headOption match {
+        case Some(m: Map[String, Any]) => value.withL(xs.map(toJavaValue).asJavaCollection)
         case Some(s: String) => value.withSS(xs.map(_.asInstanceOf[String]).asJava)
         case Some(n: java.lang.Number) => value.withSS(xs.map(_.toString).asJava)
         case Some(s: ByteBuffer) => value.withBS(xs.map(_.asInstanceOf[ByteBuffer]).asJava)
