@@ -17,7 +17,8 @@ case class Event(
     sourceIdentifier: String,
     sourceType: aws.model.SourceType,
     message: String,
-    createdAt: DateTime) extends aws.model.Event {
+    createdAt: DateTime
+) extends aws.model.Event {
 
   setDate(createdAt.toDate)
   setMessage(message)

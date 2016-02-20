@@ -34,8 +34,7 @@ trait STS extends aws.AWSSecurityTokenService {
     val result = getFederationToken(new aws.model.GetFederationTokenRequest()
       .withName(name)
       .withPolicy(policy.toJSON)
-      .withDurationSeconds(durationSeconds)
-    )
+      .withDurationSeconds(durationSeconds))
 
     FederationToken(
       user = FederatedUser(result.getFederatedUser),

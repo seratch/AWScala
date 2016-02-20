@@ -18,7 +18,8 @@ case class RestoreStatus(
     elapsedTimeInSeconds: Long,
     estimatedTimeToCompletionInSeconds: Long,
     progressInMegaBytes: Long,
-    snapshotSizeInMegaBytes: Long) extends aws.model.RestoreStatus {
+    snapshotSizeInMegaBytes: Long
+) extends aws.model.RestoreStatus {
 
   setCurrentRestoreRateInMegaBytesPerSecond(currentRestoreRateInMegaBytesPerSecond)
   setElapsedTimeInSeconds(elapsedTimeInSeconds)

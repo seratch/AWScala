@@ -99,7 +99,8 @@ trait IAM extends aws.AmazonIdentityManagement {
   def delete(policy: GroupPolicy): Unit = deleteGroupPolicy(policy)
   def deleteGroupPolicy(policy: GroupPolicy): Unit = {
     deleteGroupPolicy(
-      new aws.model.DeleteGroupPolicyRequest().withGroupName(policy.group.name).withPolicyName(policy.name))
+      new aws.model.DeleteGroupPolicyRequest().withGroupName(policy.group.name).withPolicyName(policy.name)
+    )
   }
 
   // ------------------------------------------
@@ -149,7 +150,8 @@ trait IAM extends aws.AmazonIdentityManagement {
   def delete(policy: UserPolicy): Unit = deleteUserPolicy(policy)
   def deleteUserPolicy(policy: UserPolicy): Unit = {
     deleteUserPolicy(
-      new aws.model.DeleteUserPolicyRequest().withUserName(policy.user.name).withPolicyName(policy.name))
+      new aws.model.DeleteUserPolicyRequest().withUserName(policy.user.name).withPolicyName(policy.name)
+    )
   }
 
   // ------------------------------------------
@@ -193,8 +195,7 @@ trait IAM extends aws.AmazonIdentityManagement {
     Role(createRole(new aws.model.CreateRoleRequest()
       .withRoleName(name)
       .withPath(path)
-      .withAssumeRolePolicyDocument(assumeRolePolicyDocument)
-    ).getRole)
+      .withAssumeRolePolicyDocument(assumeRolePolicyDocument)).getRole)
   }
 
   def delete(role: Role): Unit = deleteRole(role)
@@ -229,7 +230,8 @@ trait IAM extends aws.AmazonIdentityManagement {
   def delete(policy: RolePolicy): Unit = deleteRolePolicy(policy)
   def deleteRolePolicy(policy: RolePolicy): Unit = {
     deleteRolePolicy(
-      new aws.model.DeleteRolePolicyRequest().withRoleName(policy.role.name).withPolicyName(policy.name))
+      new aws.model.DeleteRolePolicyRequest().withRoleName(policy.role.name).withPolicyName(policy.name)
+    )
   }
 
   // ------------------------------------------
@@ -246,7 +248,8 @@ trait IAM extends aws.AmazonIdentityManagement {
 
   def createInstanceProfile(name: String, path: String): InstanceProfile = {
     InstanceProfile(createInstanceProfile(
-      new aws.model.CreateInstanceProfileRequest().withInstanceProfileName(name).withPath(path)).getInstanceProfile)
+      new aws.model.CreateInstanceProfileRequest().withInstanceProfileName(name).withPath(path)
+    ).getInstanceProfile)
   }
 
   def addRoleToInstanceProfile(profile: InstanceProfile, role: Role): Unit = {
@@ -260,7 +263,8 @@ trait IAM extends aws.AmazonIdentityManagement {
   def delete(profile: InstanceProfile): Unit = deleteInstanceProfile(profile)
   def deleteInstanceProfile(profile: InstanceProfile): Unit = {
     deleteInstanceProfile(
-      new aws.model.DeleteInstanceProfileRequest().withInstanceProfileName(profile.name))
+      new aws.model.DeleteInstanceProfileRequest().withInstanceProfileName(profile.name)
+    )
   }
 
   // ------------------------------------------
@@ -268,8 +272,10 @@ trait IAM extends aws.AmazonIdentityManagement {
   // ------------------------------------------
 
   def createLoginProfile(user: User, password: String): LoginProfile = {
-    LoginProfile(user,
-      createLoginProfile(new aws.model.CreateLoginProfileRequest().withUserName(user.name).withPassword(password)).getLoginProfile)
+    LoginProfile(
+      user,
+      createLoginProfile(new aws.model.CreateLoginProfileRequest().withUserName(user.name).withPassword(password)).getLoginProfile
+    )
   }
 
   def loginProfile(user: User): Option[LoginProfile] = try {
@@ -284,7 +290,8 @@ trait IAM extends aws.AmazonIdentityManagement {
   def delete(profile: LoginProfile): Unit = deleteLoginProfile(profile)
   def deleteLoginProfile(profile: LoginProfile): Unit = {
     deleteLoginProfile(
-      new aws.model.DeleteLoginProfileRequest().withUserName(profile.user.name))
+      new aws.model.DeleteLoginProfileRequest().withUserName(profile.user.name)
+    )
   }
 
   // ------------------------------------------
@@ -308,12 +315,14 @@ trait IAM extends aws.AmazonIdentityManagement {
   def enableVirtualMFADevice(device: VirtualMFADevice, user: User, authCode1: String, authCode2: String) = {
     enableMFADevice(
       new aws.model.EnableMFADeviceRequest().withUserName(user.name).withSerialNumber(device.serialNumber)
-        .withAuthenticationCode1(authCode1).withAuthenticationCode2(authCode2))
+        .withAuthenticationCode1(authCode1).withAuthenticationCode2(authCode2)
+    )
   }
 
   def disableVirtualMFADevice(device: VirtualMFADevice, user: User): Unit = {
     deactivateMFADevice(
-      new aws.model.DeactivateMFADeviceRequest().withSerialNumber(device.serialNumber).withUserName(user.name))
+      new aws.model.DeactivateMFADeviceRequest().withSerialNumber(device.serialNumber).withUserName(user.name)
+    )
   }
 
   def delete(device: VirtualMFADevice): Unit = deleteVirtualMFADevice(device)

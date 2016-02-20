@@ -9,7 +9,8 @@ case class Statement(
     resources: Seq[Resource],
     id: Option[String] = None,
     conditions: Seq[Condition] = Nil,
-    principals: Seq[aws.Principal] = Nil) extends aws.Statement(effect) {
+    principals: Seq[aws.Principal] = Nil
+) extends aws.Statement(effect) {
 
   id.foreach(i => setId(i))
   setEffect(effect)

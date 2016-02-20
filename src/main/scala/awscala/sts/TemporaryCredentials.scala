@@ -17,7 +17,8 @@ case class TemporaryCredentials(
     accessKeyId: String,
     secretAccessKey: String,
     sessionToken: String,
-    expiration: DateTime) extends aws.model.Credentials {
+    expiration: DateTime
+) extends aws.model.Credentials {
 
   setAccessKeyId(accessKeyId)
   setExpiration(expiration.toDate)

@@ -29,7 +29,8 @@ case class TableMeta(
     keySchema: Seq[KeySchema],
     localSecondaryIndexes: Seq[LocalSecondaryIndexMeta],
     provisionedThroughput: ProvisionedThroughputMeta,
-    createdAt: DateTime) extends aws.model.TableDescription {
+    createdAt: DateTime
+) extends aws.model.TableDescription {
 
   def table: Table = Table(
     name = name,
@@ -65,7 +66,8 @@ case class LocalSecondaryIndexMeta(
     sizeBytes: Long,
     itemCount: Long,
     keySchema: Seq[KeySchema],
-    projection: Projection) extends aws.model.LocalSecondaryIndexDescription {
+    projection: Projection
+) extends aws.model.LocalSecondaryIndexDescription {
 
   setIndexName(name)
   setIndexSizeBytes(sizeBytes)
@@ -88,7 +90,8 @@ case class ProvisionedThroughputMeta(
     readCapacityUnits: Long,
     writeCapacityUnits: Long,
     lastDecreasedAt: DateTime,
-    lastIncreasedAt: DateTime) extends aws.model.ProvisionedThroughputDescription {
+    lastIncreasedAt: DateTime
+) extends aws.model.ProvisionedThroughputDescription {
 
   setLastDecreaseDateTime(lastDecreasedAt.toDate)
   setLastIncreaseDateTime(lastIncreasedAt.toDate)

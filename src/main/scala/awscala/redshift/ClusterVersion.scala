@@ -13,7 +13,8 @@ object ClusterVersion {
 }
 
 case class ClusterVersion(
-  version: String, description: Option[String] = None, parameterGroupFamily: Option[String] = None)
+  version: String, description: Option[String] = None, parameterGroupFamily: Option[String] = None
+)
     extends aws.model.ClusterVersion {
 
   setClusterVersion(version)

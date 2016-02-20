@@ -53,7 +53,8 @@ case class AttributeValue(
     m: Option[JMap[String, aws.model.AttributeValue]] = None,
     ss: Seq[String] = Nil,
     ns: Seq[String] = Nil,
-    bs: Seq[ByteBuffer] = Nil) extends aws.model.AttributeValue {
+    bs: Seq[ByteBuffer] = Nil
+) extends aws.model.AttributeValue {
 
   setS(s.orNull[String])
   setN(n.orNull[String])

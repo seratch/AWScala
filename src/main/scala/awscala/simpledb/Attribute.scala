@@ -14,7 +14,8 @@ object Attribute {
 }
 
 case class Attribute(
-  item: Item, name: String, value: String, alternateNameEncoding: String, alternateValueEncoding: String)
+  item: Item, name: String, value: String, alternateNameEncoding: String, alternateValueEncoding: String
+)
     extends aws.model.Attribute {
 
   setAlternateNameEncoding(alternateNameEncoding)

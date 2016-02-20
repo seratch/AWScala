@@ -118,7 +118,8 @@ trait Redshift extends aws.AmazonRedshift {
     marker: String = null,
     maxRecords: Int = -1,
     ownerAccount: String = null,
-    snapshotType: SnapshotType = null): Option[Snapshot] = {
+    snapshotType: SnapshotType = null
+  ): Option[Snapshot] = {
 
     val req = new aws.model.DescribeClusterSnapshotsRequest()
       .withSnapshotIdentifier(snapshotIdentifier)
@@ -262,8 +263,7 @@ trait Redshift extends aws.AmazonRedshift {
     ClusterSecurityGroup(
       createClusterSecurityGroup(new aws.model.CreateClusterSecurityGroupRequest()
         .withClusterSecurityGroupName(name)
-        .withDescription(description)
-      )
+        .withDescription(description))
     )
   }
 

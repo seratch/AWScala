@@ -23,7 +23,8 @@ object VirtualMFADevice {
 
 case class VirtualMFADevice(
   serialNumber: String, base32StringSeed: Option[java.nio.ByteBuffer], qrCodePng: Option[java.nio.ByteBuffer],
-  user: User, enabledAt: DateTime)
+  user: User, enabledAt: DateTime
+)
     extends aws.model.VirtualMFADevice {
 
   setBase32StringSeed(base32StringSeed.orNull[java.nio.ByteBuffer])

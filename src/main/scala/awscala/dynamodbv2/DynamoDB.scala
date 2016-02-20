@@ -54,7 +54,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
   def createTable(
     name: String,
-    hashPK: (String, aws.model.ScalarAttributeType)): TableMeta = {
+    hashPK: (String, aws.model.ScalarAttributeType)
+  ): TableMeta = {
     create(Table(
       name = name,
       hashPK = hashPK._1,
@@ -68,7 +69,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     hashPK: (String, aws.model.ScalarAttributeType),
     rangePK: (String, aws.model.ScalarAttributeType),
     otherAttributes: Seq[(String, aws.model.ScalarAttributeType)],
-    indexes: Seq[LocalSecondaryIndex]): TableMeta = {
+    indexes: Seq[LocalSecondaryIndex]
+  ): TableMeta = {
     create(Table(
       name = name,
       hashPK = hashPK._1,
@@ -111,7 +113,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
   def updateTableProvisionedThroughput(table: Table, provisionedThroughput: ProvisionedThroughput): TableMeta = {
     TableMeta(updateTable(
-      new aws.model.UpdateTableRequest(table.name, provisionedThroughput)).getTableDescription)
+      new aws.model.UpdateTableRequest(table.name, provisionedThroughput)
+    ).getTableDescription)
   }
 
   def delete(table: Table): Unit = deleteTable(table)
@@ -127,8 +130,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     val attributes = getItem(new aws.model.GetItemRequest()
       .withTableName(table.name)
       .withKey(Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)).asJava)
-      .withConsistentRead(consistentRead)
-    ).getItem
+      .withConsistentRead(consistentRead)).getItem
 
     Option(attributes).map(Item(table, _))
   } catch { case e: aws.model.ResourceNotFoundException => None }
@@ -146,8 +148,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
               table.hashPK -> AttributeValue.toJavaValue(hashPK),
               table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
             ).asJava)
-            .withConsistentRead(consistentRead)
-          ).getItem
+            .withConsistentRead(consistentRead)).getItem
 
           Option(attributes).map(Item(table, _))
         } catch { case e: aws.model.ResourceNotFoundException => None }
@@ -187,8 +188,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
         case (table, attributes) =>
           table.name -> new KeysAndAttributes().withKeys(
             attributes.map {
-              case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
-            }.asJava)
+            case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
+          }.asJava
+          )
       }.asJava
 
     toStream(State(Nil, toJava(tableAndAttributes)))
@@ -247,7 +249,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   }
 
   private[dynamodbv2] def updateAttributes(
-    table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]): Unit = {
+    table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]
+  ): Unit = {
 
     val tableKeys = Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)) ++ rangePK.flatMap(rKey => table.rangePK.map(_ -> AttributeValue.toJavaValue(rKey)))
 
@@ -274,13 +277,15 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       ).asJava))
   }
 
-  def queryWithIndex(table: Table,
+  def queryWithIndex(
+    table: Table,
     index: SecondaryIndex,
     keyConditions: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false): Seq[Item] = try {
+    consistentRead: Boolean = false
+  ): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
       .withTableName(table.name)
@@ -296,12 +301,14 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     query(req).getItems.asScala.map(i => Item(table, i)).toSeq
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
-  def query(table: Table,
+  def query(
+    table: Table,
     keyConditions: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false): Seq[Item] = try {
+    consistentRead: Boolean = false
+  ): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
       .withTableName(table.name)
@@ -316,13 +323,15 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     query(req).getItems.asScala.map(i => Item(table, i)).toSeq
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
-  def scan(table: Table,
+  def scan(
+    table: Table,
     filter: Seq[(String, aws.model.Condition)],
     limit: Int = 1000,
     segment: Int = 0,
     totalSegments: Int = 1,
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
-    attributesToGet: Seq[String] = Nil): Seq[Item] = try {
+    attributesToGet: Seq[String] = Nil
+  ): Seq[Item] = try {
 
     val req = new aws.model.ScanRequest()
       .withTableName(table.name)

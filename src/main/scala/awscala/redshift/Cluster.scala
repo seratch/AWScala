@@ -55,7 +55,8 @@ class Cluster(
     val securityGroupMemberships: Seq[ClusterSecurityGroupMembership],
     val vpcId: String,
     val vpcSecurityGroupMemberships: Seq[VpcSecurityGroupMembership],
-    val createdAt: DateTime) extends aws.model.Cluster {
+    val createdAt: DateTime
+) extends aws.model.Cluster {
 
   setAllowVersionUpgrade(allowVersionUpgrade)
   setAutomatedSnapshotRetentionPeriod(automatedSnapshotRetentionPeriod)

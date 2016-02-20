@@ -11,7 +11,8 @@ object ProvisionedThroughput {
 
 case class ProvisionedThroughput(
     readCapacityUnits: Long,
-    writeCapacityUnits: Long) extends aws.model.ProvisionedThroughput {
+    writeCapacityUnits: Long
+) extends aws.model.ProvisionedThroughput {
 
   setReadCapacityUnits(readCapacityUnits)
   setWriteCapacityUnits(writeCapacityUnits)

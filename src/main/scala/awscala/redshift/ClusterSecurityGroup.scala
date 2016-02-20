@@ -13,7 +13,8 @@ object ClusterSecurityGroup {
   )
 }
 case class ClusterSecurityGroup(
-  name: String, ec2SecurityGroups: Seq[EC2SecurityGroup], ipranges: Seq[IPRange], description: String)
+  name: String, ec2SecurityGroups: Seq[EC2SecurityGroup], ipranges: Seq[IPRange], description: String
+)
     extends aws.model.ClusterSecurityGroup {
 
   setClusterSecurityGroupName(name)

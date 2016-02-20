@@ -37,7 +37,8 @@ class ReservedNode(
   offeringId: String,
   offeringType: String,
   recurringCharges: Seq[RecurringCharge],
-  startedAt: DateTime)
+  startedAt: DateTime
+)
     extends aws.model.ReservedNode {
 
   setCurrencyCode(currencyCode)

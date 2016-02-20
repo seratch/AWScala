@@ -211,12 +211,14 @@ trait S3 extends aws.AmazonS3 {
 
   def putObjectAsPublicRead(bucket: Bucket, key: String, file: File): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
-      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)))
+      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)
+    ))
   }
 
   def putObjectAsPublicReadWrite(bucket: Bucket, key: String, file: File): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
-      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)))
+      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)
+    ))
   }
 
   // putting a byte array
@@ -236,9 +238,8 @@ trait S3 extends aws.AmazonS3 {
     PutObjectResult(bucket, key, putObject(
       new aws.model.PutObjectRequest(bucket.name, key,
         new ByteArrayInputStream(bytes),
-        metadata
-      ).withCannedAcl(aws.model.CannedAccessControlList.PublicRead))
-    )
+        metadata).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)
+    ))
   }
 
   // copy

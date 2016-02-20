@@ -119,7 +119,8 @@ object BucketNotificationConfiguration {
   }
 }
 case class BucketNotificationConfiguration(
-  bucket: Bucket, topicConfigs: Seq[aws.model.BucketNotificationConfiguration.TopicConfiguration])
+  bucket: Bucket, topicConfigs: Seq[aws.model.BucketNotificationConfiguration.TopicConfiguration]
+)
     extends aws.model.BucketNotificationConfiguration(topicConfigs.asJava)
 
 object BucketTaggingConfiguration {
@@ -150,7 +151,8 @@ object BucketWebsiteConfiguration {
   }
 }
 case class BucketWebsiteConfiguration(
-  bucket: Bucket, indexDocumentSuffix: String, errorDocument: String, routingRules: Seq[aws.model.RoutingRule])
+  bucket: Bucket, indexDocumentSuffix: String, errorDocument: String, routingRules: Seq[aws.model.RoutingRule]
+)
     extends aws.model.BucketWebsiteConfiguration(indexDocumentSuffix, errorDocument) {
   setRoutingRules(routingRules.asJava)
 

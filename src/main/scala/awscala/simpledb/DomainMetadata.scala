@@ -18,5 +18,6 @@ case class DomainMetadata(
   attributeNameCount: Int, attributeNamesSizeBytes: Long,
   attributeValueCount: Int, attributeValuesSizeBytes: Long,
   itemCount: Int, itemNamesSizeBytes: Long,
-  timestamp: Int)
+  timestamp: Int
+)
 
