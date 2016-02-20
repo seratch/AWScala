@@ -16,7 +16,7 @@ object SQS {
 
 /**
  * Amazon Simple Queue Service Java client wrapper
- * @see "http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/"
+ * @see [[http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/]]
  */
 trait SQS extends aws.AmazonSQS {
 

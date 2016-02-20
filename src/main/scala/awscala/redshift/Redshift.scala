@@ -17,7 +17,7 @@ object Redshift {
 
 /**
  * Amazon Redshift Java client wrapper
- * @see "http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/"
+ * @see [[http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/]]
  */
 trait Redshift extends aws.AmazonRedshift {
 

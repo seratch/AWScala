@@ -14,7 +14,7 @@ object IAM {
 
 /**
  * Amazon Identity Management Java client wrapper
- * @see "http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/"
+ * @see [[http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/]]
  */
 trait IAM extends aws.AmazonIdentityManagement {
 

@@ -22,7 +22,7 @@ object DynamoDB {
 
 /**
  * Amazon DynamoDB Java client wrapper
- * @see "http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/"
+ * @see [[http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/]]
  */
 trait DynamoDB extends aws.AmazonDynamoDB {
 
