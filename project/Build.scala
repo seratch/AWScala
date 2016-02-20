@@ -3,14 +3,14 @@ import Keys._
 
 object AwscalaProject extends Build {
 
-  lazy val awsJavaSdkVersion = "1.10.33"
+  lazy val awsJavaSdkVersion = "1.10.54"
 
   lazy val root = Project("root", file("."), settings = mainSettings)
 
   lazy val mainSettings = Seq(
     organization := "com.github.seratch",
     name := "awscala",
-    version := "0.5.5",
+    version := "0.5.6-SNAPSHOT",
     scalaVersion := "2.11.7",
     crossScalaVersions := Seq("2.11.7", "2.10.6"),
     publishMavenStyle := true,
@@ -25,12 +25,12 @@ object AwscalaProject extends Build {
       "com.amazonaws"    %  "aws-java-sdk-redshift" % awsJavaSdkVersion,
       "com.amazonaws"    %  "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
       "com.amazonaws"    %  "aws-java-sdk-simpledb" % awsJavaSdkVersion,
-      "joda-time"        %  "joda-time"       % "2.9",
+      "joda-time"        %  "joda-time"       % "2.9.2",
       "org.joda"         %  "joda-convert"    % "1.8.1",
       "com.decodified"   %% "scala-ssh"       % "0.7.0"  % "provided",
       "org.bouncycastle" %  "bcprov-jdk16"    % "1.46"   % "provided",
-      "ch.qos.logback"   %  "logback-classic" % "1.1.3"  % "test",
-      "org.scalatest"    %% "scalatest"       % "2.2.5"  % "test"
+      "ch.qos.logback"   %  "logback-classic" % "1.1.5"  % "test",
+      "org.scalatest"    %% "scalatest"       % "2.2.6"  % "test"
     ),
     sbtPlugin := false,
     transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
