@@ -21,7 +21,7 @@ object S3 {
 
 /**
  * Amazon S3 Java client wrapper
- * @see "http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/"
+ * @see [[http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/]]
  */
 trait S3 extends aws.AmazonS3 {
 

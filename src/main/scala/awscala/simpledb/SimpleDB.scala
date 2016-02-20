@@ -16,7 +16,7 @@ object SimpleDB {
 
 /**
  * Amazon SimpleDB Java client wrapper
- * @see "http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/"
+ * @see [[http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/]]
  */
 trait SimpleDB extends aws.AmazonSimpleDB {
 
