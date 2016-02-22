@@ -11,7 +11,7 @@ class S3Spec extends FlatSpec with Matchers {
 
   val log = LoggerFactory.getLogger(this.getClass)
 
-  it should "handle buckest with > 1000 objects in them " in {
+  it should "handle buckets with > 1000 objects in them " in {
     implicit val s3 = S3.at(Region.Tokyo)
 
     // buckets
