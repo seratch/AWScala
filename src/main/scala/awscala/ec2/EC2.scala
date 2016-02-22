@@ -160,7 +160,7 @@ trait EC2 extends aws.AmazonEC2Async {
 /**
  * Default Implementation
  *
- * @param credentials credentials
+ * @param credentialsProvider credentialsProvider
  */
 class EC2Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonEC2AsyncClient(credentialsProvider)

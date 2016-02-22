@@ -138,7 +138,7 @@ class SQSClientWithQueue(sqs: SQS, queue: Queue) {
 /**
  * Default Implementation
  *
- * @param credentials credentials
+ * @param credentialsProvider credentialsProvider
  */
 class SQSClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonSQSClient(credentialsProvider)

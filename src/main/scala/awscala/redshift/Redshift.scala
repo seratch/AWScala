@@ -313,7 +313,7 @@ trait Redshift extends aws.AmazonRedshift {
 /**
  * Default Implementation
  *
- * @param credentials credentials
+ * @param credentialsProvider credentialsProvider
  */
 class RedshiftClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonRedshiftClient(credentialsProvider)

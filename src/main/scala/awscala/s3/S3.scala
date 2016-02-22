@@ -283,7 +283,7 @@ trait S3 extends aws.AmazonS3 {
 /**
  * Default Implementation
  *
- * @param credentials credentials
+ * @param credentialsProvider credentialsProvider
  */
 class S3Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
     extends aws.AmazonS3Client(credentialsProvider)

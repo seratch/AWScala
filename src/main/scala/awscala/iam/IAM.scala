@@ -335,7 +335,7 @@ trait IAM extends aws.AmazonIdentityManagement {
 /**
  * Default Implementation
  *
- * @param credentials credentials
+ * @param credentialsProvider credentialsProvider
  */
 class IAMClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonIdentityManagementClient(credentialsProvider)
