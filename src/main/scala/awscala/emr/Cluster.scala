@@ -18,7 +18,7 @@ case class Cluster(in: aws.model.Cluster) extends aws.model.Cluster {
   setVisibleToAllUsers(in.getVisibleToAllUsers())
 
   private var cachedBootstrapActions: Option[Seq[aws.model.Command]] = None
-  private var cachedStepSummares: Option[Seq[aws.model.StepSummary]] = None
+  private var cachedStepSummaries: Option[Seq[aws.model.StepSummary]] = None
 
   def name = getName()
   def id = getId()
@@ -41,10 +41,10 @@ case class Cluster(in: aws.model.Cluster) extends aws.model.Cluster {
   }
 
   def stepSummaries(implicit emr: EMR): Seq[aws.model.StepSummary] = {
-    cachedStepSummares match {
+    cachedStepSummaries match {
       case None =>
-        cachedStepSummares = Some(emr.stepSummaries(Some(getId)))
-        cachedStepSummares.get
+        cachedStepSummaries = Some(emr.stepSummaries(Some(getId)))
+        cachedStepSummaries.get
       case Some(e) => e
     }
   }
