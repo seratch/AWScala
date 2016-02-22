@@ -352,7 +352,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 /**
  * Default Implementation
  *
- * @param credentials credentials
+ * @param credentialsProvider credentialsProvider
  */
 class DynamoDBClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonDynamoDBClient(credentialsProvider)

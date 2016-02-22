@@ -75,7 +75,7 @@ trait STS extends aws.AWSSecurityTokenService {
 /**
  * Default Implementation
  *
- * @param credentials credentials
+ * @param credentialsProvider credentialsProvider
  */
 class STSClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
   extends aws.AWSSecurityTokenServiceClient(credentialsProvider)

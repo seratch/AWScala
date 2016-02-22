@@ -120,7 +120,7 @@ trait SimpleDB extends aws.AmazonSimpleDB {
 /**
  * Default Implementation
  *
- * @param credentials credentials
+ * @param credentialsProvider credentialsProvider
  */
 class SimpleDBClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonSimpleDBClient(credentialsProvider)
