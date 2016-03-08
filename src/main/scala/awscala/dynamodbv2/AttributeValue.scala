@@ -21,6 +21,7 @@ object AttributeValue {
     v match {
       case null => null
       case s: String => value.withS(s)
+      case bl: Boolean => value.withBOOL(bl)
       case n: java.lang.Number => value.withN(n.toString)
       case b: ByteBuffer => value.withB(b)
       case xs: Seq[_] => xs.headOption match {
@@ -37,6 +38,8 @@ object AttributeValue {
 
   def apply(v: aws.model.AttributeValue): AttributeValue = new AttributeValue(
     s = Option(v.getS),
+    //Unfortunately the ugly check is necessary here to bypass implicit conversion
+    bl = if (v.getBOOL != null) Option(v.getBOOL) else None,
     n = Option(v.getN),
     b = Option(v.getB),
     m = Option(v.getM),
@@ -48,6 +51,7 @@ object AttributeValue {
 
 case class AttributeValue(
     s: Option[String] = None,
+    bl: Option[Boolean] = None,
     n: Option[String] = None,
     b: Option[ByteBuffer] = None,
     m: Option[JMap[String, aws.model.AttributeValue]] = None,
@@ -57,6 +61,9 @@ case class AttributeValue(
 ) extends aws.model.AttributeValue {
 
   setS(s.orNull[String])
+  if (bl.isDefined) {
+    setBOOL(bl.get)
+  }
   setN(n.orNull[String])
   setB(b.orNull[ByteBuffer])
   setM(m.orNull[JMap[String, aws.model.AttributeValue]])

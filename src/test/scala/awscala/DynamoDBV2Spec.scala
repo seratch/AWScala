@@ -208,7 +208,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     val users: Table = dynamoDB.table(tableName).get
 
     users.put(1, "Name" -> "John", "Sex" -> "Male", "Age" -> 12)
-    users.put(2, "Name" -> "Bob", "Sex" -> "Male", "Age" -> 14)
+    users.put(2, "Name" -> "Bob", "Sex" -> "Male", "Age" -> 14, "Friend" -> true)
     users.put(3, "Name" -> "Chris", "Sex" -> "Female", "Age" -> 9)
     users.put(4, "Name" -> "Michael", "Sex" -> "Male", "Age" -> 65)
 
@@ -218,7 +218,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     )
 
     teenageBoys.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("John", "Bob"))
-
+    teenageBoys.flatMap(_.attributes.find(_.name == "Friend")).map(_.value.bl.get) should equal(Seq(true))
     users.destroy()
   }
 
