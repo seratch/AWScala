@@ -4,6 +4,7 @@ import awscala.dynamodbv2._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 import org.scalatest._
 import org.slf4j._
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 class DynamoDBV2Spec extends FlatSpec with Matchers {
@@ -219,6 +220,54 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
     teenageBoys.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("John", "Bob"))
     teenageBoys.flatMap(_.attributes.find(_.name == "Friend")).map(_.value.bl.get) should equal(Seq(true))
+    users.destroy()
+  }
+
+  it should "encode nested list and boolean datatypes properly" in {
+    implicit val dynamoDB = DynamoDB.local()
+
+    val tableName = s"Users_${System.currentTimeMillis}"
+    val table = Table(
+      name = tableName,
+      hashPK = "Id",
+      attributes = Seq(
+        AttributeDefinition("Id", AttributeType.Number)
+      )
+    )
+    val createdTableMeta: TableMeta = dynamoDB.createTable(table)
+    log.info(s"Created Table: ${createdTableMeta}")
+
+    println(s"Waiting for DynamoDB table activation...")
+    var isTableActivated = false
+    while (!isTableActivated) {
+      dynamoDB.describe(createdTableMeta.table).map { meta =>
+        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
+      }
+      Thread.sleep(1000L)
+      print(".")
+    }
+    println("")
+    println(s"Created DynamoDB table has been activated.")
+
+    val users: Table = dynamoDB.table(tableName).get
+
+    val stuffList = (("a" :: "b" :: Nil) :: "b" :: "c" :: Nil)
+    users.put(1, "Name" -> "John", "Sex" -> "Male", "Age" -> 12)
+    users.put(2, "Name" -> "Bob", "Sex" -> "Male", "Age" -> 14, "Friend" -> true, "Stuff" -> stuffList)
+    users.put(3, "Name" -> "Bob", "Sex" -> "Male", "Age" -> 14, "Friend" -> true, "Stuff" -> (Map("libpq" -> List(Map("a"->"b"))) :: "b" :: "c" :: Nil))
+
+
+    def flatList(a:List[AttributeValue]): List[String] = a match {
+      case Nil => Nil
+      case AttributeValue(Some(s),_,_,_,_,_,_,_,_) :: tail =>
+        s :: flatList(tail)
+      case AttributeValue(_,_,_,_,l,_,_,_,_) :: tail => flatList(l.toList) ::: flatList(tail)
+    }
+
+    flatList(users.get(2).get.attributes.find(_.name == "Stuff").get.value.l.toList) should equal(List("a","b","b","c"))
+
+    users.get(3).get.attributes.find(_.name == "Stuff").get.value.l.head.m.get.get("libpq").getL.get(0).getM.get("a").getS should equal("b")
+
     users.destroy()
   }
 
