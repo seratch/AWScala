@@ -38,8 +38,7 @@ object AttributeValue {
 
   def apply(v: aws.model.AttributeValue): AttributeValue = new AttributeValue(
     s = Option(v.getS),
-    //Unfortunately the ugly check is necessary here to bypass implicit conversion
-    bl = if (v.getBOOL != null) Option(v.getBOOL) else None,
+    bl = Option[java.lang.Boolean](v.getBOOL).map(_.booleanValue()),
     n = Option(v.getN),
     b = Option(v.getB),
     m = Option(v.getM),
@@ -61,9 +60,7 @@ case class AttributeValue(
 ) extends aws.model.AttributeValue {
 
   setS(s.orNull[String])
-  if (bl.isDefined) {
-    setBOOL(bl.get)
-  }
+  bl.foreach(setBOOL(_))
   setN(n.orNull[String])
   setB(b.orNull[ByteBuffer])
   setM(m.orNull[JMap[String, aws.model.AttributeValue]])
