@@ -42,7 +42,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
     // get by primary key
     val google: Option[Item] = companies.get("Google")
-    google.get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.google.com/")
+    google.get.attributes("url").s.get should equal("http://www.google.com/")
 
     val nonExistant: Option[Item] = companies.get("I Don't Exist")
     nonExistant.isDefined should not be true
@@ -50,8 +50,9 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     // batch get
     val batchedCompanies: Seq[Item] = companies.batchGet(List(("Id", "Google"), ("Id", "Microsoft")))
     batchedCompanies.size should equal(2)
-    batchedCompanies.map(item => item.attributes.find(_.name == "Id").get.value.s.get.equals("Google")
-      || item.attributes.find(_.name == "Id").get.value.s.get.equals("Microsoft")) should equal(Seq(true, true))
+    batchedCompanies.map { item =>
+      item.attributes("Id").s.get.equals("Google") || item.attributes("Id").s.get.equals("Microsoft")
+    } should equal(Seq(true, true))
 
     val batchedNonExistant: Seq[Item] = companies.batchGet(List(("Id", "I Don't Exist"), ("Id", "Neither Do I")))
     batchedNonExistant.size should equal(0)
@@ -65,7 +66,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
     // putAttributes
     companies.putAttributes("Microsoft", Seq("url" -> "http://www.microsoft.com"))
-    companies.get("Microsoft").get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.microsoft.com")
+    companies.get("Microsoft").get.attributes("url").s.get should equal("http://www.microsoft.com")
 
     companies.destroy()
   }
@@ -111,14 +112,14 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     nonExistant.isDefined should not be true
 
     val googlers: Seq[Item] = members.scan(Seq("Company" -> cond.eq("Google")))
-    googlers.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("Bob", "Alice"))
+    googlers.map(_.attributes("Name").s.get) should equal(Seq("Bob", "Alice"))
 
     val scanNonExistant: Seq[Item] = members.scan(Seq("Company" -> cond.eq("I Don't Exist")))
     scanNonExistant.size should equal(0)
 
     // putAttributes
     members.putAttributes(3, "Japan", Seq("Company" -> "Microsoft"))
-    members.get(3, "Japan").get.attributes.find(_.name == "Company").get.value.s.get should equal("Microsoft")
+    members.get(3, "Japan").get.attributes("Company").s.get should equal("Microsoft")
 
     val exp = DynamoDBExpectedAttributeValue
     Try(dynamoDB.putConditional(tableName, "Id" -> 3, "Country" -> "Japan",
@@ -164,10 +165,10 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     val members: Table = dynamoDB.table(tableName).get
 
     members.put(1, "Japan", "Name" -> Map("foo" -> Map("bar" -> "brack")), "Age" -> 23, "Company" -> "Google")
-    members.get(1, "Japan").get.attributes.find(_.name == "Name").get.value.m.get.get("foo").getM().get("bar").getS() should equal("brack")
+    members.get(1, "Japan").get.attributes("Name").m.get.get("foo").getM().get("bar").getS() should equal("brack")
 
     members.put(2, "Micronesia", "Name" -> Map("aliases" -> List("foo", "bar", "other")), "Age" -> 26, "Company" -> "Spotify")
-    members.get(2, "Micronesia").get.attributes.find(_.name == "Name").get.value.m.get.get("aliases").getSS() should contain allOf ("foo", "bar", "other")
+    members.get(2, "Micronesia").get.attributes("Name").m.get.get("aliases").getSS() should contain allOf ("foo", "bar", "other")
   }
 
   it should "provide cool APIs to use global secondary index" in {
@@ -217,8 +218,9 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       keyConditions = Seq("Sex" -> cond.eq("Male"), "Age" -> cond.lt(20))
     )
 
-    teenageBoys.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("John", "Bob"))
-    teenageBoys.flatMap(_.attributes.find(_.name == "Friend")).map(_.value.bl.get) should equal(Seq(true))
+    teenageBoys.map(_.attributes("Name").s.get) should equal(Seq("John", "Bob"))
+    teenageBoys.flatMap(_.attributes.get("Friend").map(_.bl.get)).toList should equal(List(true))
+
     users.destroy()
   }
 

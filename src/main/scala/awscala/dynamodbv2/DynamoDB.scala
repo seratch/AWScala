@@ -1,6 +1,9 @@
 package awscala.dynamodbv2
 
+import java.util
+
 import awscala._
+import com.amazonaws.services.dynamodbv2.model
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 import com.amazonaws.services.dynamodbv2.model.KeysAndAttributes
@@ -22,6 +25,7 @@ object DynamoDB {
 
 /**
  * Amazon DynamoDB Java client wrapper
+ *
  * @see [[http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/]]
  */
 trait DynamoDB extends aws.AmazonDynamoDB {
@@ -61,6 +65,21 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       hashPK = hashPK._1,
       rangePK = None,
       attributes = Seq(AttributeDefinition(hashPK._1, hashPK._2))
+    ))
+  }
+
+  def createTable(
+    name: String,
+    hashPK: (String, aws.model.ScalarAttributeType),
+    otherAttributes: Seq[(String, aws.model.ScalarAttributeType)]
+  ): TableMeta = {
+    create(Table(
+      name = name,
+      hashPK = hashPK._1,
+      rangePK = None,
+      attributes = Seq(
+      AttributeDefinition(hashPK._1, hashPK._2)
+    ) ++: otherAttributes.map(a => AttributeDefinition(a._1, a._2))
     ))
   }
 
@@ -126,13 +145,14 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
   def get(table: Table, hashPK: Any): Option[Item] = getItem(table, hashPK)
 
-  def getItem(table: Table, hashPK: Any): Option[Item] = try {
-    val attributes = getItem(new aws.model.GetItemRequest()
-      .withTableName(table.name)
-      .withKey(Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)).asJava)
-      .withConsistentRead(consistentRead)).getItem
+  def getItem(table: Table, hashPK: Any): Option[Item] = getItem(table.name, (table.hashPK, hashPK))
 
-    Option(attributes).map(Item(table, _))
+  def getItem(tableName: String, hashPK: (String, Any)): Option[Item] = try {
+    val attributes = getItem(new aws.model.GetItemRequest()
+      .withTableName(tableName)
+      .withKey(Map(hashPK._1 -> AttributeValue.toJavaValue(hashPK._2)).asJava)
+      .withConsistentRead(consistentRead)).getItem
+    Option(attributes).map(Item(_))
   } catch { case e: aws.model.ResourceNotFoundException => None }
 
   def get(table: Table, hashPK: Any, rangePK: Any): Option[Item] = getItem(table, hashPK, rangePK)
@@ -142,7 +162,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       case None => getItem(table, hashPK)
       case _ =>
         try {
-          val attributes = getItem(new aws.model.GetItemRequest()
+          val attributes: util.Map[String, model.AttributeValue] = getItem(new aws.model.GetItemRequest()
             .withTableName(table.name)
             .withKey(Map(
               table.hashPK -> AttributeValue.toJavaValue(hashPK),
@@ -150,7 +170,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
             ).asJava)
             .withConsistentRead(consistentRead)).getItem
 
-          Option(attributes).map(Item(table, _))
+          Option(attributes).map(Item(_))
         } catch { case e: aws.model.ResourceNotFoundException => None }
     }
   }
@@ -179,7 +199,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
     def toItems(result: BatchGetItemResult): Seq[Item] = {
       result.getResponses.asScala.toSeq.flatMap {
-        case (t, as) => { table(t).map(table => as.asScala.toSeq.map { a => Item(table, a) }).getOrElse(Nil) }
+        case (t, as) => { table(t).map(table => as.asScala.toSeq.map { a => Item(a) }).getOrElse(Nil) }
       }
     }
 
@@ -268,12 +288,30 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withTableName(table.name)
       .withKey(Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)).asJava))
   }
+
   def deleteItem(table: Table, hashPK: Any, rangePK: Any): Unit = {
     deleteItem(new aws.model.DeleteItemRequest()
       .withTableName(table.name)
       .withKey(Map(
         table.hashPK -> AttributeValue.toJavaValue(hashPK),
         table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
+      ).asJava))
+  }
+
+  def deleteItem(tableName: String, hashPK: (String, Any)): Unit = {
+    deleteItem(new aws.model.DeleteItemRequest()
+      .withTableName(tableName)
+      .withKey(Map(
+        hashPK._1 -> AttributeValue.toJavaValue(hashPK._2)
+      ).asJava))
+  }
+
+  def deleteItem(tableName: String, hashPK: (String, Any), rangePK: (String, Any)): Unit = {
+    deleteItem(new aws.model.DeleteItemRequest()
+      .withTableName(tableName)
+      .withKey(Map(
+        hashPK._1 -> AttributeValue.toJavaValue(hashPK._2),
+        rangePK._1 -> AttributeValue.toJavaValue(rangePK._2)
       ).asJava))
   }
 
@@ -298,7 +336,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    query(req).getItems.asScala.map(i => Item(table, i)).toSeq
+    query(req).getItems.asScala.map(i => Item(i)).toSeq
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
   def query(
@@ -320,7 +358,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    query(req).getItems.asScala.map(i => Item(table, i)).toSeq
+    query(req).getItems.asScala.map(i => Item(i)).toSeq
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
   def scan(
@@ -344,7 +382,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    scan(req).getItems.asScala.map(i => Item(table, i)).toSeq
+    scan(req).getItems.asScala.map(i => Item(i)).toSeq
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
 }
