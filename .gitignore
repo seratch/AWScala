@@ -65,3 +65,9 @@ logs
 
 awscala-unit-test-keypair-*
 
+build.log
+/.cache
+.cache-main
+.cache-tests
+*.log
+
