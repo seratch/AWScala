@@ -1,7 +1,6 @@
 .settings
 *.db
 .classpath
-.project
 *.iml
 *.ipr
 *.iws
@@ -23,7 +22,6 @@ syntax: glob
 # eclipse conf file
 .settings
 .classpath
-.project
 .manager
 .scala_dependencies
 
