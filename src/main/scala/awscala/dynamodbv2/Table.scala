@@ -101,7 +101,8 @@ case class Table(
     attributesToGet: Seq[String] = Nil,
     limit: Int = 1000,
     segment: Int = 0,
-    totalSegments: Int = 1
+    totalSegments: Int = 1,
+    consistentRead: Boolean = false
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.scan(
       table = this,
@@ -110,7 +111,8 @@ case class Table(
       segment = segment,
       totalSegments = totalSegments,
       select = select,
-      attributesToGet = attributesToGet
+      attributesToGet = attributesToGet,
+      consistentRead = consistentRead
     )
   }
 

@@ -336,7 +336,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     segment: Int = 0,
     totalSegments: Int = 1,
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
-    attributesToGet: Seq[String] = Nil
+    attributesToGet: Seq[String] = Nil,
+    consistentRead: Boolean = false
   ): Seq[Item] = try {
 
     val req = new aws.model.ScanRequest()
@@ -346,6 +347,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withLimit(limit)
       .withSegment(segment)
       .withTotalSegments(totalSegments)
+      .withConsistentRead(consistentRead)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
