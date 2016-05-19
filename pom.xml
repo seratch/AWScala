@@ -18,7 +18,7 @@
 	</licenses>
 	
 	<properties>
-		<awssdk.version>1.10.77</awssdk.version>
+		<awssdk.version>1.10.59</awssdk.version>
 	</properties>
 
 	<dependencies>
