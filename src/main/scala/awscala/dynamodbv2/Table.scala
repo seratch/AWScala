@@ -148,6 +148,19 @@ case class Table(
   ): Unit = {
     dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
   }
+  
+  def updateAttributes(hashPK: Any, attributes: Seq[(String, Any)])(
+    implicit
+    dynamoDB: DynamoDB
+  ): Unit = {
+    dynamoDB.updateAttributes(this, hashPK, None, aws.model.AttributeAction.PUT, attributes)
+  }
+  def updateAttributes(hashPK: Any, rangePK: Any, attributes: Seq[(String, Any)])(
+    implicit
+    dynamoDB: DynamoDB
+  ): Unit = {
+    dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
+  }
 
   def update(throughput: ProvisionedThroughput)(implicit dynamoDB: DynamoDB) = {
     dynamoDB.updateTableProvisionedThroughput(this, throughput)
