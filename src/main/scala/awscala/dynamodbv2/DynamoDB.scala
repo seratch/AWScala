@@ -297,6 +297,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withScanIndexForward(scanIndexForward)
       .withConsistentRead(consistentRead)
       .withLimit(limit)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
@@ -323,6 +324,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withScanIndexForward(scanIndexForward)
       .withConsistentRead(consistentRead)
       .withLimit(limit)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
@@ -351,6 +353,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withSegment(segment)
       .withTotalSegments(totalSegments)
       .withConsistentRead(consistentRead)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
