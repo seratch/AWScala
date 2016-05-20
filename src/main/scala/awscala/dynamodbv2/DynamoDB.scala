@@ -284,7 +284,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    limit: Int = 1000
   ): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
@@ -294,6 +295,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withSelect(select)
       .withScanIndexForward(scanIndexForward)
       .withConsistentRead(consistentRead)
+      .withLimit(limit)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
@@ -307,7 +309,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    limit: Int = 1000
   ): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
@@ -316,6 +319,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withSelect(select)
       .withScanIndexForward(scanIndexForward)
       .withConsistentRead(consistentRead)
+      .withLimit(limit)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }

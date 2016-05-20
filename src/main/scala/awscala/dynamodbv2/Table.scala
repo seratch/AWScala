@@ -61,7 +61,8 @@ case class Table(
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    limit: Int = 1000
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.queryWithIndex(
       table = this,
@@ -70,7 +71,8 @@ case class Table(
       select = select,
       attributesToGet = attributesToGet,
       scanIndexForward = scanIndexForward,
-      consistentRead = consistentRead
+      consistentRead = consistentRead,
+      limit = limit
     )
   }
 
@@ -79,7 +81,8 @@ case class Table(
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    limit: Int = 1000
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.query(
       table = this,
@@ -87,7 +90,8 @@ case class Table(
       select = select,
       attributesToGet = attributesToGet,
       scanIndexForward = scanIndexForward,
-      consistentRead = consistentRead
+      consistentRead = consistentRead,
+      limit = limit
     )
   }
 
