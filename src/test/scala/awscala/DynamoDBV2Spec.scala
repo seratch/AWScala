@@ -214,7 +214,8 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
     val teenageBoys: Seq[Item] = users.queryWithIndex(
       index = globalSecondaryIndex,
-      keyConditions = Seq("Sex" -> cond.eq("Male"), "Age" -> cond.lt(20))
+      keyConditions = Seq("Sex" -> cond.eq("Male"), "Age" -> cond.lt(20)),
+      limit = 1 // to test that we still return 2 names
     )
 
     teenageBoys.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("John", "Bob"))
@@ -222,4 +223,141 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     users.destroy()
   }
 
+  it should "support paging for table scans" in {
+    implicit val dynamoDB = DynamoDB.local()
+
+    val tableName = s"Cities_${System.currentTimeMillis}"
+    val createdTableMeta: TableMeta = dynamoDB.createTable(
+      name = tableName,
+      hashPK = "Id" -> AttributeType.Number,
+      rangePK = "Country" -> AttributeType.String,
+      otherAttributes = Seq(),
+      indexes = Seq()
+    )
+    log.info(s"Created Table: ${createdTableMeta}")
+
+    println(s"Waiting for DynamoDB table activation...")
+    var isTableActivated = false
+    while (!isTableActivated) {
+      dynamoDB.describe(createdTableMeta.table).map { meta =>
+        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
+      }
+      Thread.sleep(1000L)
+      print(".")
+    }
+    println("")
+    println(s"Created DynamoDB table has been activated.")
+
+    val cities: Table = dynamoDB.table(tableName).get
+
+    cities.put(1, "China", "Name" -> "Beijing", "Population" -> 21516000)
+    cities.put(2, "Egypt", "Name" -> "Cairo", "Population" -> 9278441)
+    cities.put(3, "India", "Name" -> "Delhi", "Population" -> 16787941)
+    cities.put(4, "China", "Name" -> "Guangzhou", "Population" -> 9865702)
+    cities.put(5, "Turkey", "Name" -> "Istanbul", "Population" -> 14657000)
+    cities.put(6, "Indonesia", "Name" -> "Jakarta", "Population" -> 10075310)
+    cities.put(7, "Pakistan", "Name" -> "Karachi", "Population" -> 21000000)
+    cities.put(8, "Democratic Republic of the Congo", "Name" -> "Kinshasa", "Population" -> 9735000)
+    cities.put(9, "Nigeria", "Name" -> "Lagos", "Population" -> 16060303)
+    cities.put(10, "Peru", "Name" -> "Lima", "Population" -> 8693387)
+    cities.put(11, "United Kingdom", "Name" -> "London", "Population" -> 8538689)
+    cities.put(12, "Mexico", "Name" -> "Mexico City", "Population" -> 8874724)
+    cities.put(13, "Russia", "Name" -> "Moscow", "Population" -> 12197596)
+    cities.put(14, "India", "Name" -> "Mumbai", "Population" -> 12478447)
+    cities.put(15, "United States", "Name" -> "New York", "Population" -> 8491079)
+    cities.put(16, "South Korea", "Name" -> "Seoul", "Population" -> 10048593)
+    cities.put(17, "China", "Name" -> "Shanghai", "Population" -> 24256800)
+    cities.put(18, "China", "Name" -> "Shenzhen", "Population" -> 10780000)
+    cities.put(19, "Brazil", "Name" -> "São Paulo", "Population" -> 21292893)
+    cities.put(20, "Japan", "Name" -> "Tokyo", "Population" -> 13297629)
+
+    // a limit of 2, with 20 items, will divide into 10 pages
+    // (and need 11 page fetches since DynamoDB needs to fetch an additional page to find out there was no more data)
+    // a filter of population > 20M should return 4/20 cities, so at least 7 pages will have no matching results
+    val huge1: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(20000000)), limit = 3)
+    huge1.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only ("Karachi", "Beijing", "São Paulo", "Shanghai")
+
+    // a limit of 3, with 20 items, will divide into 7 pages
+    // (and need 7 page fetches as the last page is partial so DynamoDB can tell it's done)
+    // a filter of population > 20M should return 4/20 cities, so at least 3 pages will have no matching results
+    val huge2: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(20000000)), limit = 3)
+    huge2.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only("Beijing", "Karachi", "Shanghai", "São Paulo")
+
+    // a filter of population > 2 should return 20/20 cities, and a limit of 101 gives all results on a single page
+    val all1: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 101)
+    all1.size should be(20)
+
+    // a filter of population > 2 should return 20/20 cities, and a limit of 11 gives two pages with results on both
+    val all2: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 11)
+    all2.size should be(20)
+
+    cities.destroy()
+  }
+
+  it should "support paging for table queries" in {
+    implicit val dynamoDB = DynamoDB.local()
+
+    val tableName = s"Cities_${System.currentTimeMillis}"
+    val createdTableMeta: TableMeta = dynamoDB.createTable(
+      name = tableName,
+      hashPK = "Country" -> AttributeType.String,
+      rangePK = "Population" -> AttributeType.Number,
+      otherAttributes = Seq(),
+      indexes = Seq()
+    )
+    log.info(s"Created Table: ${createdTableMeta}")
+
+    println(s"Waiting for DynamoDB table activation...")
+    var isTableActivated = false
+    while (!isTableActivated) {
+      dynamoDB.describe(createdTableMeta.table).map { meta =>
+        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
+      }
+      Thread.sleep(1000L)
+      print(".")
+    }
+    println("")
+    println(s"Created DynamoDB table has been activated.")
+
+    val cities: Table = dynamoDB.table(tableName).get
+
+    cities.put("China", 21516000, "Name" -> "Beijing")
+    cities.put("Egypt", 9278441, "Name" -> "Cairo")
+    cities.put("India", 16787941, "Name" -> "Delhi")
+    cities.put("China", 9865702, "Name" -> "Guangzhou")
+    cities.put("Turkey", 14657000, "Name" -> "Istanbul")
+    cities.put("Indonesia", 10075310, "Name" -> "Jakarta")
+    cities.put("Pakistan", 21000000, "Name" -> "Karachi")
+    cities.put("Democratic Republic of the Congo", 9735000, "Name" -> "Kinshasa")
+    cities.put("Nigeria", 16060303, "Name" -> "Lagos")
+    cities.put("Peru", 8693387, "Name" -> "Lima")
+    cities.put("United Kingdom", 8538689, "Name" -> "London")
+    cities.put("Mexico", 8874724, "Name" -> "Mexico City")
+    cities.put("Russia", 12197596, "Name" -> "Moscow")
+    cities.put("India", 12478447, "Name" -> "Mumbai")
+    cities.put("United States", 8491079, "Name" -> "New York")
+    cities.put("South Korea", 10048593, "Name" -> "Seoul")
+    cities.put("China", 24256800, "Name" -> "Shanghai")
+    cities.put("China", 10780000, "Name" -> "Shenzhen")
+    cities.put("Brazil", 21292893, "Name" -> "São Paulo")
+    cities.put("Japan", 13297629, "Name" -> "Tokyo")
+
+    // a limit of 1, with 2 matching Chinese cities, will divide into 2 pages
+    // (and need 3 page fetches since DynamoDB needs to fetch an additional page to find out there was no more data)
+    // a filter of population > 20M should return 2 matching Chinese cities
+    val hugeChinese1: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(20000000)), limit = 1)
+    hugeChinese1.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only ("Beijing", "Shanghai")
+
+    // a limit of 2, with 3 matching Chinese cities, will divide into 2 pages
+    // (and need 2 page fetches as the last page is partial so DynamoDB can tell it's done)
+    // a filter of population > 10M should return 3 matching Chinese cities
+    val hugeChinese2: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(10000000)), limit = 2)
+    hugeChinese2.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only("Shanghai", "Shenzhen", "Beijing")
+
+    // a filter of population > 2 should return 4 matching Chinese cities, and a limit of 11 gives all results on a single page
+    val allChinese1: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(2)), limit = 11)
+    allChinese1.size should be(4)
+
+    cities.destroy()
+  }
 }
