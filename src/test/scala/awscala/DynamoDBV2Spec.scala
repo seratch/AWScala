@@ -215,7 +215,8 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     val teenageBoys: Seq[Item] = users.queryWithIndex(
       index = globalSecondaryIndex,
       keyConditions = Seq("Sex" -> cond.eq("Male"), "Age" -> cond.lt(20)),
-      limit = 1 // to test that we still return 2 names
+      limit = 1, // to test that we still return 2 names
+      pageStatsCallback = println
     )
 
     teenageBoys.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("John", "Bob"))
@@ -271,25 +272,68 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     cities.put(19, "Brazil", "Name" -> "São Paulo", "Population" -> 21292893)
     cities.put(20, "Japan", "Name" -> "Tokyo", "Population" -> 13297629)
 
+    // set up a closure with page stats, and a way to reset and add to that
+    var pages = 0
+    var scanned = 0
+    var found = 0
+    def resetCounts = {
+      pages = 0
+      scanned = 0
+      found = 0
+    }
+    def addPageCounts(page: PageStats) = {
+      pages += 1
+      scanned += page.scanned
+      found += page.items
+    }
+
     // a limit of 2, with 20 items, will divide into 10 pages
     // (and need 11 page fetches since DynamoDB needs to fetch an additional page to find out there was no more data)
     // a filter of population > 20M should return 4/20 cities, so at least 7 pages will have no matching results
-    val huge1: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(20000000)), limit = 3)
+    val huge1: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(20000000)), limit = 2, pageStatsCallback = addPageCounts)
     huge1.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only ("Karachi", "Beijing", "São Paulo", "Shanghai")
+    pages should be(11)
+    scanned should be(20)
+    found should be(4)
+    resetCounts
 
     // a limit of 3, with 20 items, will divide into 7 pages
     // (and need 7 page fetches as the last page is partial so DynamoDB can tell it's done)
     // a filter of population > 20M should return 4/20 cities, so at least 3 pages will have no matching results
-    val huge2: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(20000000)), limit = 3)
-    huge2.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only("Beijing", "Karachi", "Shanghai", "São Paulo")
+    val huge2: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(20000000)), limit = 3, pageStatsCallback = addPageCounts)
+    huge2.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only ("Beijing", "Karachi", "Shanghai", "São Paulo")
+    pages should be(7)
+    scanned should be(20)
+    found should be(4)
+    resetCounts
 
     // a filter of population > 2 should return 20/20 cities, and a limit of 101 gives all results on a single page
-    val all1: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 101)
+    val all1: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 101, pageStatsCallback = addPageCounts)
     all1.size should be(20)
+    pages should be(1)
+    scanned should be(20)
+    found should be(20)
+    resetCounts
+
+    // but if you only take a few items from the sequence, it shouldn't fetch more pages than needed
+    val all1b: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 3, pageStatsCallback = addPageCounts)
+    val List(first, second) = all1b.take(2).flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)).toList
+    pages should be(1) // it should only fetch a single page
+    scanned should be(3) // but it would scan the entire page,
+    found should be(3) // and find every match on the page, even though we just asked for one (from that page)
+    resetCounts
 
     // a filter of population > 2 should return 20/20 cities, and a limit of 11 gives two pages with results on both
-    val all2: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 11)
+    val all2: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 11, pageStatsCallback = addPageCounts)
     all2.size should be(20)
+    pages should be(2)
+    scanned should be(20)
+    found should be(20)
+    resetCounts
+
+    // the same query should work fine without a callback
+    val all3: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 11, pageStatsCallback = addPageCounts)
+    all3.size should be(20)
 
     cities.destroy()
   }
@@ -342,21 +386,60 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     cities.put("Brazil", 21292893, "Name" -> "São Paulo")
     cities.put("Japan", 13297629, "Name" -> "Tokyo")
 
+    // set up a closure with page stats, and a way to reset and add to that
+    var pages = 0
+    var scanned = 0
+    var found = 0
+    def resetCounts = {
+      pages = 0
+      scanned = 0
+      found = 0
+    }
+    def addPageCounts(page: PageStats) = {
+      pages += 1
+      scanned += page.scanned
+      found += page.items
+    }
+
     // a limit of 1, with 2 matching Chinese cities, will divide into 2 pages
     // (and need 3 page fetches since DynamoDB needs to fetch an additional page to find out there was no more data)
     // a filter of population > 20M should return 2 matching Chinese cities
-    val hugeChinese1: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(20000000)), limit = 1)
+    val hugeChinese1: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(20000000)), limit = 1, pageStatsCallback = addPageCounts)
     hugeChinese1.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only ("Beijing", "Shanghai")
+    pages should be(3)
+    scanned should be(2)
+    found should be(2)
+    resetCounts
 
     // a limit of 2, with 3 matching Chinese cities, will divide into 2 pages
     // (and need 2 page fetches as the last page is partial so DynamoDB can tell it's done)
     // a filter of population > 10M should return 3 matching Chinese cities
-    val hugeChinese2: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(10000000)), limit = 2)
-    hugeChinese2.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only("Shanghai", "Shenzhen", "Beijing")
+    val hugeChinese2: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(10000000)), limit = 2, pageStatsCallback = addPageCounts)
+    hugeChinese2.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only ("Shanghai", "Shenzhen", "Beijing")
+    pages should be(2)
+    scanned should be(3)
+    found should be(3)
+    resetCounts
+
+    // but if you only take a few items from the sequence, it shouldn't fetch more pages than needed
+    val hugeChinese2b: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(10000000)), limit = 2, pageStatsCallback = addPageCounts)
+    hugeChinese2b.take(1).flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain oneOf ("Shanghai", "Shenzhen", "Beijing")
+    pages should be(1) // it should only fetch a single page
+    scanned should be(2) // but it would scan the entire page,
+    found should be(2) // and find every match on the page, even though we just asked for one (from that page)
+    resetCounts
 
     // a filter of population > 2 should return 4 matching Chinese cities, and a limit of 11 gives all results on a single page
-    val allChinese1: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(2)), limit = 11)
+    val allChinese1: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(2)), limit = 11, pageStatsCallback = addPageCounts)
     allChinese1.size should be(4)
+    pages should be(1)
+    scanned should be(4)
+    found should be(4)
+    resetCounts
+
+    // the same query should work fine without a callback
+    val allChinese2: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(2)), limit = 11)
+    allChinese2.size should be(4)
 
     cities.destroy()
   }

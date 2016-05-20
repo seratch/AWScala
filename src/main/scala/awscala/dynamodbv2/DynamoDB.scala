@@ -285,7 +285,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
     consistentRead: Boolean = false,
-    limit: Int = 1000
+    limit: Int = 1000,
+    pageStatsCallback: (PageStats => Unit) = null
   ): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
@@ -300,7 +301,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    val pager = new QueryResultPager(table, query(_), req)
+    val pager = new QueryResultPager(table, query(_), req, pageStatsCallback)
     pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
@@ -311,7 +312,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
     consistentRead: Boolean = false,
-    limit: Int = 1000
+    limit: Int = 1000,
+    pageStatsCallback: (PageStats => Unit) = null
   ): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
@@ -325,7 +327,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    val pager = new QueryResultPager(table, query(_), req)
+    val pager = new QueryResultPager(table, query(_), req, pageStatsCallback)
     pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
@@ -337,7 +339,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     totalSegments: Int = 1,
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    pageStatsCallback: (PageStats => Unit) = null
   ): Seq[Item] = try {
 
     val req = new aws.model.ScanRequest()
@@ -352,25 +355,33 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    val pager = new ScanResultPager(table, scan(_), req)
+    val pager = new ScanResultPager(table, scan(_), req, pageStatsCallback)
     pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 }
 
+case class PageStats(page: Int, lastPage: Boolean, limit: Int, scanned: Int, items: Int, consumedCapacity: aws.model.ConsumedCapacity)
+
 // a pager specialized for query request/results
-class QueryResultPager(val table: Table, val operation: aws.model.QueryRequest => aws.model.QueryResult, val request: aws.model.QueryRequest)
-  extends ResultPager[aws.model.QueryRequest, aws.model.QueryResult] {
+class QueryResultPager(val table: Table, val operation: aws.model.QueryRequest => aws.model.QueryResult, val request: aws.model.QueryRequest, pageStatsCallback: PageStats => Unit)
+    extends ResultPager[aws.model.QueryRequest, aws.model.QueryResult] {
   override def getItems(result: aws.model.QueryResult) = result.getItems
   override def getLastEvaluatedKey(result: aws.model.QueryResult) = result.getLastEvaluatedKey
   override def withExclusiveStartKey(request: aws.model.QueryRequest, lastKey: java.util.Map[String, aws.model.AttributeValue]) = request.withExclusiveStartKey(lastKey)
+  override def invokeCallback(result: aws.model.QueryResult) = {
+    Option(pageStatsCallback).map(fun => fun(PageStats(pageNo, result.getLastEvaluatedKey == null, request.getLimit, result.getScannedCount, result.getCount, result.getConsumedCapacity)))
+  }
 }
 
 // a pager specialized for scan request/results
-class ScanResultPager(val table: Table, val operation: aws.model.ScanRequest => aws.model.ScanResult, val request: aws.model.ScanRequest)
-  extends ResultPager[aws.model.ScanRequest, aws.model.ScanResult] {
+class ScanResultPager(val table: Table, val operation: aws.model.ScanRequest => aws.model.ScanResult, val request: aws.model.ScanRequest, pageStatsCallback: PageStats => Unit)
+    extends ResultPager[aws.model.ScanRequest, aws.model.ScanResult] {
   override def getItems(result: aws.model.ScanResult) = result.getItems
   override def getLastEvaluatedKey(result: aws.model.ScanResult) = result.getLastEvaluatedKey
   override def withExclusiveStartKey(request: aws.model.ScanRequest, lastKey: java.util.Map[String, aws.model.AttributeValue]) = request.withExclusiveStartKey(lastKey)
+  override def invokeCallback(result: aws.model.ScanResult) = {
+    Option(pageStatsCallback).map(fun => fun(PageStats(pageNo, result.getLastEvaluatedKey == null, request.getLimit, result.getScannedCount, result.getCount, result.getConsumedCapacity)))
+  }
 }
 
 /**
@@ -405,28 +416,27 @@ trait ResultPager[TReq, TRes] extends Iterator[Item] {
   nextPage(request)
 
   def getItems(result: TRes): java.util.List[java.util.Map[String, aws.model.AttributeValue]]
+  def invokeCallback(result: TRes): Unit
   def getLastEvaluatedKey(result: TRes): java.util.Map[String, aws.model.AttributeValue]
   def withExclusiveStartKey(request: TReq, lastKey: java.util.Map[String, aws.model.AttributeValue]): TReq
 
   private def nextPage(request: TReq): Unit = {
-    println(s"fetching page #$pageNo")
-    pageNo += 1
     val result = operation(request)
+    invokeCallback(result)
     items = getItems(result).asScala.map(i => Item(table, i))
     lastKey = getLastEvaluatedKey(result)
-    println(s"getLastEvaluatedKey is $lastKey")
     index = 0
+    pageNo += 1
   }
 
   override def next(): Item = {
     val item: Item = items(index)
     index += 1
-    println(s"returning $item")
     item
   }
 
   override def hasNext: Boolean = {
-    val res = if (index < items.size) {
+    if (index < items.size) {
       true
     } else if (lastKey == null) {
       false
@@ -436,8 +446,6 @@ trait ResultPager[TReq, TRes] extends Iterator[Item] {
       } while(lastKey != null && items.size == 0) // there are potentially more matching data, but this page didn't contain any
       items.size != 0
     }
-    println(s"hasNext returning $res")
-    res
   }
 }
 

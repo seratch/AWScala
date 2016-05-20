@@ -62,7 +62,8 @@ case class Table(
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
     consistentRead: Boolean = false,
-    limit: Int = 1000
+    limit: Int = 1000,
+    pageStatsCallback: PageStats => Unit = null
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.queryWithIndex(
       table = this,
@@ -72,7 +73,8 @@ case class Table(
       attributesToGet = attributesToGet,
       scanIndexForward = scanIndexForward,
       consistentRead = consistentRead,
-      limit = limit
+      limit = limit,
+      pageStatsCallback = pageStatsCallback
     )
   }
 
@@ -82,7 +84,8 @@ case class Table(
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
     consistentRead: Boolean = false,
-    limit: Int = 1000
+    limit: Int = 1000,
+    pageStatsCallback: PageStats => Unit = null
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.query(
       table = this,
@@ -91,7 +94,8 @@ case class Table(
       attributesToGet = attributesToGet,
       scanIndexForward = scanIndexForward,
       consistentRead = consistentRead,
-      limit = limit
+      limit = limit,
+      pageStatsCallback = pageStatsCallback
     )
   }
 
@@ -102,7 +106,8 @@ case class Table(
     limit: Int = 1000,
     segment: Int = 0,
     totalSegments: Int = 1,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    pageStatsCallback: PageStats => Unit = null
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.scan(
       table = this,
@@ -112,7 +117,8 @@ case class Table(
       totalSegments = totalSegments,
       select = select,
       attributesToGet = attributesToGet,
-      consistentRead = consistentRead
+      consistentRead = consistentRead,
+      pageStatsCallback = pageStatsCallback
     )
   }
 
