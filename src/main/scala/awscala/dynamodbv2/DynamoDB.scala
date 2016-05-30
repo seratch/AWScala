@@ -284,7 +284,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    limit: Int = 1000,
+    pageStatsCallback: (PageStats => Unit) = null
   ): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
@@ -294,11 +296,14 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withSelect(select)
       .withScanIndexForward(scanIndexForward)
       .withConsistentRead(consistentRead)
+      .withLimit(limit)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    query(req).getItems.asScala.map(i => Item(table, i)).toSeq
+    val pager = new QueryResultPager(table, query(_), req, pageStatsCallback)
+    pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
   def query(
@@ -307,7 +312,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    limit: Int = 1000,
+    pageStatsCallback: (PageStats => Unit) = null
   ): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
@@ -316,11 +323,14 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withSelect(select)
       .withScanIndexForward(scanIndexForward)
       .withConsistentRead(consistentRead)
+      .withLimit(limit)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    query(req).getItems.asScala.map(i => Item(table, i)).toSeq
+    val pager = new QueryResultPager(table, query(_), req, pageStatsCallback)
+    pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
   def scan(
@@ -330,7 +340,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     segment: Int = 0,
     totalSegments: Int = 1,
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
-    attributesToGet: Seq[String] = Nil
+    attributesToGet: Seq[String] = Nil,
+    consistentRead: Boolean = false,
+    pageStatsCallback: (PageStats => Unit) = null
   ): Seq[Item] = try {
 
     val req = new aws.model.ScanRequest()
@@ -340,13 +352,15 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withLimit(limit)
       .withSegment(segment)
       .withTotalSegments(totalSegments)
+      .withConsistentRead(consistentRead)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
     if (!attributesToGet.isEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    scan(req).getItems.asScala.map(i => Item(table, i)).toSeq
+    val pager = new ScanResultPager(table, scan(_), req, pageStatsCallback)
+    pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
-
 }
 
 /**

@@ -61,7 +61,9 @@ case class Table(
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    limit: Int = 1000,
+    pageStatsCallback: PageStats => Unit = null
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.queryWithIndex(
       table = this,
@@ -70,7 +72,9 @@ case class Table(
       select = select,
       attributesToGet = attributesToGet,
       scanIndexForward = scanIndexForward,
-      consistentRead = consistentRead
+      consistentRead = consistentRead,
+      limit = limit,
+      pageStatsCallback = pageStatsCallback
     )
   }
 
@@ -79,7 +83,9 @@ case class Table(
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
+    consistentRead: Boolean = false,
+    limit: Int = 1000,
+    pageStatsCallback: PageStats => Unit = null
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.query(
       table = this,
@@ -87,7 +93,9 @@ case class Table(
       select = select,
       attributesToGet = attributesToGet,
       scanIndexForward = scanIndexForward,
-      consistentRead = consistentRead
+      consistentRead = consistentRead,
+      limit = limit,
+      pageStatsCallback = pageStatsCallback
     )
   }
 
@@ -97,7 +105,9 @@ case class Table(
     attributesToGet: Seq[String] = Nil,
     limit: Int = 1000,
     segment: Int = 0,
-    totalSegments: Int = 1
+    totalSegments: Int = 1,
+    consistentRead: Boolean = false,
+    pageStatsCallback: PageStats => Unit = null
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
     dynamoDB.scan(
       table = this,
@@ -106,7 +116,9 @@ case class Table(
       segment = segment,
       totalSegments = totalSegments,
       select = select,
-      attributesToGet = attributesToGet
+      attributesToGet = attributesToGet,
+      consistentRead = consistentRead,
+      pageStatsCallback = pageStatsCallback
     )
   }
 
