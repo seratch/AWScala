@@ -3,6 +3,7 @@ package awscala.s3
 import java.io.{ ByteArrayInputStream, File, InputStream }
 
 import awscala._
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.services.{ s3 => aws }
 
 import scala.annotation.tailrec
@@ -10,11 +11,17 @@ import scala.collection.JavaConverters._
 
 object S3 {
 
-  def apply(credentials: Credentials)(implicit region: Region): S3 = new S3Client(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): S3 = apply(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
 
   def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): S3 = new S3Client(credentialsProvider).at(region)
 
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
+  def apply(clientConfiguration: ClientConfiguration, credentials: Credentials)(implicit region: Region): S3 = apply(clientConfiguration, BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+
+  def apply(clientConfiguration: ClientConfiguration, accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(clientConfiguration, BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
+
+  def apply(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider)(implicit region: Region): S3 = new ConfiguredS3Client(clientConfiguration, credentialsProvider).at(region)
 
   def at(region: Region): S3 = apply()(region)
 }
@@ -292,3 +299,15 @@ class S3Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load
   override def createBucket(name: String): Bucket = super.createBucket(name)
 }
 
+/**
+ * Configured Implementation
+ *
+ * @param clientConfiguration ClientConfiguration
+ * @param credentialsProvider CredentialsProvider
+ */
+class ConfiguredS3Client(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+    extends aws.AmazonS3Client(credentialsProvider, clientConfiguration)
+    with S3 {
+
+  override def createBucket(name: String): Bucket = super.createBucket(name)
+}
