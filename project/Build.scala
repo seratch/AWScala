@@ -3,14 +3,14 @@ import Keys._
 
 object AwscalaProject extends Build {
 
-  lazy val awsJavaSdkVersion = "1.10.59"
+  lazy val awsJavaSdkVersion = "1.10.77"
 
   lazy val root = Project("root", file("."), settings = mainSettings)
 
   lazy val mainSettings = Seq(
     organization := "com.github.seratch",
     name := "awscala",
-    version := "0.5.6-SNAPSHOT",
+    version := "0.5.6",
     scalaVersion := "2.11.8",
     crossScalaVersions := Seq("2.11.8", "2.10.6"),
     publishMavenStyle := true,
@@ -25,11 +25,11 @@ object AwscalaProject extends Build {
       "com.amazonaws"    %  "aws-java-sdk-redshift" % awsJavaSdkVersion,
       "com.amazonaws"    %  "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
       "com.amazonaws"    %  "aws-java-sdk-simpledb" % awsJavaSdkVersion,
-      "joda-time"        %  "joda-time"       % "2.9.2",
+      "joda-time"        %  "joda-time"       % "2.9.4",
       "org.joda"         %  "joda-convert"    % "1.8.1",
       "com.decodified"   %% "scala-ssh"       % "0.7.0"  % "provided",
       "org.bouncycastle" %  "bcprov-jdk16"    % "1.46"   % "provided",
-      "ch.qos.logback"   %  "logback-classic" % "1.1.6"  % "test",
+      "ch.qos.logback"   %  "logback-classic" % "1.1.7"  % "test",
       "org.scalatest"    %% "scalatest"       % "2.2.6"  % "test"
     ),
     sbtPlugin := false,
