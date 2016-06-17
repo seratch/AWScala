@@ -28,7 +28,11 @@ case class Table(
   ): Option[Item] = {
     dynamoDB.get(this, hashPK, rangePK)
   }
-
+  
+  def getItemWithProjectionExpression(hashPK: Any, projectionExpression : String)(implicit dynamoDB: DynamoDB): Option[Item] = {
+    dynamoDB.getItemWithProjectionExpression(this, hashPK, projectionExpression : String)
+  }
+  
   def batchGet(attributes: List[(String, Any)])(implicit dynamoDB: DynamoDB): Seq[Item] = batchGetItems(attributes)
 
   def batchGetItems(attributes: List[(String, Any)])(implicit dynamoDB: DynamoDB): Seq[Item] = {
