@@ -75,5 +75,48 @@ object AwscalaProject extends Build {
       </developers>
   )
 
+  lazy val commonSettings = Seq(
+    organization := "com.github.seratch",
+    version := "0.6.0-SNAPSHOT",
+    scalaVersion := "2.11.8",
+    crossScalaVersions := Seq("2.11.8", "2.10.6"),
+    publishMavenStyle := true,
+    resolvers += "spray repo" at "http://repo.spray.io",
+    sbtPlugin := false,
+    transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
+    incOptions := incOptions.value.withNameHashing(true),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
+    publishMavenStyle := true,
+    publishArtifact in Test := false,
+    pomIncludeRepository := { x => false }
+  )
+
+  lazy val awscalaCore = Project("awscalaCore", file("awscala/core"), settings = awscalaCoreSettings)
+
+  lazy val awscalaCoreSettings = commonSettings ++ Seq(
+    name := "awscala-core",
+    libraryDependencies ++= Seq(
+      "com.amazonaws"    %  "aws-java-sdk-iam"      % awsJavaSdkVersion,
+      "joda-time"        %  "joda-time"       % "2.9.4",
+      "org.joda"         %  "joda-convert"    % "1.8.1",
+      "com.decodified"   %% "scala-ssh"       % "0.7.0"  % "provided",
+      "org.bouncycastle" %  "bcprov-jdk16"    % "1.46"   % "provided",
+      "ch.qos.logback"   %  "logback-classic" % "1.1.7"  % "test",
+      "org.scalatest"    %% "scalatest"       % "2.2.6"  % "test"
+    )
+  )
+
+  lazy val awscalaS3 = Project("awscalaS3", file("awscala/s3"), settings = awscalaS3Settings)
+    .dependsOn(awscalaCore)
+
+  lazy val awscalaS3Settings = commonSettings ++ Seq(
+    name := "awscala-s3",
+    libraryDependencies ++= Seq(
+      "com.amazonaws"    %  "aws-java-sdk-s3"       % awsJavaSdkVersion,
+      "ch.qos.logback"   %  "logback-classic" % "1.1.7"  % "test",
+      "org.scalatest"    %% "scalatest"       % "2.2.6"  % "test"
+    )
+  )
+
 }
 
