@@ -118,5 +118,17 @@ object AwscalaProject extends Build {
     )
   )
 
+  lazy val awscalaDynamoDBv2 = Project("awscalaDynamoDBv2", file("awscala/dynamodbv2"), settings = awscalaDynamoDBv2Settings)
+    .dependsOn(awscalaCore)
+
+  lazy val awscalaDynamoDBv2Settings = commonSettings ++ Seq(
+    name := "awscala-dynamodbv2",
+    libraryDependencies ++= Seq(
+      "com.amazonaws"    %  "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
+      "ch.qos.logback"   %  "logback-classic" % "1.1.7"  % "test",
+      "org.scalatest"    %% "scalatest"       % "2.2.6"  % "test"
+    )
+  )
+
 }
 
