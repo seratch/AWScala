@@ -130,5 +130,17 @@ object AwscalaProject extends Build {
     )
   )
 
+  lazy val awscalaSQS = Project("awscalaSQS", file("awscala/sqs"), settings = awscalaSQSSettings)
+    .dependsOn(awscalaCore)
+
+  lazy val awscalaSQSSettings = commonSettings ++ Seq(
+    name := "awscala-sqs",
+    libraryDependencies ++= Seq(
+      "com.amazonaws"    %  "aws-java-sdk-sqs"      % awsJavaSdkVersion,
+      "ch.qos.logback"   %  "logback-classic" % "1.1.7"  % "test",
+      "org.scalatest"    %% "scalatest"       % "2.2.6"  % "test"
+    )
+  )
+
 }
 
