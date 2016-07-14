@@ -23,7 +23,7 @@ class S3Spec extends FlatSpec with Matchers {
     log.info(s"Created Bucket: ${bucket}")
 
     // create/update objects
-    val file = new java.io.File("src/main/scala/awscala/s3/S3.scala")
+    val file = new java.io.File("awscala/s3/src/main/scala/awscala/s3/S3.scala")
     for (i <- 1 to 1002) {
       bucket.put("S3.scala-" + i, file)
     }
@@ -49,9 +49,9 @@ class S3Spec extends FlatSpec with Matchers {
     log.info(s"Created Bucket: ${bucket}")
 
     // create/update objects
-    bucket.put("S3.scala", new java.io.File("src/main/scala/awscala/s3/S3.scala"))
-    bucket.putAsPublicRead("S3.scala", new java.io.File("src/main/scala/awscala/s3/S3.scala"))
-    bucket.put("S3Spec.scala", new java.io.File("src/test/scala/awscala/S3Spec.scala"))
+    bucket.put("S3.scala", new java.io.File("awscala/s3/src/main/scala/awscala/s3/S3.scala"))
+    bucket.putAsPublicRead("S3.scala", new java.io.File("awscala/s3/src/main/scala/awscala/s3/S3.scala"))
+    bucket.put("S3Spec.scala", new java.io.File("awscala/s3/src/test/scala/awscala/S3Spec.scala"))
 
     // get objects
     val s3obj: Option[S3Object] = bucket.get("S3.scala")
