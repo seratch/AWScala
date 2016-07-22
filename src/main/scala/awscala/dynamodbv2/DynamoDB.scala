@@ -2,14 +2,19 @@ package awscala.dynamodbv2
 
 import awscala._
 import scala.collection.JavaConverters._
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.services.{ dynamodbv2 => aws }
 import com.amazonaws.services.dynamodbv2.model.KeysAndAttributes
 
 object DynamoDB {
 
-  def apply(credentials: Credentials)(implicit region: Region): DynamoDB = new DynamoDBClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): DynamoDB = apply(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
   def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): DynamoDB = new DynamoDBClient(credentialsProvider).at(region)
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = new DynamoDBClient(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
+
+  def apply(clientConfiguration: ClientConfiguration, credentials: Credentials)(implicit region: Region): DynamoDB = apply(clientConfiguration, BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+  def apply(clientConfiguration: ClientConfiguration, accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = apply(clientConfiguration, BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
+  def apply(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider)(implicit region: Region): DynamoDB = new ConfiguredDynamoDBClient(clientConfiguration, credentialsProvider).at(region)
 
   def at(region: Region): DynamoDB = apply()(region)
 
@@ -372,3 +377,12 @@ class DynamoDBClient(credentialsProvider: CredentialsProvider = CredentialsLoade
   extends aws.AmazonDynamoDBClient(credentialsProvider)
   with DynamoDB
 
+/**
+ * Configured Implementation
+ *
+ * @param clientConfiguration clientConfiguration
+ * @param credentialsProvider credentialsProvider
+ */
+class ConfiguredDynamoDBClient(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonDynamoDBClient(credentialsProvider, clientConfiguration)
+  with DynamoDB
