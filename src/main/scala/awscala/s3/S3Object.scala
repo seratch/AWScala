@@ -15,8 +15,8 @@ object S3Object {
 }
 
 case class S3Object(
-  bucket: Bucket, key: String, content: java.io.InputStream,
-  redirectLocation: String, metadata: aws.model.ObjectMetadata
+  bucket: Bucket, key: String, content: java.io.InputStream = null,
+  redirectLocation: String = null, metadata: aws.model.ObjectMetadata = null
 )
     extends aws.model.S3Object {
 
@@ -42,7 +42,7 @@ case class S3Object(
     s3.generatePresignedUrl(this, expiration)
   }
 
-  def versionId: String = metadata.getVersionId
+  lazy val versionId: String = Option(metadata).map(_.getVersionId).getOrElse(null)
 
   def destroy()(implicit s3: S3): Unit = s3.deleteObject(this)
 }

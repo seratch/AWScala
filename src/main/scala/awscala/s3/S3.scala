@@ -269,15 +269,22 @@ trait S3 extends aws.AmazonS3 {
   }
 
   def deleteObjects(objs: Seq[S3Object]): Unit = {
-    objs.groupBy(_.bucket) map {
-      x =>
-        x._2.headOption.map {
-          obj =>
-            val req = new aws.model.DeleteObjectsRequest(obj.bucket.name)
-            req.setKeys(x._2.map(obj => new aws.model.DeleteObjectsRequest.KeyVersion(obj.key, obj.versionId)).asJava)
+    objs
+      .groupBy(_.bucket)
+      .foreach {
+        case (bucket, s3objects) =>
+
+          // Batch deletion is limited to 1000 elements per job
+          val keyVersions = s3objects.map(obj => new aws.model.DeleteObjectsRequest.KeyVersion(obj.key, obj.versionId))
+
+          keyVersions.grouped(1000).foreach { kvs =>
+
+            val req = new aws.model.DeleteObjectsRequest(bucket.name)
+            req.setKeys(kvs.asJava)
             deleteObjects(req)
-        }
-    }
+          }
+
+      }
   }
 
   // presignedUrl

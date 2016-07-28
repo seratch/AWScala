@@ -62,6 +62,7 @@ case class Bucket(name: String) extends aws.model.Bucket(name) {
   def delete(key: String)(implicit s3: S3) = s3.deleteObject(name, key)
   def delete(obj: S3Object)(implicit s3: S3) = s3.deleteObject(obj)
   def deleteObject(obj: S3Object)(implicit s3: S3) = s3.deleteObject(obj)
+  def deleteObjects(objs: Seq[S3Object])(implicit s3: S3) = s3.deleteObjects(objs)
 
   // configuration
   def crossOriginConfig()(implicit s3: S3) = s3.crossOriginConfig(this)
