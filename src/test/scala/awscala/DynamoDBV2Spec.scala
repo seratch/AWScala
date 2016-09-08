@@ -501,11 +501,11 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     val queryZeroCounts = cities.query(Seq("Country" -> cond.eq("Italy")), aws.model.Select.COUNT)
     queryZeroCounts.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(0)
 
-    val scanNbrChineseCities = cities.scan(Seq("Population" -> cond.gt(2)), aws.model.Select.COUNT)
-    scanNbrChineseCities.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(20)
+    val scanAllCities = cities.scan(Seq("Population" -> cond.gt(2)), aws.model.Select.COUNT)
+    scanAllCities.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(20)
 
-    val scanNbrIndianCities = cities.scan(Seq("Population" -> cond.lt(10000000)), aws.model.Select.COUNT)
-    scanNbrIndianCities.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(7)
+    val scanNbrSmallCities = cities.scan(Seq("Population" -> cond.lt(10000000)), aws.model.Select.COUNT)
+    scanNbrSmallCities.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(7)
 
     val scanZeroCounts = cities.scan(Seq("Population" -> cond.lt(0)), aws.model.Select.COUNT)
     scanZeroCounts.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(0)
