@@ -25,6 +25,7 @@ object AttributeValue {
       case n: java.lang.Number => value.withN(n.toString)
       case b: ByteBuffer => value.withB(b)
       case xs: Seq[_] => xs.headOption match {
+        case Some(m: Map[String, Any]) => value.withL(xs.map(toJavaValue).asJavaCollection)
         case Some(s: String) => value.withSS(xs.map(_.asInstanceOf[String]).asJava)
         case Some(n: java.lang.Number) => value.withNS(xs.map(_.toString).asJava)
         case Some(s: ByteBuffer) => value.withBS(xs.map(_.asInstanceOf[ByteBuffer]).asJava)
@@ -42,6 +43,7 @@ object AttributeValue {
     n = Option(v.getN),
     b = Option(v.getB),
     m = Option(v.getM),
+    l = Option(v.getL).map(_.asScala).getOrElse(Nil),
     ss = Option(v.getSS).map(_.asScala).getOrElse(Nil),
     ns = Option(v.getNS).map(_.asScala).getOrElse(Nil),
     bs = Option(v.getBS).map(_.asScala).getOrElse(Nil)
@@ -54,6 +56,7 @@ case class AttributeValue(
     n: Option[String] = None,
     b: Option[ByteBuffer] = None,
     m: Option[JMap[String, aws.model.AttributeValue]] = None,
+    l: Seq[aws.model.AttributeValue],
     ss: Seq[String] = Nil,
     ns: Seq[String] = Nil,
     bs: Seq[ByteBuffer] = Nil
@@ -64,6 +67,7 @@ case class AttributeValue(
   setN(n.orNull[String])
   setB(b.orNull[ByteBuffer])
   setM(m.orNull[JMap[String, aws.model.AttributeValue]])
+  setL(l.asJavaCollection)
   setSS(ss.asJava)
   setNS(ns.asJava)
   setBS(bs.asJava)
