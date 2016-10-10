@@ -1,6 +1,6 @@
 package awscala.dynamodbv2
 
-import com.amazonaws.services.{dynamodbv2 => aws}
+import com.amazonaws.services.{ dynamodbv2 => aws }
 
 import scala.collection.JavaConverters._
 
@@ -47,14 +47,14 @@ sealed trait ResultPager[TReq, TRes] extends Iterator[Item] {
     request match {
       case req: aws.model.QueryRequest =>
         if (req.getSelect == aws.model.Select.COUNT.toString)
-          items = Seq(Item(table, Seq(Attribute("Count", AttributeValue(n = Some(getCount(result).toString))))))
+          items = Seq(Item(table, Seq(Attribute("Count", AttributeValue(new AttributeValue(n = Some(getCount(result).toString), l = Nil))))))
         else {
           invokeCallback(result)
           items = getItems(result).asScala.map(i => Item(table, i))
         }
       case req: aws.model.ScanRequest =>
         if (req.getSelect == aws.model.Select.COUNT.toString)
-          items = Seq(Item(table, Seq(Attribute("Count", AttributeValue(n = Some(getCount(result).toString))))))
+          items = Seq(Item(table, Seq(Attribute("Count", AttributeValue(new AttributeValue(n = Some(getCount(result).toString), l = Nil))))))
         else {
           invokeCallback(result)
           items = getItems(result).asScala.map(i => Item(table, i))
