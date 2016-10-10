@@ -1,6 +1,7 @@
 package awscala.dynamodbv2
 
-import com.amazonaws.services.{ dynamodbv2 => aws }
+import com.amazonaws.services.{dynamodbv2 => aws}
+
 import scala.collection.JavaConverters._
 
 /**
@@ -38,11 +39,28 @@ sealed trait ResultPager[TReq, TRes] extends Iterator[Item] {
   def invokeCallback(result: TRes): Unit
   def getLastEvaluatedKey(result: TRes): java.util.Map[String, aws.model.AttributeValue]
   def withExclusiveStartKey(request: TReq, lastKey: java.util.Map[String, aws.model.AttributeValue]): TReq
+  def getCount(result: TRes): Int
 
   private def nextPage(request: TReq): Unit = {
     val result = operation(request)
-    invokeCallback(result)
-    items = getItems(result).asScala.map(i => Item(table, i))
+
+    request match {
+      case req: aws.model.QueryRequest =>
+        if (req.getSelect == aws.model.Select.COUNT.toString)
+          items = Seq(Item(table, Seq(Attribute("Count", AttributeValue(n = Some(getCount(result).toString))))))
+        else {
+          invokeCallback(result)
+          items = getItems(result).asScala.map(i => Item(table, i))
+        }
+      case req: aws.model.ScanRequest =>
+        if (req.getSelect == aws.model.Select.COUNT.toString)
+          items = Seq(Item(table, Seq(Attribute("Count", AttributeValue(n = Some(getCount(result).toString))))))
+        else {
+          invokeCallback(result)
+          items = getItems(result).asScala.map(i => Item(table, i))
+        }
+    }
+
     lastKey = getLastEvaluatedKey(result)
     index = 0
     pageNo += 1
@@ -62,8 +80,8 @@ sealed trait ResultPager[TReq, TRes] extends Iterator[Item] {
     } else {
       do {
         nextPage(withExclusiveStartKey(request, lastKey))
-      } while (lastKey != null && items.size == 0) // there are potentially more matching data, but this page didn't contain any
-      items.size != 0
+      } while (lastKey != null && items.isEmpty) // there are potentially more matching data, but this page didn't contain any
+      items.nonEmpty
     }
   }
 }
@@ -72,10 +90,11 @@ sealed trait ResultPager[TReq, TRes] extends Iterator[Item] {
 class QueryResultPager(val table: Table, val operation: aws.model.QueryRequest => aws.model.QueryResult, val request: aws.model.QueryRequest, pageStatsCallback: PageStats => Unit)
     extends ResultPager[aws.model.QueryRequest, aws.model.QueryResult] {
   override def getItems(result: aws.model.QueryResult) = result.getItems
+  override def getCount(result: aws.model.QueryResult) = result.getCount
   override def getLastEvaluatedKey(result: aws.model.QueryResult) = result.getLastEvaluatedKey
   override def withExclusiveStartKey(request: aws.model.QueryRequest, lastKey: java.util.Map[String, aws.model.AttributeValue]) = request.withExclusiveStartKey(lastKey)
   override def invokeCallback(result: aws.model.QueryResult) = {
-    Option(pageStatsCallback).map(fun => fun(PageStats(pageNo, result.getLastEvaluatedKey == null, request.getLimit, result.getScannedCount, result.getCount, result.getConsumedCapacity)))
+    Option(pageStatsCallback).foreach(fun => fun(PageStats(pageNo, result.getLastEvaluatedKey == null, request.getLimit, result.getScannedCount, result.getCount, result.getConsumedCapacity)))
   }
 }
 
@@ -83,9 +102,10 @@ class QueryResultPager(val table: Table, val operation: aws.model.QueryRequest =
 class ScanResultPager(val table: Table, val operation: aws.model.ScanRequest => aws.model.ScanResult, val request: aws.model.ScanRequest, pageStatsCallback: PageStats => Unit)
     extends ResultPager[aws.model.ScanRequest, aws.model.ScanResult] {
   override def getItems(result: aws.model.ScanResult) = result.getItems
+  override def getCount(result: aws.model.ScanResult) = result.getCount
   override def getLastEvaluatedKey(result: aws.model.ScanResult) = result.getLastEvaluatedKey
   override def withExclusiveStartKey(request: aws.model.ScanRequest, lastKey: java.util.Map[String, aws.model.AttributeValue]) = request.withExclusiveStartKey(lastKey)
   override def invokeCallback(result: aws.model.ScanResult) = {
-    Option(pageStatsCallback).map(fun => fun(PageStats(pageNo, result.getLastEvaluatedKey == null, request.getLimit, result.getScannedCount, result.getCount, result.getConsumedCapacity)))
+    Option(pageStatsCallback).foreach(fun => fun(PageStats(pageNo, result.getLastEvaluatedKey == null, request.getLimit, result.getScannedCount, result.getCount, result.getConsumedCapacity)))
   }
 }

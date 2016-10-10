@@ -481,4 +481,73 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
     cities.destroy()
   }
+
+  it should "support count operations for table queries and scans" in {
+    implicit val dynamoDB = DynamoDB.local()
+
+    val tableName = s"Cities_${System.currentTimeMillis}"
+    val createdTableMeta: TableMeta = dynamoDB.createTable(
+      name = tableName,
+      hashPK = "Country" -> AttributeType.String,
+      rangePK = "Population" -> AttributeType.Number,
+      otherAttributes = Seq(),
+      indexes = Seq()
+    )
+    log.info(s"Created Table: ${createdTableMeta}")
+
+    println(s"Waiting for DynamoDB table activation...")
+    var isTableActivated = false
+    while (!isTableActivated) {
+      dynamoDB.describe(createdTableMeta.table).map { meta =>
+        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
+      }
+      Thread.sleep(1000L)
+      print(".")
+    }
+    println("")
+    println(s"Created DynamoDB table has been activated.")
+
+    val cities: Table = dynamoDB.table(tableName).get
+
+    cities.put("China", 21516000, "Name" -> "Beijing")
+    cities.put("Egypt", 9278441, "Name" -> "Cairo")
+    cities.put("India", 16787941, "Name" -> "Delhi")
+    cities.put("China", 9865702, "Name" -> "Guangzhou")
+    cities.put("Turkey", 14657000, "Name" -> "Istanbul")
+    cities.put("Indonesia", 10075310, "Name" -> "Jakarta")
+    cities.put("Pakistan", 21000000, "Name" -> "Karachi")
+    cities.put("Democratic Republic of the Congo", 9735000, "Name" -> "Kinshasa")
+    cities.put("Nigeria", 16060303, "Name" -> "Lagos")
+    cities.put("Peru", 8693387, "Name" -> "Lima")
+    cities.put("United Kingdom", 8538689, "Name" -> "London")
+    cities.put("Mexico", 8874724, "Name" -> "Mexico City")
+    cities.put("Russia", 12197596, "Name" -> "Moscow")
+    cities.put("India", 12478447, "Name" -> "Mumbai")
+    cities.put("United States", 8491079, "Name" -> "New York")
+    cities.put("South Korea", 10048593, "Name" -> "Seoul")
+    cities.put("China", 24256800, "Name" -> "Shanghai")
+    cities.put("China", 10780000, "Name" -> "Shenzhen")
+    cities.put("Brazil", 21292893, "Name" -> "São Paulo")
+    cities.put("Japan", 13297629, "Name" -> "Tokyo")
+
+    val queryNbrChineseCities = cities.query(Seq("Country" -> cond.eq("China")), aws.model.Select.COUNT)
+    queryNbrChineseCities.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(4)
+
+    val queryNbrIndianCities = cities.query(Seq("Country" -> cond.eq("India")), aws.model.Select.COUNT)
+    queryNbrIndianCities.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(2)
+
+    val queryZeroCounts = cities.query(Seq("Country" -> cond.eq("Italy")), aws.model.Select.COUNT)
+    queryZeroCounts.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(0)
+
+    val scanAllCities = cities.scan(Seq("Population" -> cond.gt(2)), aws.model.Select.COUNT)
+    scanAllCities.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(20)
+
+    val scanNbrSmallCities = cities.scan(Seq("Population" -> cond.lt(10000000)), aws.model.Select.COUNT)
+    scanNbrSmallCities.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(7)
+
+    val scanZeroCounts = cities.scan(Seq("Population" -> cond.lt(0)), aws.model.Select.COUNT)
+    scanZeroCounts.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(0)
+
+    cities.destroy()
+  }
 }

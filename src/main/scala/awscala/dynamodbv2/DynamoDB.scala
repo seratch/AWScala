@@ -303,11 +303,11 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withConsistentRead(consistentRead)
       .withLimit(limit)
       .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
-    if (!attributesToGet.isEmpty) {
+    if (attributesToGet.nonEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    val pager = new QueryResultPager(table, query(_), req, pageStatsCallback)
+    val pager = new QueryResultPager(table, query, req, pageStatsCallback)
     pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
@@ -330,11 +330,11 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withConsistentRead(consistentRead)
       .withLimit(limit)
       .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
-    if (!attributesToGet.isEmpty) {
+    if (attributesToGet.nonEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    val pager = new QueryResultPager(table, query(_), req, pageStatsCallback)
+    val pager = new QueryResultPager(table, query, req, pageStatsCallback)
     pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
@@ -359,11 +359,11 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withTotalSegments(totalSegments)
       .withConsistentRead(consistentRead)
       .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
-    if (!attributesToGet.isEmpty) {
+    if (attributesToGet.nonEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    val pager = new ScanResultPager(table, scan(_), req, pageStatsCallback)
+    val pager = new ScanResultPager(table, scan, req, pageStatsCallback)
     pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 }
