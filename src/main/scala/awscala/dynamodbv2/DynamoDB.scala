@@ -55,6 +55,11 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     Option(TableMeta(describeTable(new aws.model.DescribeTableRequest().withTableName(tableName)).getTable))
   } catch { case e: aws.model.ResourceNotFoundException => None }
 
+  /**
+   * Gets the table by name if it exists.
+   * This is an expensive operation since it queries the table schema each time it is called.
+   * @see [[http://docs.aws.amazon.com/cli/latest/reference/dynamodb/describe-table.html]]
+   */
   def table(name: String): Option[Table] = describe(name).map(_.table)
 
   def createTable(
