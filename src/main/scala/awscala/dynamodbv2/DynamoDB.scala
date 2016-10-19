@@ -316,6 +316,39 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
+  def filteringQuery(
+    table: Table,
+    keyConditions: Seq[(String, aws.model.Condition)],
+    filterConditions: Seq[(String, aws.model.Condition)],
+    select: Select = aws.model.Select.ALL_ATTRIBUTES,
+    attributesToGet: Seq[String] = Nil,
+    scanIndexForward: Boolean = true,
+    consistentRead: Boolean = false,
+    limit: Int = 1000,
+    pageStatsCallback: (PageStats => Unit) = null
+  ): Seq[Item] = try {
+
+    val req = new aws.model.QueryRequest()
+      .withTableName(table.name)
+      .withKeyConditions(keyConditions.toMap.asJava)
+      .withSelect(select)
+      .withScanIndexForward(scanIndexForward)
+      .withConsistentRead(consistentRead)
+      .withLimit(limit)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
+
+    if (attributesToGet.nonEmpty) {
+      req.setAttributesToGet(attributesToGet.asJava)
+    }
+
+    if (filterConditions.nonEmpty) {
+      req.setQueryFilter(filterConditions.toMap.asJava)
+    }
+
+    val pager = new QueryResultPager(table, query(_), req, pageStatsCallback)
+    pager.toSeq // will return a Stream[Item]
+  } catch { case e: aws.model.ResourceNotFoundException => Nil }
+
   def query(
     table: Table,
     keyConditions: Seq[(String, aws.model.Condition)],

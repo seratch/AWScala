@@ -78,6 +78,29 @@ case class Table(
     )
   }
 
+  def filteringQuery(
+    keyConditions: Seq[(String, aws.model.Condition)],
+    filterConditions: Seq[(String, aws.model.Condition)],
+    select: Select = aws.model.Select.ALL_ATTRIBUTES,
+    attributesToGet: Seq[String] = Nil,
+    scanIndexForward: Boolean = true,
+    consistentRead: Boolean = false,
+    limit: Int = 1000,
+    pageStatsCallback: PageStats => Unit = null
+  )(implicit dynamoDB: DynamoDB): Seq[Item] = {
+    dynamoDB.filteringQuery(
+      table = this,
+      keyConditions = keyConditions,
+      filterConditions = filterConditions,
+      select = select,
+      attributesToGet = attributesToGet,
+      scanIndexForward = scanIndexForward,
+      consistentRead = consistentRead,
+      limit = limit,
+      pageStatsCallback = pageStatsCallback
+    )
+  }
+
   def query(
     keyConditions: Seq[(String, aws.model.Condition)],
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
