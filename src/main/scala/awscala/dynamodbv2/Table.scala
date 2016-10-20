@@ -110,7 +110,7 @@ case class Table(
     limit: Int = 1000,
     pageStatsCallback: PageStats => Unit = null
   )(implicit dynamoDB: DynamoDB): Seq[Item] = {
-    dynamoDB.query(
+    dynamoDB.filteringQuery(
       table = this,
       keyConditions = keyConditions,
       select = select,
