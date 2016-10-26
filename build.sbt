@@ -20,6 +20,8 @@ lazy val root = (project in file(".")).settings(
     "com.amazonaws"    %  "aws-java-sdk-redshift" % awsJavaSdkVersion,
     "com.amazonaws"    %  "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
     "com.amazonaws"    %  "aws-java-sdk-simpledb" % awsJavaSdkVersion,
+    "com.amazonaws"    %  "aws-java-sdk-cognitosync" % awsJavaSdkVersion,
+    "com.amazonaws"    % "aws-java-sdk-cognitoidentity" % awsJavaSdkVersion,
     "joda-time"        %  "joda-time"             % "2.9.4",
     "org.joda"         %  "joda-convert"          % "1.8.1",
     "com.decodified"   %% "scala-ssh"             % "0.7.0"            % "provided",
