@@ -69,3 +69,4 @@ build.log
 .cache-tests
 *.log
 
+/bin/

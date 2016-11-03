@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>Reporty</groupId>
-		<artifactId>ReportyBundle</artifactId>
+		<artifactId>Reporty</artifactId>
 		<version>${reporty.version}</version>
 	</parent>
 	<artifactId>AWScala</artifactId>
