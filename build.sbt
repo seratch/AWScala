@@ -5,9 +5,9 @@ lazy val awsJavaSdkVersion = "1.10.77"
 lazy val root = (project in file(".")).settings(
   organization := "com.github.seratch",
   name := "awscala",
-  version := "0.5.8",
-  scalaVersion := "2.11.8",
-  crossScalaVersions := Seq("2.11.8", "2.10.6"),
+  version := "0.5.9",
+  scalaVersion := "2.12.0",
+  crossScalaVersions := Seq("2.12.0", "2.11.8", "2.10.6"),
   publishMavenStyle := true,
   resolvers += "spray repo" at "http://repo.spray.io",
   libraryDependencies ++= Seq(
@@ -20,12 +20,12 @@ lazy val root = (project in file(".")).settings(
     "com.amazonaws"    %  "aws-java-sdk-redshift" % awsJavaSdkVersion,
     "com.amazonaws"    %  "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
     "com.amazonaws"    %  "aws-java-sdk-simpledb" % awsJavaSdkVersion,
-    "joda-time"        %  "joda-time"             % "2.9.4",
+    "joda-time"        %  "joda-time"             % "2.9.6",
     "org.joda"         %  "joda-convert"          % "1.8.1",
-    "com.decodified"   %% "scala-ssh"             % "0.7.0"            % "provided",
+    "com.github.seratch.com.veact" %% "scala-ssh" % "0.8.0-1" % "provided",
     "org.bouncycastle" %  "bcprov-jdk16"          % "1.46"             % "provided",
     "ch.qos.logback"   %  "logback-classic"       % "1.1.7"            % "test",
-    "org.scalatest"    %% "scalatest"             % "3.0.0"            % "test"
+    "org.scalatest"    %% "scalatest"             % "3.0.1"            % "test"
   ),
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
