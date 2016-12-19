@@ -59,7 +59,7 @@ case class AttributeValue(
     n: Option[String] = None,
     b: Option[ByteBuffer] = None,
     m: Option[JMap[String, aws.model.AttributeValue]] = None,
-    l: Seq[aws.model.AttributeValue],
+    l: Seq[aws.model.AttributeValue] = Nil,
     ss: Seq[String] = Nil,
     ns: Seq[String] = Nil,
     bs: Seq[ByteBuffer] = Nil
