@@ -24,16 +24,8 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 
 ## How to use
 
-### Latest version
-
 ```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "0.5.+"
-```
-
-### AWS Java SDK 1.8.x compatible
-
-```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "0.3.+"
+libraryDependencies += "com.github.seratch" %% "awscala" % "0.6.+"
 ```
 
 Configure credentials in the AWS Java SDK way.
@@ -277,7 +269,7 @@ To run the tests, just type `sbt test`.
 
 ## License
 
-Copyright 2013 - 2014 AWScala Developers
+Copyright 2013 - AWScala Developers
 
 Apache License, Version 2.0
 
