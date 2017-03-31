@@ -208,7 +208,7 @@ table.put(1, "Japan", "Name" -> "Alice", "Age" -> 23, "Company" -> "Google")
 table.put(2, "U.S.",  "Name" -> "Bob",   "Age" -> 36, "Company" -> "Google")
 table.put(3, "Japan", "Name" -> "Chris", "Age" -> 29, "Company" -> "Amazon")
 
-val googlers: Seq[Item] = table.scan(Seq("Company" -> cond.gt("Google")))
+val googlers: Seq[Item] = table.scan(Seq("Company" -> cond.eq("Google")))
 
 table.destroy()
 ```
