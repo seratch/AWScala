@@ -124,7 +124,7 @@ https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/EC2Spec.sc
 ```scala
 import awscala._, s3._
 
-implicit val s3 = S3()
+implicit val s3 = S3.at(Region.Tokyo)
 
 val buckets: Seq[Bucket] = s3.buckets
 val bucket: Bucket = s3.createBucket("unique-name-xxx")
