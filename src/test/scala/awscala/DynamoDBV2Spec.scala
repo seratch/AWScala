@@ -449,6 +449,18 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     found should be(2)
     resetCounts
 
+    // a limit of 1 will divide the 2 matching Chinese cities into 2 pages
+    // 5 pages will be fetched - one for each Chinese city, plus one for DynamoDB to find out there is no more data
+    val chineseStartingWithS: Seq[Item] = cities.filteringQuery(
+      Seq("Country" -> cond.eq("China")), Seq("Name" -> cond.beginsWith("S")),
+      limit = 1, pageStatsCallback = addPageCounts
+    )
+    chineseStartingWithS.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should contain only ("Shenzhen", "Shanghai")
+    pages should be(5)
+    scanned should be(4)
+    found should be(2)
+    resetCounts
+
     // a limit of 2, with 3 matching Chinese cities, will divide into 2 pages
     // (and need 2 page fetches as the last page is partial so DynamoDB can tell it's done)
     // a filter of population > 10M should return 3 matching Chinese cities
