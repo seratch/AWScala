@@ -88,7 +88,13 @@
 			<artifactId>aws-java-sdk-cognitoidentity</artifactId>
 			<version>${awssdk.version}</version>
 		</dependency>
-        
+		
+		<dependency>
+    		<groupId>com.amazonaws</groupId>
+		    <artifactId>aws-java-sdk-cloudfront</artifactId>
+		    <version>${awssdk.version}</version>
+		</dependency>
+		
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
