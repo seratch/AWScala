@@ -95,6 +95,12 @@
 		    <version>${awssdk.version}</version>
 		</dependency>
 		
+		<dependency>
+    		<groupId>com.amazonaws</groupId>
+    		<artifactId>aws-java-sdk-sns</artifactId>
+    		<version>${awssdk.version}</version>
+		</dependency>
+
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -125,13 +131,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.1.6</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.11</artifactId>
-            <version>2.2.6</version>
             <scope>test</scope>
         </dependency>
 
