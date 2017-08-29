@@ -1,7 +1,6 @@
 import xerial.sbt.Sonatype.autoImport._
 
-// TODO: 1.11.58 has a breaking change on EMR
-lazy val awsJavaSdkVersion = "1.11.57"
+lazy val awsJavaSdkVersion = "1.11.184"
 
 lazy val root = (project in file(".")).settings(
   organization := "com.github.seratch",
