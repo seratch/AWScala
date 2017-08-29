@@ -5,9 +5,9 @@ lazy val awsJavaSdkVersion = "1.11.184"
 lazy val root = (project in file(".")).settings(
   organization := "com.github.seratch",
   name := "awscala",
-  version := "0.6.1-SNAPSHOT",
-  scalaVersion := "2.12.1",
-  crossScalaVersions := Seq("2.12.1", "2.11.8", "2.10.6"),
+  version := "0.6.1",
+  scalaVersion := "2.12.3",
+  crossScalaVersions := Seq("2.12.3", "2.11.8", "2.10.6"),
   publishMavenStyle := true,
   resolvers += "spray repo" at "http://repo.spray.io",
   libraryDependencies ++= Seq(
@@ -20,8 +20,8 @@ lazy val root = (project in file(".")).settings(
     "com.amazonaws"    %  "aws-java-sdk-redshift" % awsJavaSdkVersion,
     "com.amazonaws"    %  "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
     "com.amazonaws"    %  "aws-java-sdk-simpledb" % awsJavaSdkVersion,
-    "joda-time"        %  "joda-time"             % "2.9.6",
-    "org.joda"         %  "joda-convert"          % "1.8.1",
+    "joda-time"        %  "joda-time"             % "2.9.9",
+    "org.joda"         %  "joda-convert"          % "1.8.3",
     "com.github.seratch.com.veact" %% "scala-ssh" % "0.8.0-1" % "provided",
     "org.bouncycastle" %  "bcprov-jdk16"          % "1.46"             % "provided",
     "ch.qos.logback"   %  "logback-classic"       % "1.1.7"            % "test",
@@ -31,6 +31,7 @@ lazy val root = (project in file(".")).settings(
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
   incOptions := incOptions.value.withNameHashing(true),
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
+  publishTo := _publishTo(version.value),
   publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := { x => false },
@@ -71,3 +72,9 @@ lazy val root = (project in file(".")).settings(
   organization := "com.github.seratch",
   sonatypeProfileName := "com.github.seratch"
 ).settings(scalariformSettings)
+
+def _publishTo(v: String) = {
+  val nexus = "https://oss.sonatype.org/"
+  if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+}
