@@ -1,7 +1,6 @@
 .settings
 *.db
 .classpath
-*.iml
 *.ipr
 *.iws
 dist/
@@ -27,7 +26,6 @@ syntax: glob
 
 # idea
 .idea
-*.iml
 
 # building
 target
