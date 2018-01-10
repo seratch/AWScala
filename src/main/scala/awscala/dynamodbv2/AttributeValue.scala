@@ -49,21 +49,19 @@ object AttributeValue {
     l = Option(v.getL).map(_.asScala).getOrElse(Nil),
     ss = Option(v.getSS).map(_.asScala).getOrElse(Nil),
     ns = Option(v.getNS).map(_.asScala).getOrElse(Nil),
-    bs = Option(v.getBS).map(_.asScala).getOrElse(Nil)
-  )
+    bs = Option(v.getBS).map(_.asScala).getOrElse(Nil))
 }
 
 case class AttributeValue(
-    s: Option[String] = None,
-    bl: Option[Boolean] = None,
-    n: Option[String] = None,
-    b: Option[ByteBuffer] = None,
-    m: Option[JMap[String, aws.model.AttributeValue]] = None,
-    l: Seq[aws.model.AttributeValue] = Nil,
-    ss: Seq[String] = Nil,
-    ns: Seq[String] = Nil,
-    bs: Seq[ByteBuffer] = Nil
-) extends aws.model.AttributeValue {
+  s: Option[String] = None,
+  bl: Option[Boolean] = None,
+  n: Option[String] = None,
+  b: Option[ByteBuffer] = None,
+  m: Option[JMap[String, aws.model.AttributeValue]] = None,
+  l: Seq[aws.model.AttributeValue] = Nil,
+  ss: Seq[String] = Nil,
+  ns: Seq[String] = Nil,
+  bs: Seq[ByteBuffer] = Nil) extends aws.model.AttributeValue {
 
   setS(s.orNull[String])
   bl.foreach(setBOOL(_))

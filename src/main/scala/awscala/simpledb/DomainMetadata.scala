@@ -11,13 +11,11 @@ object DomainMetadata {
     attributeValuesSizeBytes = r.getAttributeValuesSizeBytes,
     itemCount = r.getItemCount,
     itemNamesSizeBytes = r.getItemNamesSizeBytes,
-    timestamp = r.getTimestamp
-  )
+    timestamp = r.getTimestamp)
 }
 case class DomainMetadata(
   attributeNameCount: Int, attributeNamesSizeBytes: Long,
   attributeValueCount: Int, attributeValuesSizeBytes: Long,
   itemCount: Int, itemNamesSizeBytes: Long,
-  timestamp: Int
-)
+  timestamp: Int)
 

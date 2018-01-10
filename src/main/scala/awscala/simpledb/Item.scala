@@ -6,22 +6,20 @@ import com.amazonaws.services.{ simpledb => aws }
 object Item {
 
   def apply(domain: Domain, name: String) = new Item(
-    domain = domain, name = name
-  )
+    domain = domain, name = name)
 
   def apply(domain: Domain, i: aws.model.Item): Item = {
     val item = new Item(
       domain = domain,
       name = i.getName,
       alternateNameEncoding = Option(i.getAlternateNameEncoding),
-      attributes = Nil
-    )
+      attributes = Nil)
     item.copy(attributes = i.getAttributes.asScala.map(a => Attribute(item, a)).toSeq)
   }
 }
 
 case class Item(domain: Domain, name: String, alternateNameEncoding: Option[String] = None, attributes: Seq[Attribute] = Nil)
-    extends aws.model.Item {
+  extends aws.model.Item {
 
   setAlternateNameEncoding(alternateNameEncoding.orNull[String])
   setAttributes(attributes.map(_.asInstanceOf[aws.model.Attribute]).asJavaCollection)

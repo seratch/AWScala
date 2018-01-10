@@ -11,8 +11,7 @@ object Message {
     body = msg.getBody,
     receiptHandle = msg.getReceiptHandle,
     attributes = msg.getAttributes.asScala.toMap,
-    messageAttributes = msg.getMessageAttributes.asScala.toMap
-  )
+    messageAttributes = msg.getMessageAttributes.asScala.toMap)
 }
 
 case class Message(
@@ -21,9 +20,8 @@ case class Message(
   body: String,
   receiptHandle: String,
   attributes: Map[String, String],
-  messageAttributes: Map[String, MessageAttributeValue] = Map()
-)
-    extends com.amazonaws.services.sqs.model.Message {
+  messageAttributes: Map[String, MessageAttributeValue] = Map())
+  extends com.amazonaws.services.sqs.model.Message {
 
   setMessageId(id)
   setBody(body)

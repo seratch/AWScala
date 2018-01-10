@@ -90,7 +90,7 @@ object BucketCrossOriginConfiguration {
   }
 }
 case class BucketCrossOriginConfiguration(bucket: Bucket, rules: Seq[aws.model.CORSRule])
-    extends aws.model.BucketCrossOriginConfiguration(rules.asJava) {
+  extends aws.model.BucketCrossOriginConfiguration(rules.asJava) {
 
   def destroy()(implicit s3: S3) = s3.deleteCrossOriginConfig(bucket)
 }
@@ -101,7 +101,7 @@ object BucketLifecycleConfiguration {
   }
 }
 case class BucketLifecycleConfiguration(bucket: Bucket, rules: Seq[aws.model.BucketLifecycleConfiguration.Rule])
-    extends aws.model.BucketLifecycleConfiguration(rules.asJava) {
+  extends aws.model.BucketLifecycleConfiguration(rules.asJava) {
 
   def destroy()(implicit s3: S3) = s3.deleteLifecycleConfig(bucket)
 }
@@ -120,9 +120,8 @@ object BucketNotificationConfiguration {
   }
 }
 case class BucketNotificationConfiguration(
-  bucket: Bucket, topicConfigs: Seq[aws.model.BucketNotificationConfiguration.TopicConfiguration]
-)
-    extends aws.model.BucketNotificationConfiguration(topicConfigs.asJava)
+  bucket: Bucket, topicConfigs: Seq[aws.model.BucketNotificationConfiguration.TopicConfiguration])
+  extends aws.model.BucketNotificationConfiguration(topicConfigs.asJava)
 
 object BucketTaggingConfiguration {
   def apply(bucket: Bucket, c: aws.model.BucketTaggingConfiguration): BucketTaggingConfiguration = {
@@ -130,7 +129,7 @@ object BucketTaggingConfiguration {
   }
 }
 case class BucketTaggingConfiguration(bucket: Bucket, tagSets: Seq[aws.model.TagSet])
-    extends aws.model.BucketTaggingConfiguration(tagSets.asJava) {
+  extends aws.model.BucketTaggingConfiguration(tagSets.asJava) {
 
   def destroy()(implicit s3: S3) = s3.deleteTaggingConfig(bucket)
 }
@@ -141,7 +140,7 @@ object BucketVersioningConfiguration {
   }
 }
 case class BucketVersioningConfiguration(bucket: Bucket, status: String, mfaDeleteEnabled: Boolean)
-    extends aws.model.BucketVersioningConfiguration {
+  extends aws.model.BucketVersioningConfiguration {
   setStatus(status)
   setMfaDeleteEnabled(mfaDeleteEnabled)
 }
@@ -152,9 +151,8 @@ object BucketWebsiteConfiguration {
   }
 }
 case class BucketWebsiteConfiguration(
-  bucket: Bucket, indexDocumentSuffix: String, errorDocument: String, routingRules: Seq[aws.model.RoutingRule]
-)
-    extends aws.model.BucketWebsiteConfiguration(indexDocumentSuffix, errorDocument) {
+  bucket: Bucket, indexDocumentSuffix: String, errorDocument: String, routingRules: Seq[aws.model.RoutingRule])
+  extends aws.model.BucketWebsiteConfiguration(indexDocumentSuffix, errorDocument) {
   setRoutingRules(routingRules.asJava)
 
   def destroy()(implicit s3: S3) = s3.deleteWebsiteConfig(bucket)

@@ -88,7 +88,7 @@ sealed trait ResultPager[TReq, TRes] extends Iterator[Item] {
 
 // a pager specialized for query request/results
 class QueryResultPager(val table: Table, val operation: aws.model.QueryRequest => aws.model.QueryResult, val request: aws.model.QueryRequest, pageStatsCallback: PageStats => Unit)
-    extends ResultPager[aws.model.QueryRequest, aws.model.QueryResult] {
+  extends ResultPager[aws.model.QueryRequest, aws.model.QueryResult] {
   override def getItems(result: aws.model.QueryResult) = result.getItems
   override def getCount(result: aws.model.QueryResult) = result.getCount
   override def getLastEvaluatedKey(result: aws.model.QueryResult) = result.getLastEvaluatedKey
@@ -100,7 +100,7 @@ class QueryResultPager(val table: Table, val operation: aws.model.QueryRequest =
 
 // a pager specialized for scan request/results
 class ScanResultPager(val table: Table, val operation: aws.model.ScanRequest => aws.model.ScanResult, val request: aws.model.ScanRequest, pageStatsCallback: PageStats => Unit)
-    extends ResultPager[aws.model.ScanRequest, aws.model.ScanResult] {
+  extends ResultPager[aws.model.ScanRequest, aws.model.ScanResult] {
   override def getItems(result: aws.model.ScanResult) = result.getItems
   override def getCount(result: aws.model.ScanResult) = result.getCount
   override def getLastEvaluatedKey(result: aws.model.ScanResult) = result.getLastEvaluatedKey

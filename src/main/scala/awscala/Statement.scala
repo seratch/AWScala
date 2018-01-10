@@ -4,13 +4,12 @@ import scala.collection.JavaConverters._
 import com.amazonaws.auth.{ policy => aws }
 
 case class Statement(
-    effect: aws.Statement.Effect,
-    actions: Seq[Action],
-    resources: Seq[Resource],
-    id: Option[String] = None,
-    conditions: Seq[Condition] = Nil,
-    principals: Seq[aws.Principal] = Nil
-) extends aws.Statement(effect) {
+  effect: aws.Statement.Effect,
+  actions: Seq[Action],
+  resources: Seq[Resource],
+  id: Option[String] = None,
+  conditions: Seq[Condition] = Nil,
+  principals: Seq[aws.Principal] = Nil) extends aws.Statement(effect) {
 
   id.foreach(i => setId(i))
   setEffect(effect)

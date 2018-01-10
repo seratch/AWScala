@@ -6,8 +6,7 @@ object ClusterParameterGroup {
   def apply(g: aws.model.ClusterParameterGroup): ClusterParameterGroup = new ClusterParameterGroup(
     name = g.getParameterGroupName,
     family = g.getParameterGroupFamily,
-    description = g.getDescription
-  )
+    description = g.getDescription)
 }
 case class ClusterParameterGroup(name: String, family: String, description: String) extends aws.model.ClusterParameterGroup {
   setParameterGroupName(name)

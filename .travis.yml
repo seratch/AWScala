@@ -2,7 +2,9 @@ language: scala
 scala:
   - 2.11.8
   - 2.10.6
-script: "sbt ++$TRAVIS_SCALA_VERSION test:compile"
+script:
+- "sbt ++$TRAVIS_SCALA_VERSION test:compile"
+- git diff --exit-code
 matrix:
   include:
   - scala: 2.12.1

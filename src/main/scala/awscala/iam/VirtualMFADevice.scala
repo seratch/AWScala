@@ -10,22 +10,19 @@ object VirtualMFADevice {
     enabledAt = new DateTime(g.getEnableDate),
     qrCodePng = None,
     serialNumber = g.getSerialNumber,
-    user = user
-  )
+    user = user)
   def apply(g: aws.model.VirtualMFADevice): VirtualMFADevice = new VirtualMFADevice(
     base32StringSeed = Some(g.getBase32StringSeed),
     enabledAt = new DateTime(g.getEnableDate),
     qrCodePng = Some(g.getQRCodePNG),
     serialNumber = g.getSerialNumber,
-    user = User(g.getUser)
-  )
+    user = User(g.getUser))
 }
 
 case class VirtualMFADevice(
   serialNumber: String, base32StringSeed: Option[java.nio.ByteBuffer], qrCodePng: Option[java.nio.ByteBuffer],
-  user: User, enabledAt: DateTime
-)
-    extends aws.model.VirtualMFADevice {
+  user: User, enabledAt: DateTime)
+  extends aws.model.VirtualMFADevice {
 
   setBase32StringSeed(base32StringSeed.orNull[java.nio.ByteBuffer])
   setEnableDate(enabledAt.toDate)

@@ -26,8 +26,7 @@ trait STS extends aws.AWSSecurityTokenService {
       new aws.model.GetSessionTokenRequest()
         .withSerialNumber(serialNumber)
         .withTokenCode(tokenCode)
-        .withDurationSeconds(durationSeconds)
-    ).getCredentials))
+        .withDurationSeconds(durationSeconds)).getCredentials))
   }
 
   def federationToken(name: String, policy: Policy, durationSeconds: Int): FederationToken = {
@@ -38,8 +37,7 @@ trait STS extends aws.AWSSecurityTokenService {
 
     FederationToken(
       user = FederatedUser(result.getFederatedUser),
-      credentials = TemporaryCredentials(result.getCredentials)
-    )
+      credentials = TemporaryCredentials(result.getCredentials))
   }
 
   def decodeAuthorizationMessage(message: String): String = {

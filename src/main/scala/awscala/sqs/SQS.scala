@@ -69,8 +69,7 @@ trait SQS extends aws.AmazonSQS {
   def sendMessageBatch(queue: Queue, messages: Seq[MessageBatchEntry]): aws.model.SendMessageBatchResult = {
     sendMessageBatch(new aws.model.SendMessageBatchRequest(
       queue.url,
-      messages.map(_.asInstanceOf[aws.model.SendMessageBatchRequestEntry]).asJava
-    ))
+      messages.map(_.asInstanceOf[aws.model.SendMessageBatchRequestEntry]).asJava))
   }
 
   def receive(queue: Queue): Seq[Message] = receiveMessage(queue)
@@ -92,14 +91,12 @@ trait SQS extends aws.AmazonSQS {
     deleteMessageBatch(
       messages.head.queue,
       messages.zipWithIndex.map { case (msg, idx) => new DeleteMessageBatchEntry(s"${batchId}-${idx}", msg.receiptHandle) },
-      requestCredentials
-    )
+      requestCredentials)
   }
   def deleteMessageBatch(queue: Queue, messages: Seq[DeleteMessageBatchEntry], requestCredentials: Option[AWSSessionCredentials] = None): Unit = {
     val request = new aws.model.DeleteMessageBatchRequest(
       queue.url,
-      messages.map(_.asInstanceOf[aws.model.DeleteMessageBatchRequestEntry]).asJava
-    )
+      messages.map(_.asInstanceOf[aws.model.DeleteMessageBatchRequestEntry]).asJava)
     requestCredentials.foreach(c => request.setRequestCredentials(c))
     deleteMessageBatch(request)
   }

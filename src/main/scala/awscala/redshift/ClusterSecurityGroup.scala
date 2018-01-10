@@ -9,13 +9,11 @@ object ClusterSecurityGroup {
     ec2SecurityGroups = g.getEC2SecurityGroups.asScala.map(g =>
       EC2SecurityGroup(g.getEC2SecurityGroupName, g.getEC2SecurityGroupOwnerId, g.getStatus)).toSeq,
     ipranges = g.getIPRanges.asScala.map(i => IPRange(i.getCIDRIP, i.getStatus)).toSeq,
-    description = g.getDescription
-  )
+    description = g.getDescription)
 }
 case class ClusterSecurityGroup(
-  name: String, ec2SecurityGroups: Seq[EC2SecurityGroup], ipranges: Seq[IPRange], description: String
-)
-    extends aws.model.ClusterSecurityGroup {
+  name: String, ec2SecurityGroups: Seq[EC2SecurityGroup], ipranges: Seq[IPRange], description: String)
+  extends aws.model.ClusterSecurityGroup {
 
   setClusterSecurityGroupName(name)
   setDescription(description)
