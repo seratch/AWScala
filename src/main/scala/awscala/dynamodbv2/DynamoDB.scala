@@ -64,14 +64,12 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
   def createTable(
     name: String,
-    hashPK: (String, aws.model.ScalarAttributeType)
-  ): TableMeta = {
+    hashPK: (String, aws.model.ScalarAttributeType)): TableMeta = {
     create(Table(
       name = name,
       hashPK = hashPK._1,
       rangePK = None,
-      attributes = Seq(AttributeDefinition(hashPK._1, hashPK._2))
-    ))
+      attributes = Seq(AttributeDefinition(hashPK._1, hashPK._2))))
   }
 
   def createTable(
@@ -79,18 +77,15 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     hashPK: (String, aws.model.ScalarAttributeType),
     rangePK: (String, aws.model.ScalarAttributeType),
     otherAttributes: Seq[(String, aws.model.ScalarAttributeType)],
-    indexes: Seq[LocalSecondaryIndex]
-  ): TableMeta = {
+    indexes: Seq[LocalSecondaryIndex]): TableMeta = {
     create(Table(
       name = name,
       hashPK = hashPK._1,
       rangePK = Some(rangePK._1),
       attributes = Seq(
         AttributeDefinition(hashPK._1, hashPK._2),
-        AttributeDefinition(rangePK._1, rangePK._2)
-      ) ++: otherAttributes.map(a => AttributeDefinition(a._1, a._2)),
-      localSecondaryIndexes = indexes
-    ))
+        AttributeDefinition(rangePK._1, rangePK._2)) ++: otherAttributes.map(a => AttributeDefinition(a._1, a._2)),
+      localSecondaryIndexes = indexes))
   }
 
   def create(table: Table): TableMeta = createTable(table)
@@ -98,8 +93,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   def createTable(table: Table): TableMeta = {
     val keySchema: Seq[aws.model.KeySchemaElement] = Seq(
       Some(KeySchema(table.hashPK, aws.model.KeyType.HASH)),
-      table.rangePK.map(n => KeySchema(n, aws.model.KeyType.RANGE))
-    ).flatten.map(_.asInstanceOf[aws.model.KeySchemaElement])
+      table.rangePK.map(n => KeySchema(n, aws.model.KeyType.RANGE))).flatten.map(_.asInstanceOf[aws.model.KeySchemaElement])
 
     val req = new aws.model.CreateTableRequest()
       .withTableName(table.name)
@@ -108,8 +102,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withProvisionedThroughput(
         table.provisionedThroughput.map(_.asInstanceOf[aws.model.ProvisionedThroughput]).getOrElse {
           ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10)
-        }
-      )
+        })
 
     if (!table.localSecondaryIndexes.isEmpty) {
       req.setLocalSecondaryIndexes(table.localSecondaryIndexes.map(_.asInstanceOf[aws.model.LocalSecondaryIndex]).asJava)
@@ -123,8 +116,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
   def updateTableProvisionedThroughput(table: Table, provisionedThroughput: ProvisionedThroughput): TableMeta = {
     TableMeta(updateTable(
-      new aws.model.UpdateTableRequest(table.name, provisionedThroughput)
-    ).getTableDescription)
+      new aws.model.UpdateTableRequest(table.name, provisionedThroughput)).getTableDescription)
   }
 
   def delete(table: Table): Unit = deleteTable(table)
@@ -156,8 +148,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
             .withTableName(table.name)
             .withKey(Map(
               table.hashPK -> AttributeValue.toJavaValue(hashPK),
-              table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
-            ).asJava)
+              table.rangePK.get -> AttributeValue.toJavaValue(rangePK)).asJava)
             .withConsistentRead(consistentRead)).getItem
 
           Option(attributes).map(Item(table, _))
@@ -198,9 +189,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
         case (table, attributes) =>
           table.name -> new KeysAndAttributes().withKeys(
             attributes.map {
-            case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
-          }.asJava
-          )
+              case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
+            }.asJava)
       }.asJava
 
     toStream(State(Nil, toJava(tableAndAttributes)))
@@ -259,8 +249,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   }
 
   private[dynamodbv2] def updateAttributes(
-    table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]
-  ): Unit = {
+    table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]): Unit = {
 
     val tableKeys = Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)) ++ rangePK.flatMap(rKey => table.rangePK.map(_ -> AttributeValue.toJavaValue(rKey)))
 
@@ -283,8 +272,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withTableName(table.name)
       .withKey(Map(
         table.hashPK -> AttributeValue.toJavaValue(hashPK),
-        table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
-      ).asJava))
+        table.rangePK.get -> AttributeValue.toJavaValue(rangePK)).asJava))
   }
 
   def queryWithIndex(
@@ -296,8 +284,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     scanIndexForward: Boolean = true,
     consistentRead: Boolean = false,
     limit: Int = 1000,
-    pageStatsCallback: (PageStats => Unit) = null
-  ): Seq[Item] = try {
+    pageStatsCallback: (PageStats => Unit) = null): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
       .withTableName(table.name)
@@ -324,8 +311,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     scanIndexForward: Boolean = true,
     consistentRead: Boolean = false,
     limit: Int = 1000,
-    pageStatsCallback: (PageStats => Unit) = null
-  ): Seq[Item] = try {
+    pageStatsCallback: (PageStats => Unit) = null): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
       .withTableName(table.name)
@@ -352,8 +338,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     consistentRead: Boolean = false,
-    pageStatsCallback: (PageStats => Unit) = null
-  ): Seq[Item] = try {
+    pageStatsCallback: (PageStats => Unit) = null): Seq[Item] = try {
 
     val req = new aws.model.ScanRequest()
       .withTableName(table.name)

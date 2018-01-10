@@ -18,8 +18,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     val tableName = s"Companies_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
       name = tableName,
-      hashPK = "Id" -> AttributeType.String
-    )
+      hashPK = "Id" -> AttributeType.String)
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
@@ -83,10 +82,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
         LocalSecondaryIndex(
           name = "CompanyIndex",
           keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
-          projection = Projection(ProjectionType.Include, Seq("Company"))
-        )
-      )
-    )
+          projection = Projection(ProjectionType.Include, Seq("Company")))))
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
@@ -143,10 +139,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
         LocalSecondaryIndex(
           name = "CompanyIndex",
           keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
-          projection = Projection(ProjectionType.Include, Seq("Company"))
-        )
-      )
-    )
+          projection = Projection(ProjectionType.Include, Seq("Company")))))
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
@@ -183,10 +176,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
         LocalSecondaryIndex(
           name = "CompanyIndex",
           keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
-          projection = Projection(ProjectionType.Include, Seq("Company"))
-        )
-      )
-    )
+          projection = Projection(ProjectionType.Include, Seq("Company")))))
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
@@ -216,18 +206,15 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       name = "SexIndex",
       keySchema = Seq(KeySchema("Sex", KeyType.Hash), KeySchema("Age", KeyType.Range)),
       projection = Projection(ProjectionType.All),
-      provisionedThroughput = ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10)
-    )
+      provisionedThroughput = ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10))
     val table = Table(
       name = tableName,
       hashPK = "Id",
       attributes = Seq(
         AttributeDefinition("Id", AttributeType.Number),
         AttributeDefinition("Sex", AttributeType.String),
-        AttributeDefinition("Age", AttributeType.Number)
-      ),
-      globalSecondaryIndexes = Seq(globalSecondaryIndex)
-    )
+        AttributeDefinition("Age", AttributeType.Number)),
+      globalSecondaryIndexes = Seq(globalSecondaryIndex))
     val createdTableMeta: TableMeta = dynamoDB.createTable(table)
     log.info(s"Created Table: ${createdTableMeta}")
 
@@ -254,8 +241,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       index = globalSecondaryIndex,
       keyConditions = Seq("Sex" -> cond.eq("Male"), "Age" -> cond.lt(20)),
       limit = 1, // to test that we still return 2 names
-      pageStatsCallback = println
-    )
+      pageStatsCallback = println)
 
     teenageBoys.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("John", "Bob"))
     teenageBoys.flatMap(_.attributes.find(_.name == "Friend")).map(_.value.bl.get) should equal(Seq(true))
@@ -271,8 +257,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       hashPK = "Id" -> AttributeType.Number,
       rangePK = "Country" -> AttributeType.String,
       otherAttributes = Seq(),
-      indexes = Seq()
-    )
+      indexes = Seq())
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
@@ -385,8 +370,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       hashPK = "Country" -> AttributeType.String,
       rangePK = "Population" -> AttributeType.Number,
       otherAttributes = Seq(),
-      indexes = Seq()
-    )
+      indexes = Seq())
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
@@ -491,8 +475,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       hashPK = "Country" -> AttributeType.String,
       rangePK = "Population" -> AttributeType.Number,
       otherAttributes = Seq(),
-      indexes = Seq()
-    )
+      indexes = Seq())
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")

@@ -9,16 +9,14 @@ object GlobalSecondaryIndex {
     name = v.getIndexName,
     keySchema = v.getKeySchema.asScala.map(k => KeySchema(k)),
     projection = Projection(v.getProjection),
-    provisionedThroughput = ProvisionedThroughput(v.getProvisionedThroughput.getReadCapacityUnits, v.getProvisionedThroughput.getWriteCapacityUnits)
-  )
+    provisionedThroughput = ProvisionedThroughput(v.getProvisionedThroughput.getReadCapacityUnits, v.getProvisionedThroughput.getWriteCapacityUnits))
 
 }
 case class GlobalSecondaryIndex(
-    name: String,
-    keySchema: Seq[KeySchema],
-    projection: Projection,
-    provisionedThroughput: ProvisionedThroughput
-) extends aws.model.GlobalSecondaryIndex with SecondaryIndex {
+  name: String,
+  keySchema: Seq[KeySchema],
+  projection: Projection,
+  provisionedThroughput: ProvisionedThroughput) extends aws.model.GlobalSecondaryIndex with SecondaryIndex {
 
   setIndexName(name)
   setKeySchema(keySchema.map(_.asInstanceOf[aws.model.KeySchemaElement]).asJava)

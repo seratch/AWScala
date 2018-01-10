@@ -71,7 +71,7 @@ lazy val root = (project in file(".")).settings(
     </developers>,
   organization := "com.github.seratch",
   sonatypeProfileName := "com.github.seratch"
-).settings(scalariformSettings)
+)
 
 def _publishTo(v: String) = {
   val nexus = "https://oss.sonatype.org/"

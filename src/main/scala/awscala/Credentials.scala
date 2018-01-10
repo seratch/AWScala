@@ -6,7 +6,7 @@ class Credentials(accessKeyId: String, secretAccessKey: String) extends com.amaz
 }
 
 class SessionCredentials(accessKeyId: String, secretAccessKey: String, token: String)
-    extends Credentials(accessKeyId, secretAccessKey) with com.amazonaws.auth.AWSSessionCredentials {
+  extends Credentials(accessKeyId, secretAccessKey) with com.amazonaws.auth.AWSSessionCredentials {
   override def getSessionToken: String = token
 }
 

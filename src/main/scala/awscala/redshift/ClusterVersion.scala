@@ -8,14 +8,12 @@ object ClusterVersion {
   def apply(v: aws.model.ClusterVersion): ClusterVersion = new ClusterVersion(
     version = v.getClusterVersion,
     description = Option(v.getDescription),
-    parameterGroupFamily = Option(v.getClusterParameterGroupFamily)
-  )
+    parameterGroupFamily = Option(v.getClusterParameterGroupFamily))
 }
 
 case class ClusterVersion(
-  version: String, description: Option[String] = None, parameterGroupFamily: Option[String] = None
-)
-    extends aws.model.ClusterVersion {
+  version: String, description: Option[String] = None, parameterGroupFamily: Option[String] = None)
+  extends aws.model.ClusterVersion {
 
   setClusterVersion(version)
   setDescription(description.orNull[String])

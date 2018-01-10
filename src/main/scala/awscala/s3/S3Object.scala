@@ -10,15 +10,13 @@ object S3Object {
     key = obj.getKey,
     content = obj.getObjectContent,
     redirectLocation = obj.getRedirectLocation,
-    metadata = obj.getObjectMetadata
-  )
+    metadata = obj.getObjectMetadata)
 }
 
 case class S3Object(
   bucket: Bucket, key: String, content: java.io.InputStream = null,
-  redirectLocation: String = null, metadata: aws.model.ObjectMetadata = null
-)
-    extends aws.model.S3Object {
+  redirectLocation: String = null, metadata: aws.model.ObjectMetadata = null)
+  extends aws.model.S3Object {
 
   setBucketName(bucket.name)
   setKey(key)

@@ -10,14 +10,12 @@ object ClusterSubnetGroup {
     description = g.getDescription,
     status = g.getSubnetGroupStatus,
     subnets = g.getSubnets.asScala.map(s => Subnet(s)).toSeq,
-    vpcId = g.getVpcId
-  )
+    vpcId = g.getVpcId)
 }
 
 case class ClusterSubnetGroup(
-  name: String, description: String, status: String, subnets: Seq[Subnet], vpcId: String
-)
-    extends aws.model.ClusterSubnetGroup {
+  name: String, description: String, status: String, subnets: Seq[Subnet], vpcId: String)
+  extends aws.model.ClusterSubnetGroup {
 
   setClusterSubnetGroupName(name)
   setDescription(description)

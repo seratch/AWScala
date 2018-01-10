@@ -12,13 +12,12 @@ object S3ObjectSummary {
     storageClass = obj.getStorageClass,
     eTag = obj.getETag,
     lastModified = new DateTime(obj.getLastModified),
-    owner = obj.getOwner
-  )
+    owner = obj.getOwner)
 }
 
 class S3ObjectSummary(val bucket: Bucket, key: String, size: Long,
   storageClass: String, eTag: String, lastModified: DateTime, owner: aws.model.Owner)
-    extends aws.model.S3ObjectSummary {
+  extends aws.model.S3ObjectSummary {
 
   setBucketName(bucket.name)
   setKey(key)

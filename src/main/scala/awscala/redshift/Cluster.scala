@@ -28,35 +28,33 @@ object Cluster {
     securityGroupMemberships = c.getClusterSecurityGroups.asScala.map(m => ClusterSecurityGroupMembership(m)),
     vpcId = c.getVpcId,
     vpcSecurityGroupMemberships = c.getVpcSecurityGroups.asScala.map(m => VpcSecurityGroupMembership(m)),
-    createdAt = new DateTime(c.getClusterCreateTime)
-  )
+    createdAt = new DateTime(c.getClusterCreateTime))
 }
 
 class Cluster(
-    val identifier: String,
-    val dbName: String,
-    val endpoint: Endpoint,
-    val masterUserName: String,
-    val status: String,
-    val version: ClusterVersion,
-    val nodeType: NodeType,
-    val numOfNodes: Int,
-    val modifyStatus: String,
-    val availabilityZone: AvailabilityZone,
-    val encrypted: Boolean,
-    val allowVersionUpgrade: Boolean,
-    val publiclyAccessible: Boolean,
-    val automatedSnapshotRetentionPeriod: Int,
-    val subnetGroupName: String,
-    val restoreStatus: Option[RestoreStatus],
-    val preferredMaintenanceWindow: String,
-    val pendingModifiedValues: PendingModifiedValues,
-    val parameterGroupStatuses: Seq[ClusterParameterGroupStatus],
-    val securityGroupMemberships: Seq[ClusterSecurityGroupMembership],
-    val vpcId: String,
-    val vpcSecurityGroupMemberships: Seq[VpcSecurityGroupMembership],
-    val createdAt: DateTime
-) extends aws.model.Cluster {
+  val identifier: String,
+  val dbName: String,
+  val endpoint: Endpoint,
+  val masterUserName: String,
+  val status: String,
+  val version: ClusterVersion,
+  val nodeType: NodeType,
+  val numOfNodes: Int,
+  val modifyStatus: String,
+  val availabilityZone: AvailabilityZone,
+  val encrypted: Boolean,
+  val allowVersionUpgrade: Boolean,
+  val publiclyAccessible: Boolean,
+  val automatedSnapshotRetentionPeriod: Int,
+  val subnetGroupName: String,
+  val restoreStatus: Option[RestoreStatus],
+  val preferredMaintenanceWindow: String,
+  val pendingModifiedValues: PendingModifiedValues,
+  val parameterGroupStatuses: Seq[ClusterParameterGroupStatus],
+  val securityGroupMemberships: Seq[ClusterSecurityGroupMembership],
+  val vpcId: String,
+  val vpcSecurityGroupMemberships: Seq[VpcSecurityGroupMembership],
+  val createdAt: DateTime) extends aws.model.Cluster {
 
   setAllowVersionUpgrade(allowVersionUpgrade)
   setAutomatedSnapshotRetentionPeriod(automatedSnapshotRetentionPeriod)

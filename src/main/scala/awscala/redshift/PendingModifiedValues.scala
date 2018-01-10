@@ -9,17 +9,15 @@ object PendingModifiedValues {
     masterUserPassword = Option(p.getMasterUserPassword),
     nodeType = Option(p.getNodeType),
     numOfNodes = Option[Integer](p.getNumberOfNodes).map(_.asInstanceOf[Int]),
-    automatedSnapshotRetentionPeriod = Option[Integer](p.getAutomatedSnapshotRetentionPeriod).map(_.asInstanceOf[Int])
-  )
+    automatedSnapshotRetentionPeriod = Option[Integer](p.getAutomatedSnapshotRetentionPeriod).map(_.asInstanceOf[Int]))
 }
 case class PendingModifiedValues(
-    clusterType: Option[String],
-    clusterVersion: Option[String],
-    masterUserPassword: Option[String],
-    nodeType: Option[String],
-    numOfNodes: Option[Int],
-    automatedSnapshotRetentionPeriod: Option[Int]
-) extends aws.model.PendingModifiedValues {
+  clusterType: Option[String],
+  clusterVersion: Option[String],
+  masterUserPassword: Option[String],
+  nodeType: Option[String],
+  numOfNodes: Option[Int],
+  automatedSnapshotRetentionPeriod: Option[Int]) extends aws.model.PendingModifiedValues {
 
   setAutomatedSnapshotRetentionPeriod(automatedSnapshotRetentionPeriod.map(_.asInstanceOf[Integer]).orNull[Integer])
   setClusterType(clusterType.orNull[String])

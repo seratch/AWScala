@@ -87,8 +87,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
     taskMarketType: String = "ON_DEMAND",
     taskBidPrice: String = "0.0",
     ec2KeyName: String,
-    hadoopVersion: String
-  ): JobFlowInstancesConfig = {
+    hadoopVersion: String): JobFlowInstancesConfig = {
 
     //building master node
     val masterGroupConfig = buildMasterGroupConfig(masterInstanceType, masterMarketType, masterBidPrice)
@@ -138,8 +137,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
     loggingURI: String = "",
     visibleToAllUsers: Boolean = true,
     jobFlowInstancesConfig: JobFlowInstancesConfig,
-    jobFlowStepsRequest: AddJobFlowStepsRequest
-  ): RunJobFlowRequest = {
+    jobFlowStepsRequest: AddJobFlowStepsRequest): RunJobFlowRequest = {
     new RunJobFlowRequest()
       .withName(jobName)
       .withAmiVersion(amiVersion)
@@ -168,8 +166,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
     jobName: String = "AWSscala",
     amiVersion: String = "latest",
     loggingURI: String = "",
-    visibleToAllUsers: Boolean = true
-  ): aws.model.RunJobFlowResult = {
+    visibleToAllUsers: Boolean = true): aws.model.RunJobFlowResult = {
 
     val jobFlowInstancesConfig = buildJobFlowInstancesConfig(
       masterInstanceType,
@@ -184,13 +181,11 @@ trait EMR extends aws.AmazonElasticMapReduce {
       taskMarketType,
       taskBidPrice,
       ec2KeyName,
-      hadoopVersion
-    )
+      hadoopVersion)
 
     val jobFlowStepsRequest = buildJobFlowStepsRequest[T](
       steps,
-      jobFlowId
-    )
+      jobFlowId)
 
     val runJobFlowRequest = buildRunRequest(
       jobName,
@@ -198,8 +193,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
       loggingURI,
       visibleToAllUsers,
       jobFlowInstancesConfig,
-      jobFlowStepsRequest
-    )
+      jobFlowStepsRequest)
 
     runJobFlow(runJobFlowRequest)
   }

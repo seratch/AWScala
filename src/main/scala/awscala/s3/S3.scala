@@ -218,14 +218,12 @@ trait S3 extends aws.AmazonS3 {
 
   def putObjectAsPublicRead(bucket: Bucket, key: String, file: File): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
-      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)
-    ))
+      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)))
   }
 
   def putObjectAsPublicReadWrite(bucket: Bucket, key: String, file: File): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
-      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)
-    ))
+      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)))
   }
 
   // putting a byte array
@@ -238,15 +236,13 @@ trait S3 extends aws.AmazonS3 {
 
   def putObject(bucket: Bucket, key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata): PutObjectResult =
     PutObjectResult(bucket, key, putObject(
-      new aws.model.PutObjectRequest(bucket.name, key, inputStream, metadata)
-    ))
+      new aws.model.PutObjectRequest(bucket.name, key, inputStream, metadata)))
 
   def putObjectAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
       new aws.model.PutObjectRequest(bucket.name, key,
         new ByteArrayInputStream(bytes),
-        metadata).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)
-    ))
+        metadata).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)))
   }
 
   // copy
@@ -300,8 +296,8 @@ trait S3 extends aws.AmazonS3 {
  * @param credentialsProvider credentialsProvider
  */
 class S3Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
-    extends aws.AmazonS3Client(credentialsProvider)
-    with S3 {
+  extends aws.AmazonS3Client(credentialsProvider)
+  with S3 {
 
   override def createBucket(name: String): Bucket = super.createBucket(name)
 }
@@ -313,8 +309,8 @@ class S3Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load
  * @param credentialsProvider CredentialsProvider
  */
 class ConfiguredS3Client(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider = CredentialsLoader.load())
-    extends aws.AmazonS3Client(credentialsProvider, clientConfiguration)
-    with S3 {
+  extends aws.AmazonS3Client(credentialsProvider, clientConfiguration)
+  with S3 {
 
   override def createBucket(name: String): Bucket = super.createBucket(name)
 }
