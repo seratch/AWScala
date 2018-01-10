@@ -29,7 +29,6 @@ lazy val root = (project in file(".")).settings(
   ),
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
-  incOptions := incOptions.value.withNameHashing(true),
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
   publishTo := _publishTo(version.value),
   publishMavenStyle := true,
