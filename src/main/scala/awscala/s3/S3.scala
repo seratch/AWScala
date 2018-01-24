@@ -231,18 +231,36 @@ trait S3 extends aws.AmazonS3 {
 
   def putAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObjectAsPublicRead(bucket, key, bytes, metadata)
 
+  def putAsPublicReadWrite(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObjectAsPublicReadWrite(bucket, key, bytes, metadata)
+
   def putObject(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult =
     putObject(bucket, key, new ByteArrayInputStream(bytes), metadata)
 
+  def putObjectAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
+    putObjectAsPublicRead(bucket, key, new ByteArrayInputStream(bytes), metadata)
+  }
+
+  def putObjectAsPublicReadWrite(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
+    putObjectAsPublicReadWrite(bucket, key, new ByteArrayInputStream(bytes), metadata)
+  }
+
+  // putting an input stream
   def putObject(bucket: Bucket, key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata): PutObjectResult =
     PutObjectResult(bucket, key, putObject(
       new aws.model.PutObjectRequest(bucket.name, key, inputStream, metadata)))
 
-  def putObjectAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
+  def putObjectAsPublicRead(bucket: Bucket, key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
       new aws.model.PutObjectRequest(bucket.name, key,
-        new ByteArrayInputStream(bytes),
+        inputStream,
         metadata).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)))
+  }
+
+  def putObjectAsPublicReadWrite(bucket: Bucket, key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata): PutObjectResult = {
+    PutObjectResult(bucket, key, putObject(
+      new aws.model.PutObjectRequest(bucket.name, key,
+        inputStream,
+        metadata).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)))
   }
 
   // copy
