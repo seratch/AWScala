@@ -1,7 +1,6 @@
 package awscala.firehose
 
 
-import java.util.Date
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
@@ -12,8 +11,6 @@ import com.amazonaws.services.{ kinesisfirehose => aws }
 import awscala._
 import scala.collection.JavaConverters._
 
-
-case class UserMessage(userId: Int, userName: String, timestamp: Date = new Date)
 
 object KinesisFirehose 
 {
@@ -36,15 +33,23 @@ object KinesisFirehose
 trait KinesisFirehose extends aws.AmazonKinesisFirehoseAsyncClient
 {
     
-    def sendMessageToFirehose(payload : String, deliveryStream : String): Unit = 
+    def sendMessageToFirehoseAsync(payload : String, deliveryStream : String) : java.util.concurrent.Future[PutRecordResult] = 
+    {
+        val putRecordRequest = createRecordRequest(payload, deliveryStream)
+        this.putRecordAsync(putRecordRequest)
+    }
+    
+    def sendMessageToFirehose(payload : String, deliveryStream : String) : PutRecordResult =
+    {
+        val putRecordRequest = createRecordRequest(payload, deliveryStream)
+        this.putRecord(putRecordRequest)
+    }
+    
+    def createRecordRequest(payload : String, deliveryStream : String) : PutRecordRequest =
     {
         val data = ByteBuffer.wrap(payload.getBytes(StandardCharsets.UTF_8))
-        val deliveryStreamRecord : Record = new Record().withData(data)
-        val putRecordRequest : PutRecordRequest = new PutRecordRequest()
-            .withDeliveryStreamName(deliveryStream)
-            .withRecord(deliveryStreamRecord)        
-        
-        this.putRecordAsync(putRecordRequest)
+        val deliveryStreamRecord = new Record().withData(data)
+        new PutRecordRequest().withDeliveryStreamName(deliveryStream).withRecord(deliveryStreamRecord)
     }
 }
 
