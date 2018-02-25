@@ -12,7 +12,6 @@ import awscala._
 import scala.collection.JavaConverters._
 
 
-
 object KinesisFirehose 
 {
     def apply(credentials : Credentials)(implicit region: Region) : KinesisFirehose  =
@@ -34,7 +33,7 @@ object KinesisFirehose
 trait KinesisFirehose extends aws.AmazonKinesisFirehoseAsyncClient
 {
     
-    def sendAsyncMessageToFirehose(payload : String, deliveryStream : String) : java.util.concurrent.Future[PutRecordResult] = 
+    def sendMessageToFirehoseAsync(payload : String, deliveryStream : String) : java.util.concurrent.Future[PutRecordResult] = 
     {
         val putRecordRequest = createRecordRequest(payload, deliveryStream)
         this.putRecordAsync(putRecordRequest)
@@ -49,7 +48,7 @@ trait KinesisFirehose extends aws.AmazonKinesisFirehoseAsyncClient
     def createRecordRequest(payload : String, deliveryStream : String) : PutRecordRequest =
     {
         val data = ByteBuffer.wrap(payload.getBytes(StandardCharsets.UTF_8))
-        val deliveryStreamRecord : Record = new Record().withData(data)
+        val deliveryStreamRecord = new Record().withData(data)
         new PutRecordRequest().withDeliveryStreamName(deliveryStream).withRecord(deliveryStreamRecord)
     }
 }
