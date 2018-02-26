@@ -1,11 +1,11 @@
 import xerial.sbt.Sonatype.autoImport._
 
-lazy val awsJavaSdkVersion = "1.11.272"
+lazy val awsJavaSdkVersion = "1.11.285"
 
 lazy val root = (project in file(".")).settings(
   organization := "com.github.seratch",
   name := "awscala",
-  version := "0.6.3-SNAPSHOT",
+  version := "0.6.3",
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.12.4", "2.11.12", "2.10.6"),
   publishMavenStyle := true,
@@ -21,7 +21,7 @@ lazy val root = (project in file(".")).settings(
     "com.amazonaws"    %  "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
     "com.amazonaws"    %  "aws-java-sdk-simpledb" % awsJavaSdkVersion,
     "joda-time"        %  "joda-time"             % "2.9.9",
-    "org.joda"         %  "joda-convert"          % "1.9.2",
+    "org.joda"         %  "joda-convert"          % "2.0",
     "com.github.seratch.com.veact" %% "scala-ssh" % "0.8.0-1" % "provided",
     "org.bouncycastle" %  "bcprov-jdk16"          % "1.46"             % "provided",
     "ch.qos.logback"   %  "logback-classic"       % "1.2.3"            % "test",
