@@ -13,11 +13,7 @@ import scala.concurrent.ExecutionContext
 
 
 object KinesisFirehose 
-{
-    // NOTE:: GM - Each PutRecordBatch request supports up to 500 records.
-    // Each record in the request can be as large as 1,000 KB (before 64-bit encoding), up to a limit of 4 MB for the entire request. These limits cannot be changed.
-    val PUT_RECORD_BATCH_LIMIT = 500
-    
+{    
     def apply(credentials : Credentials)(implicit region: Region) : KinesisFirehose  =
     {
         new KinesisFirehoseAsyncClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).withRegion(region)
