@@ -8,6 +8,8 @@ import com.amazonaws.services.kinesisfirehose.AmazonKinesisFirehoseAsyncClient
 import com.amazonaws.services.{ kinesisfirehose => aws }
 import awscala._
 import scala.collection.JavaConverters._
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 
 object KinesisFirehose 
@@ -35,22 +37,28 @@ object KinesisFirehose
 trait KinesisFirehose extends aws.AmazonKinesisFirehoseAsyncClient
 {
     
-    def sendBulkMessageToFirehoseAsync(payloads : Seq[String], deliveryStream : String) : java.util.concurrent.Future[PutRecordBatchResult] = 
+    def sendBulkMessagesToFirehoseAsync(payloads : Seq[String], deliveryStream : String)(implicit executor : ExecutionContext) : Future[PutRecordBatchResult] = 
     {
         val putRecordBatchRequest = createRecordBatchRequest(payloads, deliveryStream)
-        putRecordBatchAsync(putRecordBatchRequest)
+        val javaFuture = putRecordBatchAsync(putRecordBatchRequest)
+        Future {
+            javaFuture.get()
+        }
     }
     
-    def sendBulkMessageToFirehose(payloads : Seq[String], deliveryStream : String) : PutRecordBatchResult = 
+    def sendBulkMessagesToFirehose(payloads : Seq[String], deliveryStream : String) : PutRecordBatchResult = 
     {
         val putRecordBatchRequest = createRecordBatchRequest(payloads, deliveryStream)
         putRecordBatch(putRecordBatchRequest)
     }
     
-    def sendMessageToFirehoseAsync(payload : String, deliveryStream : String) : java.util.concurrent.Future[PutRecordResult] = 
+    def sendMessageToFirehoseAsync(payload : String, deliveryStream : String)(implicit executor : ExecutionContext) : Future[PutRecordResult] = 
     {
         val putRecordRequest = createRecordRequest(payload, deliveryStream)
-        putRecordAsync(putRecordRequest)
+        val javaFuture = putRecordAsync(putRecordRequest)
+        Future {
+            javaFuture.get()
+        }
     }
     
     def sendMessageToFirehose(payload : String, deliveryStream : String) : PutRecordResult =
