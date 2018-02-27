@@ -37,13 +37,19 @@ object KinesisFirehose
 trait KinesisFirehose extends aws.AmazonKinesisFirehoseAsyncClient
 {
     
+    def convertToScalaFuture[T](javaFuture : java.util.concurrent.Future[T])(implicit executor : ExecutionContext) : Future[T] =
+    {
+        Future 
+        {
+            javaFuture.get()
+        }
+    }
+    
     def sendBulkMessagesToFirehoseAsync(payloads : Seq[String], deliveryStream : String)(implicit executor : ExecutionContext) : Future[PutRecordBatchResult] = 
     {
         val putRecordBatchRequest = createRecordBatchRequest(payloads, deliveryStream)
         val javaFuture = putRecordBatchAsync(putRecordBatchRequest)
-        Future {
-            javaFuture.get()
-        }
+        convertToScalaFuture(javaFuture)
     }
     
     def sendBulkMessagesToFirehose(payloads : Seq[String], deliveryStream : String) : PutRecordBatchResult = 
@@ -56,9 +62,7 @@ trait KinesisFirehose extends aws.AmazonKinesisFirehoseAsyncClient
     {
         val putRecordRequest = createRecordRequest(payload, deliveryStream)
         val javaFuture = putRecordAsync(putRecordRequest)
-        Future {
-            javaFuture.get()
-        }
+        convertToScalaFuture(javaFuture)
     }
     
     def sendMessageToFirehose(payload : String, deliveryStream : String) : PutRecordResult =
