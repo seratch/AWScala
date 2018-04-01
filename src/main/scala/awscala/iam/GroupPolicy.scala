@@ -7,8 +7,7 @@ object GroupPolicy {
   def apply(group: Group, r: aws.model.GetGroupPolicyResult): GroupPolicy = GroupPolicy(
     group = group,
     name = r.getPolicyName,
-    document = r.getPolicyDocument
-  )
+    document = r.getPolicyDocument)
 }
 
 case class GroupPolicy(group: Group, name: String, document: String) {

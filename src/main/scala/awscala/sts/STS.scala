@@ -2,7 +2,7 @@ package awscala.sts
 
 import awscala._
 import com.amazonaws.services.{ securitytoken => aws }
-import com.amazonaws.util.json.JSONObject
+import com.amazonaws.util.json.Jackson
 import java.net._
 
 object STS {
@@ -26,8 +26,7 @@ trait STS extends aws.AWSSecurityTokenService {
       new aws.model.GetSessionTokenRequest()
         .withSerialNumber(serialNumber)
         .withTokenCode(tokenCode)
-        .withDurationSeconds(durationSeconds)
-    ).getCredentials))
+        .withDurationSeconds(durationSeconds)).getCredentials))
   }
 
   def federationToken(name: String, policy: Policy, durationSeconds: Int): FederationToken = {
@@ -38,8 +37,7 @@ trait STS extends aws.AWSSecurityTokenService {
 
     FederationToken(
       user = FederatedUser(result.getFederatedUser),
-      credentials = TemporaryCredentials(result.getCredentials)
-    )
+      credentials = TemporaryCredentials(result.getCredentials))
   }
 
   def decodeAuthorizationMessage(message: String): String = {
@@ -52,7 +50,7 @@ trait STS extends aws.AWSSecurityTokenService {
     val sessionJsonValue = s"""{"sessionId":"${credentials.accessKeyId}","sessionKey":"${credentials.secretAccessKey}","sessionToken":"${credentials.sessionToken}"}\n"""
     val url = SIGNIN_URL + "?Action=getSigninToken&SessionType=json&Session=" + java.net.URLEncoder.encode(sessionJsonValue, "UTF-8")
     val response = scala.io.Source.fromURL(new java.net.URL(url)).getLines.mkString("\n")
-    new JSONObject(response).getString("SigninToken")
+    Jackson.jsonNodeOf(response).get("SigninToken").asText()
   }
 
   def loginUrl(credentials: TemporaryCredentials, consoleUrl: String = "https://console.aws.amazon.com/iam", issuerUrl: String = ""): String = {

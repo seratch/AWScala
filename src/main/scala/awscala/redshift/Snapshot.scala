@@ -29,35 +29,33 @@ object Snapshot {
     vpcId = s.getVpcId,
     accountsWithRestoreAccess = s.getAccountsWithRestoreAccess.asScala.map(a => AccountWithRestoreAccess(a.getAccountId)).toSeq,
     clusterCreatedAt = new DateTime(s.getClusterCreateTime),
-    snapshotCreatedAt = new DateTime(s.getSnapshotCreateTime)
-  )
+    snapshotCreatedAt = new DateTime(s.getSnapshotCreateTime))
 }
 
 class Snapshot(
-    val snapshotIdentifier: String,
-    val clusterIdentifier: String,
-    val clusterVersion: ClusterVersion,
-    val dbName: String,
-    val port: Int,
-    val masterUsername: String,
-    val status: Status,
-    val availabilityZone: AvailabilityZone,
-    val snapshotType: SnapshotType,
-    val nodeType: NodeType,
-    val numOfNodes: Int,
-    val ownerAccount: String,
-    val encrypted: Boolean,
-    val elapsedTimeInSeconds: Long,
-    val estimatedSecondsToCompletion: Long,
-    val actualIncrementalBackupSizeInMegaBytes: Double,
-    val currentBackupRateInMegaBytesPerSecond: Double,
-    val backupProgressInMegaBytes: Double,
-    val totalBackupSizeInMegaBytes: Double,
-    val vpcId: String,
-    val accountsWithRestoreAccess: Seq[AccountWithRestoreAccess],
-    val clusterCreatedAt: DateTime,
-    val snapshotCreatedAt: DateTime
-) extends aws.model.Snapshot {
+  val snapshotIdentifier: String,
+  val clusterIdentifier: String,
+  val clusterVersion: ClusterVersion,
+  val dbName: String,
+  val port: Int,
+  val masterUsername: String,
+  val status: Status,
+  val availabilityZone: AvailabilityZone,
+  val snapshotType: SnapshotType,
+  val nodeType: NodeType,
+  val numOfNodes: Int,
+  val ownerAccount: String,
+  val encrypted: Boolean,
+  val elapsedTimeInSeconds: Long,
+  val estimatedSecondsToCompletion: Long,
+  val actualIncrementalBackupSizeInMegaBytes: Double,
+  val currentBackupRateInMegaBytesPerSecond: Double,
+  val backupProgressInMegaBytes: Double,
+  val totalBackupSizeInMegaBytes: Double,
+  val vpcId: String,
+  val accountsWithRestoreAccess: Seq[AccountWithRestoreAccess],
+  val clusterCreatedAt: DateTime,
+  val snapshotCreatedAt: DateTime) extends aws.model.Snapshot {
 
   setAccountsWithRestoreAccess(accountsWithRestoreAccess.map(_.asInstanceOf[aws.model.AccountWithRestoreAccess]).asJava)
   setActualIncrementalBackupSizeInMegaBytes(actualIncrementalBackupSizeInMegaBytes)

@@ -38,7 +38,7 @@ class EMRSpec extends FlatSpec with Matchers {
     val amiVersion = "latest"
     val loggingURI = "s3://path/"
     val visibleToAllUsers = true
-    //individual steps information      
+    //individual steps information
     val step1 = emr.jarStep("step1", "jarStep", "s3://path", "com.myclass", List("--key1", "value1", "--key2", "value2"))
     val step2 = emr.jarStep("step2", "jarStep", "s3://path", "com.myclass", List("--key1", "value1", "--key2", "value2"))
     val steps = List(step1, step2)
@@ -70,14 +70,14 @@ class EMRSpec extends FlatSpec with Matchers {
     //val jobFlowStepsRequest2 = emr.buildJobFlowStepsRequest(steps ,jobFlowId="j-XXXXXXXXXXX")
     val steps_test_list = jobFlowStepsRequest.getSteps()
     for (i <- 0 to steps_test_list.size() - 1) {
-      //test for steps configurtaion 
+      //test for steps configurtaion
       steps_test_list.get(i).getName() should equal(steps.get(i).stepName)
       steps_test_list.get(i).getHadoopJarStep().getArgs().toSeq should equal(steps.get(i).stepArgs)
       steps_test_list.get(i).getHadoopJarStep().getMainClass() should equal(steps.get(i).stepClass)
       steps_test_list.get(i).getHadoopJarStep().getJar() should equal(steps.get(i).stepPath)
     }
     val runJobFlowRequest = emr.buildRunRequest(jobName, amiVersion, loggingURI, visibleToAllUsers, jobFlowInstancesConfig, jobFlowStepsRequest)
-    //uncomment to add steps on the server.  
+    //uncomment to add steps on the server.
     val runJobFlowResult = emr.runJobFlow(runJobFlowRequest)
     job_flow_id = runJobFlowResult.getJobFlowId()
     Thread.sleep(10000)
@@ -103,7 +103,7 @@ class EMRSpec extends FlatSpec with Matchers {
     val amiVersion = "latest"
     val loggingURI = "s3://path to my logging bucket"
     val visibleToAllUsers = true
-    //individual steps information      
+    //individual steps information
     val step1 = emr.jarStep("step1", "jarStep", "s3://path", "com.myclass", List("--key1", "value1", "--key2", "value2"))
     val step2 = emr.jarStep("step2", "jarStep", "s3://path", "com.myclass", List("--key1", "value1", "--key2", "value2"))
     val steps = List(step1, step2)
@@ -148,7 +148,7 @@ class EMRSpec extends FlatSpec with Matchers {
     val amiVersion = "latest"
     val loggingURI = "s3://path/"
     val visibleToAllUsers = true
-    //individual steps information      
+    //individual steps information
     val step1 = emr.jarStep("step1", "jarStep", "s3://path", "com.myclass", List("--key1", "value1", "--key2", "value2"))
     val step2 = emr.jarStep("step2", "jarStep", "s3://path", "com.myclass", List("--key1", "value1", "--key2", "value2"))
     val steps = List(step1, step2)

@@ -10,12 +10,11 @@ object User {
     name = g.getUserName,
     arn = g.getArn,
     path = g.getPath,
-    createdAt = new DateTime(g.getCreateDate)
-  )
+    createdAt = new DateTime(g.getCreateDate))
 }
 
 case class User(id: String, name: String, arn: String, path: String, createdAt: DateTime)
-    extends aws.model.User(path, name, id, arn, createdAt.toDate) {
+  extends aws.model.User(path, name, id, arn, createdAt.toDate) {
 
   def updateName(name: String)(implicit iam: IAM) = iam.updateUserName(this, name)
   def updatePath(path: String)(implicit iam: IAM) = iam.updateUserPath(this, path)

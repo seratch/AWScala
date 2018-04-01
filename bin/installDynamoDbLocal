@@ -15,11 +15,12 @@ DYNAMO_DIR=DynamoDBLocal
 DEST=$PARENT/$DYNAMO_DIR
 
 mkdir -p $TMP_DIR
-wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest -O $TMP_FILE
+wget https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz -O $TMP_FILE
+
 cd $TMP_DIR
 if [ -d "$DEST/" ]; then 
-  echo "Replacing $DEST/"
-  rm -rf $DEST/
+  echo "Cleaning $DEST/"
+  rm -rf $DEST/*
 fi
 mkdir -p $DEST
 tar xzf $TMP_FILE && mv *.jar $DEST/ && mv DynamoDBLocal_lib/ $DEST/
