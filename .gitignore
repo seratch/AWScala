@@ -21,11 +21,13 @@ syntax: glob
 # eclipse conf file
 .settings
 .classpath
+.project
 .manager
 .scala_dependencies
 
 # idea
 .idea
+*.iml
 
 # building
 target
@@ -67,3 +69,4 @@ build.log
 .cache-tests
 *.log
 
+.ensime*

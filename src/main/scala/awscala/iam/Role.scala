@@ -11,12 +11,11 @@ object Role {
     arn = g.getArn,
     path = g.getPath,
     assumeRolePolicyDocument = g.getAssumeRolePolicyDocument,
-    createdAt = new DateTime(g.getCreateDate)
-  )
+    createdAt = new DateTime(g.getCreateDate))
 }
 
 case class Role(id: String, name: String, arn: String, path: String, assumeRolePolicyDocument: String, createdAt: DateTime)
-    extends aws.model.Role {
+  extends aws.model.Role {
 
   setArn(arn)
   setAssumeRolePolicyDocument(assumeRolePolicyDocument)

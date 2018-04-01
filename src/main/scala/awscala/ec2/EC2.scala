@@ -48,8 +48,7 @@ trait EC2 extends aws.AmazonEC2Async {
     keyPair: KeyPair,
     instanceType: InstanceType = InstanceType.T1_Micro,
     min: Int = 1,
-    max: Int = 1
-  ): Seq[Instance] = {
+    max: Int = 1): Seq[Instance] = {
 
     runAndAwait(new RunInstancesRequest(imageId, min, max).withKeyName(keyPair.name).withInstanceType(instanceType))
   }

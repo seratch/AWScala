@@ -17,8 +17,7 @@ class STSSpec extends FlatSpec with Matchers {
     val federation: FederationToken = sts.federationToken(
       name = "anonymous-user",
       policy = Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*"))))),
-      durationSeconds = 1200
-    )
+      durationSeconds = 1200)
 
     val signinToken: String = sts.signinToken(federation.credentials)
     log.info(s"SigninToken: ${signinToken}")
@@ -26,8 +25,7 @@ class STSSpec extends FlatSpec with Matchers {
     val loginUrl: String = sts.loginUrl(
       credentials = federation.credentials,
       consoleUrl = "https://console.aws.amazon.com/iam",
-      issuerUrl = "http://example.com/internal/auth"
-    )
+      issuerUrl = "http://example.com/internal/auth")
     log.info(s"LoginUrl: ${loginUrl}")
   }
 

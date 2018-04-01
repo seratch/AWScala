@@ -4,7 +4,7 @@ import scala.collection.JavaConverters._
 import com.amazonaws.services.{ ec2 => aws }
 
 case class RunInstancesRequest(imageId: String, min: Int = 1, max: Int = 1)
-    extends aws.model.RunInstancesRequest(imageId, min, max) {
+  extends aws.model.RunInstancesRequest(imageId, min, max) {
 
   // TODO set...
 }
@@ -26,8 +26,7 @@ case class SecurityGroup(
   ipPermissions: Seq[IpPermission],
   ipPermissionsEgress: Seq[IpPermission],
   ownerId: String, tags: Map[String, String],
-  vpcId: String
-) extends aws.model.SecurityGroup
+  vpcId: String) extends aws.model.SecurityGroup
 
 object SecurityGroup {
   def apply(k: aws.model.SecurityGroup): SecurityGroup =
@@ -39,8 +38,7 @@ object SecurityGroup {
       k.getIpPermissionsEgress.asScala.map(IpPermission(_)),
       k.getOwnerId,
       k.getTags.asScala.map(t => t.getKey -> t.getValue).toMap,
-      k.getVpcId
-    )
+      k.getVpcId)
 }
 
 object IpPermission {
@@ -50,8 +48,7 @@ object IpPermission {
       toPort = if (i.getToPort == null) -1 else i.getToPort,
       ipRanges = i.getIpRanges.asScala,
       ipProtocol = i.getIpProtocol,
-      userIdGroupPairs = i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_))
-    )
+      userIdGroupPairs = i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_)))
 
   }
 }
@@ -60,16 +57,14 @@ case class IpPermission(
   toPort: Int,
   ipRanges: Seq[String],
   ipProtocol: String,
-  userIdGroupPairs: Seq[UserIdGroupPair]
-) extends aws.model.IpPermission
+  userIdGroupPairs: Seq[UserIdGroupPair]) extends aws.model.IpPermission
 
 object UserIdGroupPair {
   def apply(u: aws.model.UserIdGroupPair): UserIdGroupPair = {
     UserIdGroupPair(
       groupId = u.getGroupId,
       groupName = u.getGroupName,
-      userId = u.getUserId
-    )
+      userId = u.getUserId)
   }
 }
 case class UserIdGroupPair(groupId: String, groupName: String, userId: String)

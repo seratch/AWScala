@@ -8,8 +8,7 @@ object Subnet {
   def apply(s: aws.model.Subnet): Subnet = new Subnet(
     identifier = s.getSubnetIdentifier,
     availabilityZone = AvailabilityZone(s.getSubnetAvailabilityZone.getName),
-    status = s.getSubnetStatus
-  )
+    status = s.getSubnetStatus)
 }
 
 case class Subnet(identifier: String, availabilityZone: AvailabilityZone, status: String) extends aws.model.Subnet {

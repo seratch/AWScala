@@ -8,12 +8,11 @@ object LoginProfile {
 
   def apply(user: User, g: aws.model.LoginProfile): LoginProfile = new LoginProfile(
     user = user,
-    createdAt = new DateTime(g.getCreateDate)
-  )
+    createdAt = new DateTime(g.getCreateDate))
 }
 
 case class LoginProfile(user: User, createdAt: DateTime)
-    extends aws.model.LoginProfile {
+  extends aws.model.LoginProfile {
 
   setUserName(user.name)
   setCreateDate(createdAt.toDate)

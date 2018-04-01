@@ -9,17 +9,15 @@ object RestoreStatus {
     elapsedTimeInSeconds = r.getElapsedTimeInSeconds,
     estimatedTimeToCompletionInSeconds = r.getEstimatedTimeToCompletionInSeconds,
     progressInMegaBytes = r.getProgressInMegaBytes,
-    snapshotSizeInMegaBytes = r.getSnapshotSizeInMegaBytes
-  ))
+    snapshotSizeInMegaBytes = r.getSnapshotSizeInMegaBytes))
 }
 case class RestoreStatus(
-    status: String,
-    currentRestoreRateInMegaBytesPerSecond: Double,
-    elapsedTimeInSeconds: Long,
-    estimatedTimeToCompletionInSeconds: Long,
-    progressInMegaBytes: Long,
-    snapshotSizeInMegaBytes: Long
-) extends aws.model.RestoreStatus {
+  status: String,
+  currentRestoreRateInMegaBytesPerSecond: Double,
+  elapsedTimeInSeconds: Long,
+  estimatedTimeToCompletionInSeconds: Long,
+  progressInMegaBytes: Long,
+  snapshotSizeInMegaBytes: Long) extends aws.model.RestoreStatus {
 
   setCurrentRestoreRateInMegaBytesPerSecond(currentRestoreRateInMegaBytesPerSecond)
   setElapsedTimeInSeconds(elapsedTimeInSeconds)

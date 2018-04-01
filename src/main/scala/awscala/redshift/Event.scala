@@ -9,16 +9,14 @@ object Event {
     sourceIdentifier = e.getSourceIdentifier,
     sourceType = aws.model.SourceType.fromValue(e.getSourceType),
     message = e.getMessage,
-    createdAt = new DateTime(e.getDate)
-  )
+    createdAt = new DateTime(e.getDate))
 }
 
 case class Event(
-    sourceIdentifier: String,
-    sourceType: aws.model.SourceType,
-    message: String,
-    createdAt: DateTime
-) extends aws.model.Event {
+  sourceIdentifier: String,
+  sourceType: aws.model.SourceType,
+  message: String,
+  createdAt: DateTime) extends aws.model.Event {
 
   setDate(createdAt.toDate)
   setMessage(message)
