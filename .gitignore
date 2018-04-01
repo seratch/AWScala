@@ -1,8 +1,6 @@
 .settings
 *.db
 .classpath
-.project
-*.iml
 *.ipr
 *.iws
 dist/
@@ -64,5 +62,11 @@ sbt-launch.jar
 logs
 
 awscala-unit-test-keypair-*
+
+build.log
+/.cache
+.cache-main
+.cache-tests
+*.log
 
 .ensime*

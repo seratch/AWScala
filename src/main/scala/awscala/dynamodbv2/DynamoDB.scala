@@ -155,6 +155,16 @@ trait DynamoDB extends aws.AmazonDynamoDB {
         } catch { case e: aws.model.ResourceNotFoundException => None }
     }
   }
+  
+  def getItemWithProjectionExpression(table: Table, hashPK: Any, projectionExpression : String): Option[Item] = try {
+    val attributes = getItem(new aws.model.GetItemRequest()
+      .withTableName(table.name)
+      .withKey(Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)).asJava)
+      .withProjectionExpression(projectionExpression)
+      .withConsistentRead(consistentRead)).getItem
+
+    Option(attributes).map(Item(table, _))
+  } catch { case e: aws.model.ResourceNotFoundException => None }
 
   def batchGet(tableAndAttributes: Map[Table, List[(String, Any)]]): Seq[Item] = {
     import com.amazonaws.services.dynamodbv2.model.{ BatchGetItemRequest, BatchGetItemResult }

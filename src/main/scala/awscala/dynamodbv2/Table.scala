@@ -26,7 +26,11 @@ case class Table(
     dynamoDB: DynamoDB): Option[Item] = {
     dynamoDB.get(this, hashPK, rangePK)
   }
-
+  
+  def getItemWithProjectionExpression(hashPK: Any, projectionExpression : String)(implicit dynamoDB: DynamoDB): Option[Item] = {
+    dynamoDB.getItemWithProjectionExpression(this, hashPK, projectionExpression : String)
+  }
+  
   def batchGet(attributes: List[(String, Any)])(implicit dynamoDB: DynamoDB): Seq[Item] = batchGetItems(attributes)
 
   def batchGetItems(attributes: List[(String, Any)])(implicit dynamoDB: DynamoDB): Seq[Item] = {
@@ -144,6 +148,19 @@ case class Table(
   def putAttributes(hashPK: Any, rangePK: Any, attributes: Seq[(String, Any)])(
     implicit
     dynamoDB: DynamoDB): Unit = {
+    dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
+  }
+  
+  def updateAttributes(hashPK: Any, attributes: Seq[(String, Any)])(
+    implicit
+    dynamoDB: DynamoDB
+  ): Unit = {
+    dynamoDB.updateAttributes(this, hashPK, None, aws.model.AttributeAction.PUT, attributes)
+  }
+  def updateAttributes(hashPK: Any, rangePK: Any, attributes: Seq[(String, Any)])(
+    implicit
+    dynamoDB: DynamoDB
+  ): Unit = {
     dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
   }
 
