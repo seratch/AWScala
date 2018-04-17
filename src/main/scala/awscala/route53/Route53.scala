@@ -29,7 +29,7 @@ object Route53
     val HOSTED_ZONE_PREFIX = "/hostedzone/"
     val EMPTY_STRING = ""
     
-    def getResourceRecordSetValues(m_client : AmazonRoute53ResourceRecordClientInterface, hostedZoneId : String, recordNameWithoutFormating : String)(implicit ec : ExecutionContext) : Future[Seq[String]] =
+    def getResourceRecordSetValues(m_client : AmazonRoute53ResourceRecordClientInterface, hostedZoneId : String, recordNameWithoutFormating : String)(implicit ec : ExecutionContext) : Future[Option[Seq[String]]] =
     {
         val recordName = recordSetNameFormatting(recordNameWithoutFormating)
         val resourcesRecordSetsFuture = getResourcesRecordSets(m_client, hostedZoneId, recordName)
@@ -44,12 +44,12 @@ object Route53
                     case Some(resourceRecordSet) if resourceRecordSet.getName == recordName =>
                     {
                         val resourceRecords = resourceRecordSet.getResourceRecords.asScala
-                        resourceRecords.map(_.getValue)
+                        Some(resourceRecords.map(_.getValue))
                     }
                     
                     case _ =>
                     {
-                        throw new Route53Exception(s"Can't found in Route53 Record name with name : $recordName  in hosted zone : $hostedZoneId resourceRecordSetOption : $resourceRecordSetOption")
+                        None
                     }
                 }
             }
@@ -89,42 +89,27 @@ object Route53
         request
     }
     
-    def getHostedZoneIDByAddress(m_client : AmazonRoute53ResourceRecordClientInterface, address : String)(implicit ec : ExecutionContext) : Future[String] =
+    def getHostedZoneIDByAddress(m_client : AmazonRoute53ResourceRecordClientInterface, address : String)(implicit ec : ExecutionContext) : Future[Option[String]] =
     {
-        val dnsNameTry = Try
+        Future
         {
-            InternetDomainName.from(address).topPrivateDomain.toString
-        }
+            val dnsName = InternetDomainName.from(address).topPrivateDomain.toString
+            val listHostedZonesByNameRequest = new ListHostedZonesByNameRequest().withDNSName(dnsName)
         
-        dnsNameTry match
-        {
-            case Success(dnsName) =>
-            {
-                val listHostedZonesByNameRequest = new ListHostedZonesByNameRequest().withDNSName(dnsName)
-
-                Future
-                {
-                    val listHostedZonesByNameResult = m_client.listHostedZonesByName(listHostedZonesByNameRequest)
-                    val hostedZoneOption = listHostedZonesByNameResult.getHostedZones.asScala.headOption
-                    
-                    hostedZoneOption match
-                    {
-                        case Some(hostedZone) if hostedZone.getName == recordSetNameFormatting(dnsName)  =>
-                        {
-                            hostedZone.getId.replace(HOSTED_ZONE_PREFIX, EMPTY_STRING)
-                        }
-                        
-                        case _ =>
-                        {
-                            throw new Route53Exception(s"Could not get hosted zone id for dns name: $dnsName, get hosted zone: $hostedZoneOption") 
-                        }
-                    }
-                }
-            }
+            val listHostedZonesByNameResult = m_client.listHostedZonesByName(listHostedZonesByNameRequest)
+            val hostedZoneOption = listHostedZonesByNameResult.getHostedZones.asScala.headOption
             
-            case Failure(cause) =>
+            hostedZoneOption match
             {
-                throw new Route53Exception(s"Could not get hosted zone id for address: $address cause: $cause") 
+                case Some(hostedZone) if hostedZone.getName == recordSetNameFormatting(dnsName)  =>
+                {
+                    Some(hostedZone.getId.replace(HOSTED_ZONE_PREFIX, EMPTY_STRING))
+                }
+                
+                case _ =>
+                {
+                    None
+                }
             }
         }
     }
