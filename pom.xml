@@ -106,6 +106,12 @@
 		    <artifactId>aws-java-sdk-kinesis</artifactId>
 		    <version>${awssdk.version}</version>
 		</dependency>
+		
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-route53</artifactId>
+            <version>${awssdk.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>joda-time</groupId>
@@ -140,6 +146,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>16.0.1</version>
+        </dependency>
+        
 	</dependencies>
 
 	<build>
