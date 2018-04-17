@@ -19,8 +19,6 @@ import com.google.common.net.InternetDomainName
 import com.amazonaws.services.route53.model.ListHostedZonesByNameResult
 import com.amazonaws.services.route53.model._
 
-class Route53Exception(message : String) extends Exception(message)
-
 object Route53
 {
     val TTL = 0L
@@ -58,10 +56,9 @@ object Route53
     
     private def getResourcesRecordSets(m_client : AmazonRoute53ResourceRecordClientInterface, hostedZoneId : String, recordName : String)(implicit ec : ExecutionContext) : Future[ListResourceRecordSetsResult] =
     {
-        val listResourceRecordSetsRequest = new ListResourceRecordSetsRequest().withHostedZoneId(hostedZoneId).withStartRecordName(recordName) 
-        
         Future
         {
+            val listResourceRecordSetsRequest = new ListResourceRecordSetsRequest().withHostedZoneId(hostedZoneId).withStartRecordName(recordName) 
             val listResourceRecordSetsResult = m_client.listResourceRecordSets(listResourceRecordSetsRequest)
             listResourceRecordSetsResult
         }
@@ -69,10 +66,9 @@ object Route53
     
     def changeResourceRecordSet(m_client : AmazonRoute53ResourceRecordClientInterface, hostedZoneId : String, recordName : String, newValue : String)(implicit ec : ExecutionContext) : Future[ChangeResourceRecordSetsResult] =
     {
-        val changeResourceRecordSetsRequest = createChangeResourceRecordSetRequest(hostedZoneId, recordName, newValue)
-        
         Future
         {
+            val changeResourceRecordSetsRequest = createChangeResourceRecordSetRequest(hostedZoneId, recordName, newValue)
             val changeResourceRecordSetsResult = m_client.changeResourceRecordSets(changeResourceRecordSetsRequest)
             changeResourceRecordSetsResult
         }
