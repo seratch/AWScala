@@ -2,15 +2,20 @@ package awscala.ec2
 
 import awscala._
 import scala.collection.JavaConverters._
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.services.{ ec2 => aws }
 import scala.annotation.tailrec
 
 object EC2 {
 
-  def apply(credentials: Credentials)(implicit region: Region): EC2 = new EC2Client(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): EC2 = apply(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): EC2 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
   def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): EC2 = new EC2Client(credentialsProvider).at(region)
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): EC2 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
-
+  
+  def apply(clientConfiguration: ClientConfiguration, credentials: Credentials)(implicit region: Region): EC2 = apply(clientConfiguration, BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+  def apply(clientConfiguration: ClientConfiguration, accessKeyId: String, secretAccessKey: String)(implicit region: Region): EC2 = apply(clientConfiguration, BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
+  def apply(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): EC2 = new ConfiguredEC2Client(clientConfiguration, credentialsProvider).at(region)
+  
   def at(region: Region): EC2 = apply()(region)
 }
 
@@ -163,4 +168,15 @@ trait EC2 extends aws.AmazonEC2Async {
  */
 class EC2Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonEC2AsyncClient(credentialsProvider)
+  with EC2
+
+
+/**
+ * Configured Implementation
+ *
+ * @param clientConfiguration ClientConfiguration
+ * @param credentialsProvider credentialsProvider
+ */
+class ConfiguredEC2Client(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonEC2AsyncClient(credentialsProvider, clientConfiguration)
   with EC2
