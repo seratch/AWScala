@@ -25,7 +25,9 @@ syntax: glob
 .scala_dependencies
 
 # idea
-.idea
+*.iml
+.idea/*
+!.idea/runConfigurations/
 
 # building
 target
