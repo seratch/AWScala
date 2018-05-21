@@ -1,6 +1,6 @@
 import xerial.sbt.Sonatype.autoImport._
 
-lazy val commonSettings = Seq(
+lazy val commonSettings = dynamoTestSettings ++ Seq(
   organization := "com.github.seratch",
   name := "awscala",
   version := "0.6.4-SNAPSHOT",
@@ -109,6 +109,15 @@ def awsProject(service: String) = {
     )
     .dependsOn(core)
 }
+
+lazy val dynamoTestSettings = Seq(
+  dynamoDBLocalDownloadDir := file(".dynamodb-local"),
+  dynamoDBLocalPort := 8000,
+  startDynamoDBLocal := startDynamoDBLocal.dependsOn(compile in Test).value,
+  test in Test := (test in Test).dependsOn(startDynamoDBLocal).value,
+  testOptions in Test += dynamoDBLocalTestCleanup.value,
+  parallelExecution in Test := false
+)
 
 def _publishTo(v: String) = {
   val nexus = "https://oss.sonatype.org/"

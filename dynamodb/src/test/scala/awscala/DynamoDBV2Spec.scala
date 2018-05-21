@@ -194,7 +194,10 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     val members: Table = dynamoDB.table(tableName).get
 
     members.put(1, "Japan", "Name" -> List(Map("bar" -> "brack")), "Age" -> 23, "Company" -> "Google")
-    members.get(1, "Japan").get.attributes.find(_.name == "Name").get.value.m.get.get(0).getM()
+    members.get(1, "Japan").get
+      .attributes.find(_.name == "Name").get
+      .value.m.get
+      .get(0).getM()
       .get("bar").getS() should equal("brack")
   }
 

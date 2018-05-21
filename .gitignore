@@ -1,3 +1,4 @@
+.dynamodb-local
 .settings
 *.db
 .classpath
