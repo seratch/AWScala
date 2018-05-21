@@ -79,127 +79,41 @@ lazy val core = project
     )
   )
 
-lazy val iam = project
-  .in(file("iam"))
-  .settings(commonSettings)
+lazy val ec2 = awsProject("ec2")
   .settings(
-    moduleName := "awscala-iam",
     libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-iam" % awsJavaSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test"
-    )
-  )
-  .dependsOn(core)
-
-lazy val dynamodb = project
-  .in(file("dynamodb"))
-  .settings(commonSettings)
-  .settings(
-    moduleName := "awscala-dynamodb",
-    libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-dynamodb" % awsJavaSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test"
-    )
-  )
-  .dependsOn(core)
-
-lazy val ec2 = project
-  .in(file("ec2"))
-  .settings(commonSettings)
-  .settings(
-    moduleName := "awscala-ec2",
-    libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-ec2" % awsJavaSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test",
       "com.github.seratch.com.veact" %% "scala-ssh" % "0.8.0-1" % "provided"
     )
   )
-  .dependsOn(core)
 
-lazy val emr = project
-  .in(file("emr"))
-  .settings(commonSettings)
-  .settings(
-    moduleName := "awscala-emr",
-    libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-emr" % awsJavaSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+lazy val iam = awsProject("iam")
+lazy val dynamodb = awsProject("dynamodb")
+lazy val emr = awsProject("emr")
+lazy val redshift = awsProject("redshift")
+lazy val s3 = awsProject("s3")
+lazy val simpledb = awsProject("simpledb")
+lazy val sqs = awsProject("sqs")
+lazy val sts = awsProject("sts")
+
+def awsProject(service: String) = {
+  Project
+    .apply(service, file(service))
+    .settings(commonSettings)
+    .settings(
+      moduleName := s"awscala-$service",
+      libraryDependencies ++= Seq(
+        "com.amazonaws" % s"aws-java-sdk-$service" % awsJavaSdkVersion,
+        "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
+        "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+      )
     )
-  )
-  .dependsOn(core)
-
-lazy val redshift = project
-  .in(file("redshift"))
-  .settings(commonSettings)
-  .settings(
-    moduleName := "awscala-redshift",
-    libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-redshift" % awsJavaSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test"
-    )
-  )
-  .dependsOn(core)
-
-lazy val s3 = project
-  .in(file("s3"))
-  .settings(commonSettings)
-  .settings(
-    moduleName := "awscala-s3",
-    libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-s3" % awsJavaSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test"
-    )
-  )
-  .dependsOn(core)
-
-lazy val simpledb = project
-  .in(file("simpledb"))
-  .settings(commonSettings)
-  .settings(
-    moduleName := "awscala-simpledb",
-    libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-simpledb" % awsJavaSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test"
-    )
-  )
-  .dependsOn(core)
-
-lazy val sqs = project
-  .in(file("sqs"))
-  .settings(commonSettings)
-  .settings(
-    moduleName := "awscala-sqs",
-    libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-sqs" % awsJavaSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test"
-    )
-  )
-  .dependsOn(core)
-
-lazy val sts = project
-  .in(file("sts"))
-  .settings(commonSettings)
-  .settings(
-    moduleName := "awscala-sts",
-    libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-sts" % awsJavaSdkVersion,
-      "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test"
-    )
-  )
-  .dependsOn(core)
-
+    .dependsOn(core)
+}
 
 def _publishTo(v: String) = {
   val nexus = "https://oss.sonatype.org/"
-  if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
-  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  if (v.trim.endsWith("SNAPSHOT"))
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
