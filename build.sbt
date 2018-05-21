@@ -2,7 +2,7 @@ import xerial.sbt.Sonatype.autoImport._
 
 lazy val awsJavaSdkVersion = "1.11.285"
 
-lazy val root = (project in file(".")).settings(
+lazy val root = (project in file(".")).settings(dynamoTestSettings).settings(
   organization := "com.github.seratch",
   name := "awscala",
   version := "0.6.4-SNAPSHOT",
@@ -70,6 +70,15 @@ lazy val root = (project in file(".")).settings(
     </developers>,
   organization := "com.github.seratch",
   sonatypeProfileName := "com.github.seratch"
+)
+
+lazy val dynamoTestSettings = Seq(
+  dynamoDBLocalDownloadDir := file(".dynamodb-local"),
+  dynamoDBLocalPort := 8000,
+  startDynamoDBLocal := startDynamoDBLocal.dependsOn(compile in Test).value,
+  test in Test := (test in Test).dependsOn(startDynamoDBLocal).value,
+  testOptions in Test += dynamoDBLocalTestCleanup.value,
+  parallelExecution in Test := false
 )
 
 def _publishTo(v: String) = {
