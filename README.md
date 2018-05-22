@@ -24,8 +24,26 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 
 ## How to use
 
+To pull in all modules:
+
 ```scala
 libraryDependencies += "com.github.seratch" %% "awscala" % "0.6.+"
+```
+
+To pull in only selected modules:
+
+```scala
+libraryDependencies ++= Seq(
+    "com.github.seratch" %% "awscala-ec2" % "0.6.+",
+    "com.github.seratch" %% "awscala-iam" % "0.6.+",
+    "com.github.seratch" %% "awscala-dynamodb" % "0.6.+",
+    "com.github.seratch" %% "awscala-emr" % "0.6.+",
+    "com.github.seratch" %% "awscala-redshift" % "0.6.+",
+    "com.github.seratch" %% "awscala-s3" % "0.6.+",
+    "com.github.seratch" %% "awscala-simpledb" % "0.6.+",
+    "com.github.seratch" %% "awscala-sqs" % "0.6.+",
+    "com.github.seratch" %% "awscala-sts" % "0.6.+"
+)
 ```
 
 Configure credentials in the AWS Java SDK way.
@@ -53,9 +71,9 @@ group.policyNames.foreach(name => group.policy(name).destroy())
 group.destroy()
 ```
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/iam/IAM.scala
+https://github.com/seratch/AWScala/blob/master/iam/src/main/scala/awscala/iam/IAM.scala
 
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/IAMSpec.scala
+https://github.com/seratch/awscala/blob/master/iam/src/test/scala/awscala/IAMSpec.scala
 
 ##### AWS Security Token Service (STS)
 
@@ -77,9 +95,9 @@ val loginUrl: String = sts.loginUrl(
   issuerUrl   = "http://example.com/internal/auth")
 ```
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sts/STS.scala
+https://github.com/seratch/awscala/blob/master/sts/src/main/scala/awscala/sts/STS.scala
 
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/STSSpec.scala
+https://github.com/seratch/awscala/blob/master/sts/src/test/scala/awscala/STSSpec.scala
 
 
 ### Amazon Elastic Compute Cloud (Amazon EC2)
@@ -113,9 +131,9 @@ for {
 }
 ```
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/ec2/EC2.scala
+https://github.com/seratch/awscala/blob/master/ec2/src/main/scala/awscala/ec2/EC2.scala
 
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/EC2Spec.scala
+https://github.com/seratch/awscala/blob/master/ec2/src/test/scala/awscala/EC2Spec.scala
 
 
 ### Amazon Simple Storage Service (Amazon S3)
@@ -140,9 +158,9 @@ s3obj.foreach { obj =>
 }
 ```
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/s3/S3.scala
+https://github.com/seratch/awscala/blob/master/s3/src/main/scala/awscala/s3/S3.scala
 
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/S3Spec.scala
+https://github.com/seratch/awscala/blob/master/s3/src/test/scala/awscala/S3Spec.scala
 
 ### Amazon Simple Queue Service（Amazon SQS）
 
@@ -161,9 +179,9 @@ queue.removeAll(messages)
 queue.destroy()
 ```
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/sqs/SQS.scala
+https://github.com/seratch/awscala/blob/master/sqs/src/main/scala/awscala/sqs/SQS.scala
 
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SQSSpec.scala
+https://github.com/seratch/awscala/blob/master/sqs/src/test/scala/awscala/SQSSpec.scala
 
 ### Amazon Redshift
 
@@ -180,7 +198,7 @@ val snapshot: Snapshot = redshift.createSnapshot(cluster, "snapshot-name")
 redshift.delete(cluster, "final-snapshot-name")
 ```
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/redshift/Redshift.scala
+https://github.com/seratch/awscala/blob/master/redshift/src/main/scala/awscala/redshift/Redshift.scala
 
 ### Amazon DynamoDB
 
@@ -212,9 +230,9 @@ val googlers: Seq[Item] = table.scan(Seq("Company" -> cond.eq("Google")))
 table.destroy()
 ```
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/dynamodbv2/DynamoDB.scala
+https://github.com/seratch/awscala/blob/master/dynamodb/src/main/scala/awscala/dynamodbv2/DynamoDB.scala
 
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/DynamoDBV2Spec.scala
+https://github.com/seratch/awscala/blob/master/dynamodb/src/test/scala/awscala/DynamoDBV2Spec.scala
 
 ### Amazon SimpleDB
 
@@ -234,17 +252,17 @@ val items: Seq[Item] = domain.select(s"select * from users where country = 'Amer
 simpleDB.domains.foreach(_.destroy())
 ```
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/simpledb/SimpleDB.scala
+https://github.com/seratch/awscala/blob/master/simpledb/src/main/scala/awscala/simpledb/SimpleDB.scala
 
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/SimpleDBSpec.scala
+https://github.com/seratch/awscala/blob/master/simpledb/src/test/scala/awscala/SimpleDBSpec.scala
 
 ### Amazon Elastic MapReduce (Amazon EMR)
 
 Created by @CruncherBigData. If you have any feedback or questions, please contact @CruncherBigData.
 
-https://github.com/seratch/awscala/blob/master/src/main/scala/awscala/emr/EMR.scala
+https://github.com/seratch/awscala/blob/master/emr/src/main/scala/awscala/emr/EMR.scala
 
-https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/EMRSpec.scala
+https://github.com/seratch/awscala/blob/master/emr/src/test/scala/awscala/EMRSpec.scala
 
 ## How to contribute
 
