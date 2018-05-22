@@ -1,6 +1,6 @@
 package awscala
 
-import awscala._, iam._
+import awscala.iam._
 
 import org.slf4j._
 import org.scalatest._
