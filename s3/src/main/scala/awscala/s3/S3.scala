@@ -214,6 +214,8 @@ trait S3 extends aws.AmazonS3 {
 
   def putAsPublicReadWrite(bucket: Bucket, key: String, file: File): PutObjectResult = putObjectAsPublicReadWrite(bucket, key, file)
 
+  def putAsBucketOwnerFullControl(bucket: Bucket, key: String, file: File): PutObjectResult = putObjectAsBucketOwnerFullControl(bucket, key, file)
+
   def putObject(bucket: Bucket, key: String, file: File): PutObjectResult = PutObjectResult(bucket, key, putObject(bucket.name, key, file))
 
   def putObjectAsPublicRead(bucket: Bucket, key: String, file: File): PutObjectResult = {
@@ -226,12 +228,19 @@ trait S3 extends aws.AmazonS3 {
       new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)))
   }
 
+  def putObjectAsBucketOwnerFullControl(bucket: Bucket, key: String, file: File): PutObjectResult = {
+    PutObjectResult(bucket, key, putObject(
+      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.BucketOwnerFullControl)))
+  }
+
   // putting a byte array
   def put(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObject(bucket, key, bytes, metadata)
 
   def putAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObjectAsPublicRead(bucket, key, bytes, metadata)
 
   def putAsPublicReadWrite(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObjectAsPublicReadWrite(bucket, key, bytes, metadata)
+
+  def putAsBucketOwnerFullControl(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObjectAsBucketOwnerFullControl(bucket, key, bytes, metadata)
 
   def putObject(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult =
     putObject(bucket, key, new ByteArrayInputStream(bytes), metadata)
@@ -242,6 +251,10 @@ trait S3 extends aws.AmazonS3 {
 
   def putObjectAsPublicReadWrite(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
     putObjectAsPublicReadWrite(bucket, key, new ByteArrayInputStream(bytes), metadata)
+  }
+
+  def putObjectAsBucketOwnerFullControl(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
+    putObjectAsBucketOwnerFullControl(bucket, key, new ByteArrayInputStream(bytes), metadata)
   }
 
   // putting an input stream
@@ -261,6 +274,13 @@ trait S3 extends aws.AmazonS3 {
       new aws.model.PutObjectRequest(bucket.name, key,
         inputStream,
         metadata).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)))
+  }
+
+  def putObjectAsBucketOwnerFullControl(bucket: Bucket, key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata): PutObjectResult = {
+    PutObjectResult(bucket, key, putObject(
+      new aws.model.PutObjectRequest(bucket.name, key,
+        inputStream,
+        metadata).withCannedAcl(aws.model.CannedAccessControlList.BucketOwnerFullControl)))
   }
 
   // copy
