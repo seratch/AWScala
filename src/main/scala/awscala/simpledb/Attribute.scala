@@ -9,14 +9,12 @@ object Attribute {
     name = a.getName,
     value = a.getValue,
     alternateNameEncoding = a.getAlternateNameEncoding,
-    alternateValueEncoding = a.getAlternateValueEncoding
-  )
+    alternateValueEncoding = a.getAlternateValueEncoding)
 }
 
 case class Attribute(
-  item: Item, name: String, value: String, alternateNameEncoding: String, alternateValueEncoding: String
-)
-    extends aws.model.Attribute {
+  item: Item, name: String, value: String, alternateNameEncoding: String, alternateValueEncoding: String)
+  extends aws.model.Attribute {
 
   setAlternateNameEncoding(alternateNameEncoding)
   setAlternateValueEncoding(alternateValueEncoding)

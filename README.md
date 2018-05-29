@@ -3,6 +3,7 @@ AWScala: AWS SDK on the Scala REPL
 
 [![Build Status](https://travis-ci.org/seratch/AWScala.svg)](https://travis-ci.org/seratch/AWScala)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.seratch/awscala_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.seratch/awscala_2.11)
+[![Javadocs](https://javadoc.io/badge/com.github.seratch/awscala_2.12.svg)](https://javadoc.io/doc/com.github.seratch/awscala_2.12)
 
 AWScala enables Scala developers to easily work with Amazon Web Services in the Scala way.
 
@@ -23,16 +24,8 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 
 ## How to use
 
-### Latest version
-
 ```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "0.5.+"
-```
-
-### AWS Java SDK 1.8.x compatible
-
-```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "0.3.+"
+libraryDependencies += "com.github.seratch" %% "awscala" % "0.6.+"
 ```
 
 Configure credentials in the AWS Java SDK way.
@@ -49,7 +42,6 @@ implicit val iam = IAM()
 
 val group = iam.createGroup("Developers")
 
-import awscala.auth.policy._
 group.putPolicy("policy-name", 
   Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*"))))))
 
@@ -131,7 +123,7 @@ https://github.com/seratch/awscala/blob/master/src/test/scala/awscala/EC2Spec.sc
 ```scala
 import awscala._, s3._
 
-implicit val s3 = S3()
+implicit val s3 = S3.at(Region.Tokyo)
 
 val buckets: Seq[Bucket] = s3.buckets
 val bucket: Bucket = s3.createBucket("unique-name-xxx")
@@ -215,7 +207,7 @@ table.put(1, "Japan", "Name" -> "Alice", "Age" -> 23, "Company" -> "Google")
 table.put(2, "U.S.",  "Name" -> "Bob",   "Age" -> 36, "Company" -> "Google")
 table.put(3, "Japan", "Name" -> "Chris", "Age" -> 29, "Company" -> "Amazon")
 
-val googlers: Seq[Item] = table.scan(Seq("Company" -> cond.gt("Google")))
+val googlers: Seq[Item] = table.scan(Seq("Company" -> cond.eq("Google")))
 
 table.destroy()
 ```
@@ -276,7 +268,7 @@ To run the tests, just type `sbt test`.
 
 ## License
 
-Copyright 2013 - 2014 AWScala Developers
+Copyright 2013 - AWScala Developers
 
 Apache License, Version 2.0
 

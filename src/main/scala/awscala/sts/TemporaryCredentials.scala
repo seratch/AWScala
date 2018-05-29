@@ -9,16 +9,14 @@ object TemporaryCredentials {
     accessKeyId = c.getAccessKeyId,
     secretAccessKey = c.getSecretAccessKey,
     sessionToken = c.getSessionToken,
-    expiration = new DateTime(c.getExpiration)
-  )
+    expiration = new DateTime(c.getExpiration))
 }
 
 case class TemporaryCredentials(
-    accessKeyId: String,
-    secretAccessKey: String,
-    sessionToken: String,
-    expiration: DateTime
-) extends aws.model.Credentials {
+  accessKeyId: String,
+  secretAccessKey: String,
+  sessionToken: String,
+  expiration: DateTime) extends aws.model.Credentials {
 
   setAccessKeyId(accessKeyId)
   setExpiration(expiration.toDate)

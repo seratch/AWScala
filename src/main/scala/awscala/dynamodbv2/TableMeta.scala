@@ -16,21 +16,19 @@ object TableMeta {
       indexes.asScala.map(i => LocalSecondaryIndexMeta(i)).toSeq
     }.getOrElse(Nil),
     provisionedThroughput = ProvisionedThroughputMeta(t.getProvisionedThroughput),
-    createdAt = new DateTime(t.getCreationDateTime)
-  )
+    createdAt = new DateTime(t.getCreationDateTime))
 }
 
 case class TableMeta(
-    name: String,
-    sizeBytes: Long,
-    itemCount: Long,
-    status: TableStatus,
-    attributes: Seq[AttributeDefinition],
-    keySchema: Seq[KeySchema],
-    localSecondaryIndexes: Seq[LocalSecondaryIndexMeta],
-    provisionedThroughput: ProvisionedThroughputMeta,
-    createdAt: DateTime
-) extends aws.model.TableDescription {
+  name: String,
+  sizeBytes: Long,
+  itemCount: Long,
+  status: TableStatus,
+  attributes: Seq[AttributeDefinition],
+  keySchema: Seq[KeySchema],
+  localSecondaryIndexes: Seq[LocalSecondaryIndexMeta],
+  provisionedThroughput: ProvisionedThroughputMeta,
+  createdAt: DateTime) extends aws.model.TableDescription {
 
   def table: Table = Table(
     name = name,
@@ -38,8 +36,7 @@ case class TableMeta(
     rangePK = keySchema.find(_.keyType == aws.model.KeyType.RANGE).map(_.attributeName),
     attributes = attributes,
     localSecondaryIndexes = localSecondaryIndexes.map(e => LocalSecondaryIndex(e)),
-    provisionedThroughput = Some(ProvisionedThroughput(provisionedThroughput))
-  )
+    provisionedThroughput = Some(ProvisionedThroughput(provisionedThroughput)))
 
   setAttributeDefinitions(attributes.map(_.asInstanceOf[aws.model.AttributeDefinition]).asJava)
   setCreationDateTime(createdAt.toDate)
@@ -58,16 +55,14 @@ object LocalSecondaryIndexMeta {
     sizeBytes = i.getIndexSizeBytes,
     itemCount = i.getItemCount,
     keySchema = i.getKeySchema.asScala.map(k => KeySchema(k)).toSeq,
-    projection = Projection(i.getProjection)
-  )
+    projection = Projection(i.getProjection))
 }
 case class LocalSecondaryIndexMeta(
-    name: String,
-    sizeBytes: Long,
-    itemCount: Long,
-    keySchema: Seq[KeySchema],
-    projection: Projection
-) extends aws.model.LocalSecondaryIndexDescription {
+  name: String,
+  sizeBytes: Long,
+  itemCount: Long,
+  keySchema: Seq[KeySchema],
+  projection: Projection) extends aws.model.LocalSecondaryIndexDescription {
 
   setIndexName(name)
   setIndexSizeBytes(sizeBytes)
@@ -82,16 +77,14 @@ object ProvisionedThroughputMeta {
     readCapacityUnits = p.getReadCapacityUnits,
     writeCapacityUnits = p.getWriteCapacityUnits,
     lastDecreasedAt = new DateTime(p.getLastDecreaseDateTime),
-    lastIncreasedAt = new DateTime(p.getLastIncreaseDateTime)
-  )
+    lastIncreasedAt = new DateTime(p.getLastIncreaseDateTime))
 }
 case class ProvisionedThroughputMeta(
-    numberOfDecreasesToday: Long,
-    readCapacityUnits: Long,
-    writeCapacityUnits: Long,
-    lastDecreasedAt: DateTime,
-    lastIncreasedAt: DateTime
-) extends aws.model.ProvisionedThroughputDescription {
+  numberOfDecreasesToday: Long,
+  readCapacityUnits: Long,
+  writeCapacityUnits: Long,
+  lastDecreasedAt: DateTime,
+  lastIncreasedAt: DateTime) extends aws.model.ProvisionedThroughputDescription {
 
   setLastDecreaseDateTime(lastDecreasedAt.toDate)
   setLastIncreaseDateTime(lastIncreasedAt.toDate)

@@ -118,8 +118,7 @@ trait Redshift extends aws.AmazonRedshift {
     marker: String = null,
     maxRecords: Int = -1,
     ownerAccount: String = null,
-    snapshotType: SnapshotType = null
-  ): Option[Snapshot] = {
+    snapshotType: SnapshotType = null): Option[Snapshot] = {
 
     val req = new aws.model.DescribeClusterSnapshotsRequest()
       .withSnapshotIdentifier(snapshotIdentifier)
@@ -221,8 +220,7 @@ trait Redshift extends aws.AmazonRedshift {
       createClusterParameterGroup(new aws.model.CreateClusterParameterGroupRequest()
         .withParameterGroupName(name)
         .withParameterGroupFamily(family)
-        .withDescription(description))
-    )
+        .withDescription(description)))
   }
 
   def delete(group: ClusterParameterGroup): Unit = deleteClusterParameterGroup(group)
@@ -263,8 +261,7 @@ trait Redshift extends aws.AmazonRedshift {
     ClusterSecurityGroup(
       createClusterSecurityGroup(new aws.model.CreateClusterSecurityGroupRequest()
         .withClusterSecurityGroupName(name)
-        .withDescription(description))
-    )
+        .withDescription(description)))
   }
 
   def delete(group: ClusterSecurityGroup): Unit = deleteClusterSecurityGroup(group)
@@ -298,8 +295,7 @@ trait Redshift extends aws.AmazonRedshift {
       new aws.model.CreateClusterSubnetGroupRequest()
         .withClusterSubnetGroupName(name)
         .withDescription(description)
-        .withSubnetIds(subnetIds.asJava)
-    ))
+        .withSubnetIds(subnetIds.asJava)))
   }
 
   def delete(group: ClusterSubnetGroup): Unit = deleteSubnetGroup(group)

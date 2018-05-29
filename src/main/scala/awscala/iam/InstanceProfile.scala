@@ -12,12 +12,11 @@ object InstanceProfile {
     arn = g.getArn,
     path = g.getPath,
     roles = g.getRoles.asScala.map(r => Role(r)),
-    createdAt = new DateTime(g.getCreateDate)
-  )
+    createdAt = new DateTime(g.getCreateDate))
 }
 
 case class InstanceProfile(id: String, name: String, arn: String, path: String, roles: Seq[Role], createdAt: DateTime)
-    extends aws.model.InstanceProfile {
+  extends aws.model.InstanceProfile {
 
   setArn(arn)
   setCreateDate(createdAt.toDate)

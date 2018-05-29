@@ -2,14 +2,19 @@ package awscala.dynamodbv2
 
 import awscala._
 import scala.collection.JavaConverters._
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.services.{ dynamodbv2 => aws }
 import com.amazonaws.services.dynamodbv2.model.KeysAndAttributes
 
 object DynamoDB {
 
-  def apply(credentials: Credentials)(implicit region: Region): DynamoDB = new DynamoDBClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): DynamoDB = apply(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
   def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): DynamoDB = new DynamoDBClient(credentialsProvider).at(region)
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = new DynamoDBClient(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
+
+  def apply(clientConfiguration: ClientConfiguration, credentials: Credentials)(implicit region: Region): DynamoDB = apply(clientConfiguration, BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+  def apply(clientConfiguration: ClientConfiguration, accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = apply(clientConfiguration, BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
+  def apply(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider)(implicit region: Region): DynamoDB = new ConfiguredDynamoDBClient(clientConfiguration, credentialsProvider).at(region)
 
   def at(region: Region): DynamoDB = apply()(region)
 
@@ -50,18 +55,21 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     Option(TableMeta(describeTable(new aws.model.DescribeTableRequest().withTableName(tableName)).getTable))
   } catch { case e: aws.model.ResourceNotFoundException => None }
 
+  /**
+   * Gets the table by name if it exists.
+   * This is an expensive operation since it queries the table schema each time it is called.
+   * @see [[http://docs.aws.amazon.com/cli/latest/reference/dynamodb/describe-table.html]]
+   */
   def table(name: String): Option[Table] = describe(name).map(_.table)
 
   def createTable(
     name: String,
-    hashPK: (String, aws.model.ScalarAttributeType)
-  ): TableMeta = {
+    hashPK: (String, aws.model.ScalarAttributeType)): TableMeta = {
     create(Table(
       name = name,
       hashPK = hashPK._1,
       rangePK = None,
-      attributes = Seq(AttributeDefinition(hashPK._1, hashPK._2))
-    ))
+      attributes = Seq(AttributeDefinition(hashPK._1, hashPK._2))))
   }
 
   def createTable(
@@ -69,18 +77,15 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     hashPK: (String, aws.model.ScalarAttributeType),
     rangePK: (String, aws.model.ScalarAttributeType),
     otherAttributes: Seq[(String, aws.model.ScalarAttributeType)],
-    indexes: Seq[LocalSecondaryIndex]
-  ): TableMeta = {
+    indexes: Seq[LocalSecondaryIndex]): TableMeta = {
     create(Table(
       name = name,
       hashPK = hashPK._1,
       rangePK = Some(rangePK._1),
       attributes = Seq(
         AttributeDefinition(hashPK._1, hashPK._2),
-        AttributeDefinition(rangePK._1, rangePK._2)
-      ) ++: otherAttributes.map(a => AttributeDefinition(a._1, a._2)),
-      localSecondaryIndexes = indexes
-    ))
+        AttributeDefinition(rangePK._1, rangePK._2)) ++: otherAttributes.map(a => AttributeDefinition(a._1, a._2)),
+      localSecondaryIndexes = indexes))
   }
 
   def create(table: Table): TableMeta = createTable(table)
@@ -88,8 +93,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   def createTable(table: Table): TableMeta = {
     val keySchema: Seq[aws.model.KeySchemaElement] = Seq(
       Some(KeySchema(table.hashPK, aws.model.KeyType.HASH)),
-      table.rangePK.map(n => KeySchema(n, aws.model.KeyType.RANGE))
-    ).flatten.map(_.asInstanceOf[aws.model.KeySchemaElement])
+      table.rangePK.map(n => KeySchema(n, aws.model.KeyType.RANGE))).flatten.map(_.asInstanceOf[aws.model.KeySchemaElement])
 
     val req = new aws.model.CreateTableRequest()
       .withTableName(table.name)
@@ -98,8 +102,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withProvisionedThroughput(
         table.provisionedThroughput.map(_.asInstanceOf[aws.model.ProvisionedThroughput]).getOrElse {
           ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10)
-        }
-      )
+        })
 
     if (!table.localSecondaryIndexes.isEmpty) {
       req.setLocalSecondaryIndexes(table.localSecondaryIndexes.map(_.asInstanceOf[aws.model.LocalSecondaryIndex]).asJava)
@@ -113,8 +116,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
   def updateTableProvisionedThroughput(table: Table, provisionedThroughput: ProvisionedThroughput): TableMeta = {
     TableMeta(updateTable(
-      new aws.model.UpdateTableRequest(table.name, provisionedThroughput)
-    ).getTableDescription)
+      new aws.model.UpdateTableRequest(table.name, provisionedThroughput)).getTableDescription)
   }
 
   def delete(table: Table): Unit = deleteTable(table)
@@ -146,8 +148,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
             .withTableName(table.name)
             .withKey(Map(
               table.hashPK -> AttributeValue.toJavaValue(hashPK),
-              table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
-            ).asJava)
+              table.rangePK.get -> AttributeValue.toJavaValue(rangePK)).asJava)
             .withConsistentRead(consistentRead)).getItem
 
           Option(attributes).map(Item(table, _))
@@ -198,9 +199,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
         case (table, attributes) =>
           table.name -> new KeysAndAttributes().withKeys(
             attributes.map {
-            case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
-          }.asJava
-          )
+              case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
+            }.asJava)
       }.asJava
 
     toStream(State(Nil, toJava(tableAndAttributes)))
@@ -259,8 +259,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   }
 
   private[dynamodbv2] def updateAttributes(
-    table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]
-  ): Unit = {
+    table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]): Unit = {
 
     val tableKeys = Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)) ++ rangePK.flatMap(rKey => table.rangePK.map(_ -> AttributeValue.toJavaValue(rKey)))
 
@@ -283,8 +282,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withTableName(table.name)
       .withKey(Map(
         table.hashPK -> AttributeValue.toJavaValue(hashPK),
-        table.rangePK.get -> AttributeValue.toJavaValue(rangePK)
-      ).asJava))
+        table.rangePK.get -> AttributeValue.toJavaValue(rangePK)).asJava))
   }
 
   def queryWithIndex(
@@ -294,8 +292,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
-  ): Seq[Item] = try {
+    consistentRead: Boolean = false,
+    limit: Int = 1000,
+    pageStatsCallback: (PageStats => Unit) = null): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
       .withTableName(table.name)
@@ -304,11 +303,14 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withSelect(select)
       .withScanIndexForward(scanIndexForward)
       .withConsistentRead(consistentRead)
-    if (!attributesToGet.isEmpty) {
+      .withLimit(limit)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
+    if (attributesToGet.nonEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    query(req).getItems.asScala.map(i => Item(table, i)).toSeq
+    val pager = new QueryResultPager(table, query, req, pageStatsCallback)
+    pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
   def query(
@@ -317,8 +319,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     scanIndexForward: Boolean = true,
-    consistentRead: Boolean = false
-  ): Seq[Item] = try {
+    consistentRead: Boolean = false,
+    limit: Int = 1000,
+    pageStatsCallback: (PageStats => Unit) = null): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
       .withTableName(table.name)
@@ -326,11 +329,14 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withSelect(select)
       .withScanIndexForward(scanIndexForward)
       .withConsistentRead(consistentRead)
-    if (!attributesToGet.isEmpty) {
+      .withLimit(limit)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
+    if (attributesToGet.nonEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    query(req).getItems.asScala.map(i => Item(table, i)).toSeq
+    val pager = new QueryResultPager(table, query, req, pageStatsCallback)
+    pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
 
   def scan(
@@ -340,8 +346,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     segment: Int = 0,
     totalSegments: Int = 1,
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
-    attributesToGet: Seq[String] = Nil
-  ): Seq[Item] = try {
+    attributesToGet: Seq[String] = Nil,
+    consistentRead: Boolean = false,
+    pageStatsCallback: (PageStats => Unit) = null): Seq[Item] = try {
 
     val req = new aws.model.ScanRequest()
       .withTableName(table.name)
@@ -350,13 +357,15 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withLimit(limit)
       .withSegment(segment)
       .withTotalSegments(totalSegments)
-    if (!attributesToGet.isEmpty) {
+      .withConsistentRead(consistentRead)
+      .withReturnConsumedCapacity(aws.model.ReturnConsumedCapacity.TOTAL)
+    if (attributesToGet.nonEmpty) {
       req.setAttributesToGet(attributesToGet.asJava)
     }
 
-    scan(req).getItems.asScala.map(i => Item(table, i)).toSeq
+    val pager = new ScanResultPager(table, scan, req, pageStatsCallback)
+    pager.toSeq // will return a Stream[Item]
   } catch { case e: aws.model.ResourceNotFoundException => Nil }
-
 }
 
 /**
@@ -368,3 +377,12 @@ class DynamoDBClient(credentialsProvider: CredentialsProvider = CredentialsLoade
   extends aws.AmazonDynamoDBClient(credentialsProvider)
   with DynamoDB
 
+/**
+ * Configured Implementation
+ *
+ * @param clientConfiguration clientConfiguration
+ * @param credentialsProvider credentialsProvider
+ */
+class ConfiguredDynamoDBClient(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonDynamoDBClient(credentialsProvider, clientConfiguration)
+  with DynamoDB

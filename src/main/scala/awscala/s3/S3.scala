@@ -3,6 +3,7 @@ package awscala.s3
 import java.io.{ ByteArrayInputStream, File, InputStream }
 
 import awscala._
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.services.{ s3 => aws }
 
 import scala.annotation.tailrec
@@ -10,11 +11,17 @@ import scala.collection.JavaConverters._
 
 object S3 {
 
-  def apply(credentials: Credentials)(implicit region: Region): S3 = new S3Client(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
+  def apply(credentials: Credentials)(implicit region: Region): S3 = apply(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+
+  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
 
   def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): S3 = new S3Client(credentialsProvider).at(region)
 
-  def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
+  def apply(clientConfiguration: ClientConfiguration, credentials: Credentials)(implicit region: Region): S3 = apply(clientConfiguration, BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
+
+  def apply(clientConfiguration: ClientConfiguration, accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(clientConfiguration, BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
+
+  def apply(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider)(implicit region: Region): S3 = new ConfiguredS3Client(clientConfiguration, credentialsProvider).at(region)
 
   def at(region: Region): S3 = apply()(region)
 }
@@ -211,14 +218,12 @@ trait S3 extends aws.AmazonS3 {
 
   def putObjectAsPublicRead(bucket: Bucket, key: String, file: File): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
-      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)
-    ))
+      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)))
   }
 
   def putObjectAsPublicReadWrite(bucket: Bucket, key: String, file: File): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
-      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)
-    ))
+      new aws.model.PutObjectRequest(bucket.name, key, file).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)))
   }
 
   // putting a byte array
@@ -226,20 +231,36 @@ trait S3 extends aws.AmazonS3 {
 
   def putAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObjectAsPublicRead(bucket, key, bytes, metadata)
 
+  def putAsPublicReadWrite(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = putObjectAsPublicReadWrite(bucket, key, bytes, metadata)
+
   def putObject(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult =
     putObject(bucket, key, new ByteArrayInputStream(bytes), metadata)
 
+  def putObjectAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
+    putObjectAsPublicRead(bucket, key, new ByteArrayInputStream(bytes), metadata)
+  }
+
+  def putObjectAsPublicReadWrite(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
+    putObjectAsPublicReadWrite(bucket, key, new ByteArrayInputStream(bytes), metadata)
+  }
+
+  // putting an input stream
   def putObject(bucket: Bucket, key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata): PutObjectResult =
     PutObjectResult(bucket, key, putObject(
-      new aws.model.PutObjectRequest(bucket.name, key, inputStream, metadata)
-    ))
+      new aws.model.PutObjectRequest(bucket.name, key, inputStream, metadata)))
 
-  def putObjectAsPublicRead(bucket: Bucket, key: String, bytes: Array[Byte], metadata: aws.model.ObjectMetadata): PutObjectResult = {
+  def putObjectAsPublicRead(bucket: Bucket, key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata): PutObjectResult = {
     PutObjectResult(bucket, key, putObject(
       new aws.model.PutObjectRequest(bucket.name, key,
-        new ByteArrayInputStream(bytes),
-        metadata).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)
-    ))
+        inputStream,
+        metadata).withCannedAcl(aws.model.CannedAccessControlList.PublicRead)))
+  }
+
+  def putObjectAsPublicReadWrite(bucket: Bucket, key: String, inputStream: InputStream, metadata: aws.model.ObjectMetadata): PutObjectResult = {
+    PutObjectResult(bucket, key, putObject(
+      new aws.model.PutObjectRequest(bucket.name, key,
+        inputStream,
+        metadata).withCannedAcl(aws.model.CannedAccessControlList.PublicReadWrite)))
   }
 
   // copy
@@ -262,15 +283,22 @@ trait S3 extends aws.AmazonS3 {
   }
 
   def deleteObjects(objs: Seq[S3Object]): Unit = {
-    objs.groupBy(_.bucket) map {
-      x =>
-        x._2.headOption.map {
-          obj =>
-            val req = new aws.model.DeleteObjectsRequest(obj.bucket.name)
-            req.setKeys(x._2.map(obj => new aws.model.DeleteObjectsRequest.KeyVersion(obj.key, obj.versionId)).asJava)
+    objs
+      .groupBy(_.bucket)
+      .foreach {
+        case (bucket, s3objects) =>
+
+          // Batch deletion is limited to 1000 elements per job
+          val keyVersions = s3objects.map(obj => new aws.model.DeleteObjectsRequest.KeyVersion(obj.key, obj.versionId))
+
+          keyVersions.grouped(1000).foreach { kvs =>
+
+            val req = new aws.model.DeleteObjectsRequest(bucket.name)
+            req.setKeys(kvs.asJava)
             deleteObjects(req)
-        }
-    }
+          }
+
+      }
   }
 
   // presignedUrl
@@ -286,9 +314,21 @@ trait S3 extends aws.AmazonS3 {
  * @param credentialsProvider credentialsProvider
  */
 class S3Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
-    extends aws.AmazonS3Client(credentialsProvider)
-    with S3 {
+  extends aws.AmazonS3Client(credentialsProvider)
+  with S3 {
 
   override def createBucket(name: String): Bucket = super.createBucket(name)
 }
 
+/**
+ * Configured Implementation
+ *
+ * @param clientConfiguration ClientConfiguration
+ * @param credentialsProvider CredentialsProvider
+ */
+class ConfiguredS3Client(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  extends aws.AmazonS3Client(credentialsProvider, clientConfiguration)
+  with S3 {
+
+  override def createBucket(name: String): Bucket = super.createBucket(name)
+}

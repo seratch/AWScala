@@ -74,8 +74,7 @@ trait SimpleDB extends aws.AmazonSimpleDB {
 
   def attributes(item: Item): Seq[Attribute] = {
     getAttributes(
-      new aws.model.GetAttributesRequest().withDomainName(item.domain.name).withItemName(item.name)
-    )
+      new aws.model.GetAttributesRequest().withDomainName(item.domain.name).withItemName(item.name))
       .getAttributes.asScala.map(as => Attribute(item, as)).toSeq
   }
 
