@@ -112,9 +112,9 @@ class StepFunctionsSpec extends FlatSpec with Matchers {
           Seq(steps.runActivity(succeedActivity.name)(identity), steps.runActivity(succeedActivity.name)(identity))
         },
         Duration(30, TimeUnit.SECONDS))
-      assert(exec.getStepStatus("Succeed Step") === Succeeded)
-      assert(exec.getStepStatus("Succeed Step Again") === Succeeded)
-      assert(exec.getStepStatus("Fail Step") === NotStarted)
+      assert(exec.stepStatus("Succeed Step") === Succeeded)
+      assert(exec.stepStatus("Succeed Step Again") === Succeeded)
+      assert(exec.stepStatus("Fail Step") === NotStarted)
       val details = exec.details
       assert(details.status === Succeeded)
       assert(details.output === Some(details.input))
@@ -126,14 +126,14 @@ class StepFunctionsSpec extends FlatSpec with Matchers {
           steps.runActivity(failActivity.name)(_ => throw new IllegalArgumentException()),
           Duration(30, TimeUnit.SECONDS))
       }
-      assert(exec2.getStepStatus("Fail Step") === Failed)
-      assert(exec2.getStepStatus("Succeed Step") === NotStarted)
+      assert(exec2.stepStatus("Fail Step") === Failed)
+      assert(exec2.stepStatus("Succeed Step") === NotStarted)
 
       val exec3 = machine.startExecution("""{"type":"PARALLEL"}""")
       Await.result(steps.runActivity(parallelActivity.name)(identity), Duration(30, TimeUnit.SECONDS))
-      assert(exec3.getStepStatus("Inner Parallel") === Succeeded)
-      assert(exec3.getStepStatus("Fail Step") === NotStarted)
-      assert(exec3.getStepStatus("Succeed Step") === NotStarted)
+      assert(exec3.stepStatus("Inner Parallel") === Succeeded)
+      assert(exec3.stepStatus("Fail Step") === NotStarted)
+      assert(exec3.stepStatus("Succeed Step") === NotStarted)
 
       assert(steps.stateMachines.contains(machine))
       assert(steps.stateMachine(machine.name) === Some(machine))

@@ -11,7 +11,7 @@ import com.amazonaws.services.stepfunctions.model.{ DescribeExecutionRequest, Ge
 import scala.annotation.tailrec
 
 case class Execution(arn: String, startTime: DateTime) {
-  def name: String = ArnFormat.parseArn(arn, TypedResourceArn)
+  val name: String = ArnFormat.parseArn(arn, TypedResourceArn)
 
   def details()(implicit steps: StepFunctions): ExecutionDetails = {
     val details = steps.describeExecution(new DescribeExecutionRequest().withExecutionArn(arn))
@@ -24,7 +24,7 @@ case class Execution(arn: String, startTime: DateTime) {
       Option(details.getOutput))
   }
 
-  def getStepStatus(name: String)(implicit steps: StepFunctions): ExecutionStatus = {
+  def stepStatus(name: String)(implicit steps: StepFunctions): ExecutionStatus = {
     val hist = history()
     def getById(id: Long): Option[ExecutionEvent] = hist.find(_.id == id)
     @tailrec

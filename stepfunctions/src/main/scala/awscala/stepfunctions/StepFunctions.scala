@@ -13,7 +13,7 @@ import scala.concurrent.{ blocking, ExecutionContext, Future }
 import scala.util.Try
 
 object StepFunctions {
-  private val defaultSocketTimeout = TimeUnit.SECONDS.toMillis(70).toInt
+  private val DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(70).toInt
 
   def apply(credentials: Credentials)(implicit region: Region): StepFunctions =
     apply(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
@@ -24,7 +24,7 @@ object StepFunctions {
   def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(
     implicit
     region: Region = Region.default()): StepFunctions =
-    new StepFunctionsClient(new ClientConfiguration().withSocketTimeout(defaultSocketTimeout), credentialsProvider)
+    new StepFunctionsClient(new ClientConfiguration().withSocketTimeout(DEFAULT_SOCKET_TIMEOUT), credentialsProvider)
       .at(region)
 
   def apply(clientConfiguration: ClientConfiguration, credentials: Credentials)(
@@ -41,7 +41,9 @@ object StepFunctions {
   def apply(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider)(
     implicit
     region: Region): StepFunctions =
-    new StepFunctionsClient(clientConfiguration.withSocketTimeout(defaultSocketTimeout), credentialsProvider).at(region)
+    new StepFunctionsClient(
+      clientConfiguration.withSocketTimeout(DEFAULT_SOCKET_TIMEOUT),
+      credentialsProvider).at(region)
 
   def at(region: Region): StepFunctions = apply()(region)
 }
