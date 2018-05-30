@@ -10,7 +10,7 @@ import com.amazonaws.services.{ stepfunctions => aws }
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ blocking, ExecutionContext, Future }
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 
 object StepFunctions {
   private val DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(70).toInt
@@ -112,18 +112,20 @@ trait StepFunctions extends aws.AWSStepFunctions {
         .map {
           case (token, input) =>
             val result = Try(fn(input))
-            result.fold(
-              err =>
+            result match {
+              case Failure(err) =>
                 sendTaskFailure(
                   new SendTaskFailureRequest()
                     .withTaskToken(token)
                     .withCause(Option(err.getCause).map(_.getMessage).orNull)
-                    .withError(err.getMessage)),
-              output => sendTaskSuccess(new SendTaskSuccessRequest().withTaskToken(token).withOutput(output)))
-            result.get
+                    .withError(err.getMessage))
+                throw err
+              case Success(output) =>
+                sendTaskSuccess(new SendTaskSuccessRequest().withTaskToken(token).withOutput(output))
+                output
+            }
         }
     }
-
 }
 
 class StepFunctionsClient(
