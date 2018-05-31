@@ -274,7 +274,7 @@ val exec = machine.startExecution("machine input")
 
 steps.runActivity(activity.name) { input => s"Received input $input" }
 
-exec.getStepStatus("Some Step")
+exec.stepStatus("Some Step")
 val history: Seq[ExecutionEvent] = exec.history()
 val status = exec.status()
 
