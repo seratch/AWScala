@@ -61,8 +61,8 @@ lazy val all = (project in file("."))
   .settings(
     moduleName := "awscala"
   )
-  .aggregate(core, dynamodb, ec2, emr, iam, redshift, s3, simpledb, sqs, sts)
-  .dependsOn(core, dynamodb, ec2, emr, iam, redshift, s3, simpledb, sqs, sts)
+  .aggregate(core, dynamodb, ec2, emr, iam, redshift, s3, simpledb, sqs, sts, stepfunctions)
+  .dependsOn(core, dynamodb, ec2, emr, iam, redshift, s3, simpledb, sqs, sts, stepfunctions)
 
 lazy val core = project
   .in(file("core"))
@@ -94,6 +94,7 @@ lazy val s3 = awsProject("s3")
 lazy val simpledb = awsProject("simpledb")
 lazy val sqs = awsProject("sqs")
 lazy val sts = awsProject("sts")
+lazy val stepfunctions = awsProject("stepfunctions").dependsOn(iam % "test")
 
 def awsProject(service: String) = {
   Project

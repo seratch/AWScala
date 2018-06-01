@@ -21,6 +21,7 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 - Amazon Redshift
 - Amazon DynamoDB
 - Amazon SimpleDB
+- AWS Step Functions
 
 ## How to use
 
@@ -42,7 +43,8 @@ libraryDependencies ++= Seq(
     "com.github.seratch" %% "awscala-s3" % "0.7.+",
     "com.github.seratch" %% "awscala-simpledb" % "0.7.+",
     "com.github.seratch" %% "awscala-sqs" % "0.7.+",
-    "com.github.seratch" %% "awscala-sts" % "0.7.+"
+    "com.github.seratch" %% "awscala-sts" % "0.7.+",
+    "com.github.seratch" %% "awscala-stepfunctions" % "0.7.+"
 )
 ```
 
@@ -255,6 +257,34 @@ simpleDB.domains.foreach(_.destroy())
 https://github.com/seratch/awscala/blob/master/simpledb/src/main/scala/awscala/simpledb/SimpleDB.scala
 
 https://github.com/seratch/awscala/blob/master/simpledb/src/test/scala/awscala/SimpleDBSpec.scala
+
+### AWS Step Functions
+
+```scala
+import awscala._, stepfunctions._
+
+implicit val steps = StepFunctions.at(Region.Tokyo)
+
+val machineDefinition = "{ ... state machine definition ... }"
+val role = Role(...)
+
+val machine = steps.createStateMachine("myMachine", machineDefinition, role)
+val activity = steps.createActivity("MyActivity")
+val exec = machine.startExecution("machine input")
+
+steps.runActivity(activity.name) { input => s"Received input $input" }
+
+exec.stepStatus("Some Step")
+val history: Seq[ExecutionEvent] = exec.history()
+val status = exec.status()
+
+machine.delete()
+activity.delete()
+```
+
+https://github.com/seratch/awscala/blob/master/stepfunctions/src/main/scala/awscala/stepfunctions/StepFunctions.scala
+
+https://github.com/seratch/awscala/blob/master/stepfunctions/src/test/scala/awscala/StepFunctionsSpec.scala
 
 ### Amazon Elastic MapReduce (Amazon EMR)
 
