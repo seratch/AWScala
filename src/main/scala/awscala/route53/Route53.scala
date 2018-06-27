@@ -90,7 +90,7 @@ object Route53
         Future
         {
             val dnsName = address.split(DNS_NAME_DELIM).tail.mkString(DNS_NAME_DELIM.toString)
-            val listHostedZonesByNameRequest = new ListHostedZonesByNameRequest().withDNSName(address)
+            val listHostedZonesByNameRequest = new ListHostedZonesByNameRequest().withDNSName(dnsName)
         
             val listHostedZonesByNameResult = m_client.listHostedZonesByName(listHostedZonesByNameRequest)
             val hostedZoneOption = listHostedZonesByNameResult.getHostedZones.asScala.headOption
