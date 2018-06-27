@@ -15,7 +15,6 @@ import com.amazonaws.services.route53.AmazonRoute53ClientBuilder
 import java.net.URI
 import scala.util.Failure
 import java.net.URL
-import com.google.common.net.InternetDomainName
 import com.amazonaws.services.route53.model.ListHostedZonesByNameResult
 import com.amazonaws.services.route53.model._
 
@@ -23,6 +22,7 @@ object Route53
 {
     val TTL = 0L
     val UPSERT_CHANGE_ACTION_STRING = ChangeAction.UPSERT.toString
+    val DNS_NAME_DELIM = '.'
     val IPV4_RESOURCE_RECORD_TYPE = "A"
     val HOSTED_ZONE_PREFIX = "/hostedzone/"
     val EMPTY_STRING = ""
@@ -89,8 +89,8 @@ object Route53
     {
         Future
         {
-            val dnsName = InternetDomainName.from(address).topPrivateDomain.toString
-            val listHostedZonesByNameRequest = new ListHostedZonesByNameRequest().withDNSName(dnsName)
+            val dnsName = address.split(DNS_NAME_DELIM).tail.mkString(DNS_NAME_DELIM.toString)
+            val listHostedZonesByNameRequest = new ListHostedZonesByNameRequest().withDNSName(address)
         
             val listHostedZonesByNameResult = m_client.listHostedZonesByName(listHostedZonesByNameRequest)
             val hostedZoneOption = listHostedZonesByNameResult.getHostedZones.asScala.headOption
