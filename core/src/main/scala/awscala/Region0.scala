@@ -30,7 +30,10 @@ object Region0 {
   val CN_NORTH_1 = apply(awsregions.Regions.CN_NORTH_1)
   val Beijing = CN_NORTH_1
 
-  val CN_NORTHWEST_1 = apply(awsregions.Regions.CN_NORTHWEST_1)
+  // Use string literal to avoid NoSuchFieldError on older AWS SDK versions.
+  // Region introduced in AWS SDK for Java 1.11.247:
+  // https://github.com/aws/aws-sdk-java/commit/440577a61505f8b0d831106745f8584c007b9cd6
+  val CN_NORTHWEST_1 = apply("cn-northwest-1")
   val Ningxia = CN_NORTHWEST_1
 
   val EU_CENTRAL_1 = apply(awsregions.Regions.EU_CENTRAL_1)
@@ -45,7 +48,10 @@ object Region0 {
   val EU_WEST_2 = apply(awsregions.Regions.EU_WEST_2)
   val London = EU_WEST_2
 
-  val EU_WEST_3 = apply(awsregions.Regions.EU_WEST_3)
+  // Use string literal to avoid NoSuchFieldError on older AWS SDK versions.
+  // Introduced in AWS SDK for Java 1.11.251:
+  // https://github.com/aws/aws-sdk-java/commit/39ebf439b8e4050684cbfca1811c84b3ac5f2468
+  val EU_WEST_3 = apply("eu-west-3")
   val Paris = EU_WEST_3
 
   val GovCloud = apply(awsregions.Regions.GovCloud)
@@ -84,5 +90,6 @@ object Region0 {
     Ohio,
     NorthernCalifornia,
     Oregon)
+    .filter(_ != null) // Remove null regions in case of older AWS SDK version.
 
 }
