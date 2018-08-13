@@ -3,7 +3,7 @@ import xerial.sbt.Sonatype.autoImport._
 lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
-  version := "0.7.2",
+  version := "0.7.3-SNAPSHOT",
   scalaVersion := "2.12.6",
   crossScalaVersions := Seq("2.12.6", "2.11.12", "2.10.7"),
   resolvers += "spray repo" at "http://repo.spray.io",
