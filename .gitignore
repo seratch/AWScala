@@ -25,7 +25,6 @@ syntax: glob
 .scala_dependencies
 
 # idea
-*.iml
 .idea/*
 !.idea/runConfigurations/
 
