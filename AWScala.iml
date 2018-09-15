@@ -11,6 +11,15 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.9.9" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.scalatest:scalatest_2.11:2.2.6" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.scala-lang:scala-reflect:2.11.7" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-can_2.11:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-io_2.11:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-http_2.11:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-util_2.11:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-client_2.11:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-httpx_2.11:1.3.4" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.11.8" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-iam:1.11.285" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-core:1.11.285" level="project" />
@@ -38,7 +47,7 @@
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-sns:1.11.285" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-kinesis:1.11.285" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-route53:1.11.285" level="project" />
-    <orderEntry type="library" name="Maven: joda-time:joda-time:2.9.9" level="project" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.9.2" level="project" />
     <orderEntry type="library" name="Maven: org.joda:joda-convert:1.8.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.decodified:scala-ssh_2.11:0.7.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.schmizz:sshj:0.10.0" level="project" />
@@ -52,22 +61,32 @@
     <orderEntry type="library" name="Maven: com.typesafe.akka:akka-actor_2.11:2.4.19" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe:config:1.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-java8-compat_2.11:0.7.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.scalatest:scalatest_2.11:2.2.6" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.scala-lang:scala-reflect:2.11.7" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.typesafe.akka:akka-http-testkit_2.11:10.0.10" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.typesafe.akka:akka-stream-testkit_2.11:2.4.19" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.akka:akka-stream_2.11:2.4.19" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe:ssl-config-core_2.11:0.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.scalatest:scalatest_2.11:2.2.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.scala-lang:scala-reflect:2.11.2" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.11:1.0.2" level="project" />
-    <orderEntry type="library" name="Maven: io.spray:spray-can_2.11:1.3.4" level="project" />
-    <orderEntry type="library" name="Maven: io.spray:spray-io_2.11:1.3.4" level="project" />
-    <orderEntry type="library" name="Maven: io.spray:spray-http_2.11:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-can_2.11:1.3.3" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-io_2.11:1.3.3" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-http_2.11:1.3.3" level="project" />
     <orderEntry type="library" name="Maven: org.parboiled:parboiled-scala_2.11:1.1.7" level="project" />
     <orderEntry type="library" name="Maven: org.parboiled:parboiled-core:1.1.7" level="project" />
-    <orderEntry type="library" name="Maven: io.spray:spray-util_2.11:1.3.4" level="project" />
-    <orderEntry type="library" name="Maven: io.spray:spray-client_2.11:1.3.4" level="project" />
-    <orderEntry type="library" name="Maven: io.spray:spray-httpx_2.11:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-util_2.11:1.3.3" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-client_2.11:1.3.3" level="project" />
+    <orderEntry type="library" name="Maven: io.spray:spray-httpx_2.11:1.3.3" level="project" />
     <orderEntry type="library" name="Maven: org.jvnet.mimepull:mimepull:1.9.5" level="project" />
     <orderEntry type="library" name="Maven: io.spray:spray-json_2.11:1.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.wandoulabs.akka:spray-websocket_2.11:0.1.5-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: io.spray:spray-routing-shapeless2_2.11:1.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.chuusai:shapeless_2.11:2.1.0" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe.akka:akka-slf4j_2.11:2.4.0" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.akka:akka-http_2.11:10.0.9" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.akka:akka-http-core_2.11:10.0.9" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.akka:akka-parsing_2.11:10.0.9" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.akka:akka-http-spray-json_2.11:10.0.9" level="project" />
   </component>
 </module>
