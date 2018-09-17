@@ -3,12 +3,12 @@ package awscala.sqs
 import awscala._
 import scala.collection.JavaConverters._
 import com.amazonaws.services.{ sqs => aws }
-import com.amazonaws.auth.AWSSessionCredentials
+import com.amazonaws.auth.{ AWSCredentialsProvider, AWSSessionCredentials }
 
 object SQS {
 
   def apply(credentials: Credentials)(implicit region: Region): SQS = new SQSClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
-  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): SQS = new SQSClient(credentialsProvider).at(region)
+  def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): SQS = new SQSClient(credentialsProvider).at(region)
   def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): SQS = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
   def at(region: Region): SQS = apply()(region)
@@ -137,7 +137,7 @@ class SQSClientWithQueue(sqs: SQS, queue: Queue) {
  *
  * @param credentialsProvider credentialsProvider
  */
-class SQSClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+class SQSClient(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonSQSClient(credentialsProvider)
   with SQS
 

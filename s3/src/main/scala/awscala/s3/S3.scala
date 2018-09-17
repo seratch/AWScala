@@ -4,6 +4,7 @@ import java.io.{ ByteArrayInputStream, File, InputStream }
 
 import awscala._
 import com.amazonaws.ClientConfiguration
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ s3 => aws }
 
 import scala.annotation.tailrec
@@ -15,13 +16,13 @@ object S3 {
 
   def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
 
-  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): S3 = new S3Client(credentialsProvider).at(region)
+  def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): S3 = new S3Client(credentialsProvider).at(region)
 
   def apply(clientConfiguration: ClientConfiguration, credentials: Credentials)(implicit region: Region): S3 = apply(clientConfiguration, BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
 
   def apply(clientConfiguration: ClientConfiguration, accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(clientConfiguration, BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
 
-  def apply(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider)(implicit region: Region): S3 = new ConfiguredS3Client(clientConfiguration, credentialsProvider).at(region)
+  def apply(clientConfiguration: ClientConfiguration, credentialsProvider: AWSCredentialsProvider)(implicit region: Region): S3 = new ConfiguredS3Client(clientConfiguration, credentialsProvider).at(region)
 
   def at(region: Region): S3 = apply()(region)
 }
@@ -333,7 +334,7 @@ trait S3 extends aws.AmazonS3 {
  *
  * @param credentialsProvider credentialsProvider
  */
-class S3Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+class S3Client(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonS3Client(credentialsProvider)
   with S3 {
 
@@ -346,7 +347,7 @@ class S3Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load
  * @param clientConfiguration ClientConfiguration
  * @param credentialsProvider CredentialsProvider
  */
-class ConfiguredS3Client(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+class ConfiguredS3Client(clientConfiguration: ClientConfiguration, credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonS3Client(credentialsProvider, clientConfiguration)
   with S3 {
 

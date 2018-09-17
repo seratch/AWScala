@@ -5,12 +5,13 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.language.postfixOps
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ elasticmapreduce => aws }
 import aws.model._
 
 object EMR {
   def apply(credentials: Credentials)(implicit region: Region): EMR = new EMRClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
-  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): EMR = new EMRClient(credentialsProvider).at(region)
+  def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): EMR = new EMRClient(credentialsProvider).at(region)
   def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): EMR = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
   def at(region: Region): EMR = apply()(region)
 }
@@ -270,4 +271,4 @@ trait EMR extends aws.AmazonElasticMapReduce {
 
 }
 
-class EMRClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load()) extends aws.AmazonElasticMapReduceClient(credentialsProvider) with EMR
+class EMRClient(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load()) extends aws.AmazonElasticMapReduceClient(credentialsProvider) with EMR

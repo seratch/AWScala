@@ -2,13 +2,14 @@ package awscala.simpledb
 
 import awscala._
 import scala.collection.JavaConverters._
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ simpledb => aws }
 import com.amazonaws.services.simpledb.model.ListDomainsRequest
 
 object SimpleDB {
 
   def apply(credentials: Credentials)(implicit region: Region): SimpleDB = new SimpleDBClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
-  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): SimpleDB = new SimpleDBClient(credentialsProvider).at(region)
+  def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): SimpleDB = new SimpleDBClient(credentialsProvider).at(region)
   def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): SimpleDB = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
   def at(region: Region): SimpleDB = apply()(region)
@@ -121,7 +122,7 @@ trait SimpleDB extends aws.AmazonSimpleDB {
  *
  * @param credentialsProvider credentialsProvider
  */
-class SimpleDBClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+class SimpleDBClient(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonSimpleDBClient(credentialsProvider)
   with SimpleDB
 

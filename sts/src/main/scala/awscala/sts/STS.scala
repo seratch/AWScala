@@ -1,13 +1,14 @@
 package awscala.sts
 
 import awscala._
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ securitytoken => aws }
 import com.amazonaws.util.json.Jackson
 import java.net._
 
 object STS {
   def apply(credentials: Credentials)(implicit region: Region): STS = new STSClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))
-  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load()): STS = new STSClient(credentialsProvider)
+  def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load()): STS = new STSClient(credentialsProvider)
   def apply(accessKeyId: String, secretAccessKey: String): STS = {
     new STSClient(BasicCredentialsProvider(accessKeyId, secretAccessKey))
   }
@@ -75,6 +76,6 @@ trait STS extends aws.AWSSecurityTokenService {
  *
  * @param credentialsProvider credentialsProvider
  */
-class STSClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+class STSClient(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())
   extends aws.AWSSecurityTokenServiceClient(credentialsProvider)
   with STS

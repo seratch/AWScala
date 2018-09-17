@@ -2,13 +2,14 @@ package awscala.ec2
 
 import awscala._
 import scala.collection.JavaConverters._
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ ec2 => aws }
 import scala.annotation.tailrec
 
 object EC2 {
 
   def apply(credentials: Credentials)(implicit region: Region): EC2 = new EC2Client(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
-  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): EC2 = new EC2Client(credentialsProvider).at(region)
+  def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): EC2 = new EC2Client(credentialsProvider).at(region)
   def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): EC2 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
   def at(region: Region): EC2 = apply()(region)
@@ -161,6 +162,6 @@ trait EC2 extends aws.AmazonEC2Async {
  *
  * @param credentialsProvider credentialsProvider
  */
-class EC2Client(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+class EC2Client(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonEC2AsyncClient(credentialsProvider)
   with EC2

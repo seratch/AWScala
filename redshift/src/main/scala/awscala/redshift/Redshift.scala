@@ -2,13 +2,14 @@ package awscala.redshift
 
 import awscala._
 import scala.collection.JavaConverters._
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ redshift => aws }
 
 object Redshift {
 
   def apply(credentials: Credentials)(implicit region: Region): Redshift = new RedshiftClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
 
-  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): Redshift = new RedshiftClient(credentialsProvider).at(region)
+  def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): Redshift = new RedshiftClient(credentialsProvider).at(region)
 
   def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): Redshift = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey)).at(region)
 
@@ -311,7 +312,7 @@ trait Redshift extends aws.AmazonRedshift {
  *
  * @param credentialsProvider credentialsProvider
  */
-class RedshiftClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+class RedshiftClient(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonRedshiftClient(credentialsProvider)
   with Redshift
 
