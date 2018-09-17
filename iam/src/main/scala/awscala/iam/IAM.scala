@@ -2,11 +2,12 @@ package awscala.iam
 
 import awscala._
 import scala.collection.JavaConverters._
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ identitymanagement => aws }
 
 object IAM {
   def apply(credentials: Credentials): IAM = new IAMClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))
-  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load()): IAM = new IAMClient(credentialsProvider)
+  def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load()): IAM = new IAMClient(credentialsProvider)
   def apply(accessKeyId: String, secretAccessKey: String): IAM = {
     new IAMClient(BasicCredentialsProvider(accessKeyId, secretAccessKey))
   }
@@ -324,6 +325,6 @@ trait IAM extends aws.AmazonIdentityManagement {
  *
  * @param credentialsProvider credentialsProvider
  */
-class IAMClient(credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+class IAMClient(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())
   extends aws.AmazonIdentityManagementClient(credentialsProvider)
   with IAM

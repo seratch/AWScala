@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit
 
 import awscala._
 import com.amazonaws.ClientConfiguration
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.stepfunctions.model._
 import com.amazonaws.services.{ stepfunctions => aws }
 
@@ -21,7 +22,7 @@ object StepFunctions {
   def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): StepFunctions =
     apply(BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
 
-  def apply(credentialsProvider: CredentialsProvider = CredentialsLoader.load())(
+  def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())(
     implicit
     region: Region = Region.default()): StepFunctions =
     new StepFunctionsClient(new ClientConfiguration().withSocketTimeout(DEFAULT_SOCKET_TIMEOUT), credentialsProvider)
@@ -38,7 +39,7 @@ object StepFunctions {
     region: Region): StepFunctions =
     apply(clientConfiguration, BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
 
-  def apply(clientConfiguration: ClientConfiguration, credentialsProvider: CredentialsProvider)(
+  def apply(clientConfiguration: ClientConfiguration, credentialsProvider: AWSCredentialsProvider)(
     implicit
     region: Region): StepFunctions =
     new StepFunctionsClient(
@@ -130,6 +131,6 @@ trait StepFunctions extends aws.AWSStepFunctions {
 
 class StepFunctionsClient(
   clientConfiguration: ClientConfiguration,
-  credentialsProvider: CredentialsProvider = CredentialsLoader.load())
+  credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())
   extends aws.AWSStepFunctionsClient(credentialsProvider, clientConfiguration)
   with StepFunctions
