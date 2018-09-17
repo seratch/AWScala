@@ -27,23 +27,23 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 To pull in all modules:
 
 ```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "0.7.+"
+libraryDependencies += "com.github.seratch" %% "awscala" % "0.8.+"
 ```
 
 To pull in only selected modules:
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.seratch" %% "awscala-ec2" % "0.7.+",
-    "com.github.seratch" %% "awscala-iam" % "0.7.+",
-    "com.github.seratch" %% "awscala-dynamodb" % "0.7.+",
-    "com.github.seratch" %% "awscala-emr" % "0.7.+",
-    "com.github.seratch" %% "awscala-redshift" % "0.7.+",
-    "com.github.seratch" %% "awscala-s3" % "0.7.+",
-    "com.github.seratch" %% "awscala-simpledb" % "0.7.+",
-    "com.github.seratch" %% "awscala-sqs" % "0.7.+",
-    "com.github.seratch" %% "awscala-sts" % "0.7.+",
-    "com.github.seratch" %% "awscala-stepfunctions" % "0.7.+"
+    "com.github.seratch" %% "awscala-ec2" % "0.8.+",
+    "com.github.seratch" %% "awscala-iam" % "0.8.+",
+    "com.github.seratch" %% "awscala-dynamodb" % "0.8.+",
+    "com.github.seratch" %% "awscala-emr" % "0.8.+",
+    "com.github.seratch" %% "awscala-redshift" % "0.8.+",
+    "com.github.seratch" %% "awscala-s3" % "0.8.+",
+    "com.github.seratch" %% "awscala-simpledb" % "0.8.+",
+    "com.github.seratch" %% "awscala-sqs" % "0.8.+",
+    "com.github.seratch" %% "awscala-sts" % "0.8.+",
+    "com.github.seratch" %% "awscala-stepfunctions" % "0.8.+"
 )
 ```
 
