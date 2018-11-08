@@ -3,9 +3,9 @@ import xerial.sbt.Sonatype.autoImport._
 lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
-  version := "0.8.1-SNAPSHOT",
-  scalaVersion := "2.12.6",
-  crossScalaVersions := Seq("2.12.6", "2.11.12", "2.10.7"),
+  version := "0.8.1",
+  scalaVersion := "2.12.7",
+  crossScalaVersions := Seq("2.12.7", "2.11.12", "2.10.7"),
   resolvers += "spray repo" at "http://repo.spray.io",
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
@@ -54,7 +54,7 @@ lazy val commonSettings = Seq(
   sonatypeProfileName := "com.github.seratch"
 )
 
-lazy val awsJavaSdkVersion = "1.11.409"
+lazy val awsJavaSdkVersion = "1.11.445"
 
 lazy val all = (project in file("."))
   .settings(commonSettings)
@@ -71,8 +71,8 @@ lazy val core = project
     moduleName := "awscala-core",
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-java-sdk-core" % awsJavaSdkVersion,
-      "joda-time" % "joda-time" % "2.10",
-      "org.joda" % "joda-convert" % "2.1.1",
+      "joda-time" % "joda-time" % "2.10.1",
+      "org.joda" % "joda-convert" % "2.1.2",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
       "org.scalatest" %% "scalatest" % "3.0.5" % "test"
