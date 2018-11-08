@@ -80,20 +80,20 @@ trait SQS extends aws.AmazonSQS {
     receiveMessage(req).getMessages.asScala.map(msg => Message(queue, msg)).toSeq
   }
 
-  def delete(message: Message) = deleteMessage(message)
-  def deleteMessage(message: Message, requestCredentials: Option[AWSSessionCredentials] = None): Unit = {
+  def delete(message: Message): aws.model.DeleteMessageResult = deleteMessage(message)
+  def deleteMessage(message: Message, requestCredentials: Option[AWSSessionCredentials] = None): aws.model.DeleteMessageResult = {
     val request = new aws.model.DeleteMessageRequest(message.queue.url, message.receiptHandle)
     requestCredentials.foreach(c => request.setRequestCredentials(c))
     deleteMessage(request)
   }
-  def deleteMessages(messages: Seq[Message], requestCredentials: Option[AWSSessionCredentials] = None): Unit = {
+  def deleteMessages(messages: Seq[Message], requestCredentials: Option[AWSSessionCredentials] = None): aws.model.DeleteMessageBatchResult = {
     val batchId = Thread.currentThread.getId + "-" + System.nanoTime
     deleteMessageBatch(
       messages.head.queue,
       messages.zipWithIndex.map { case (msg, idx) => new DeleteMessageBatchEntry(s"${batchId}-${idx}", msg.receiptHandle) },
       requestCredentials)
   }
-  def deleteMessageBatch(queue: Queue, messages: Seq[DeleteMessageBatchEntry], requestCredentials: Option[AWSSessionCredentials] = None): Unit = {
+  def deleteMessageBatch(queue: Queue, messages: Seq[DeleteMessageBatchEntry], requestCredentials: Option[AWSSessionCredentials] = None): aws.model.DeleteMessageBatchResult = {
     val request = new aws.model.DeleteMessageBatchRequest(
       queue.url,
       messages.map(_.asInstanceOf[aws.model.DeleteMessageBatchRequestEntry]).asJava)
