@@ -62,8 +62,8 @@ trait SQS extends aws.AmazonSQS {
   def sendMessage(queue: Queue, messageBody: String): aws.model.SendMessageResult = {
     sendMessage(new aws.model.SendMessageRequest(queue.url, messageBody))
   }
-  def sendMessageWithDelay(queue: Queue, messageBody: String, delay: Int): aws.model.SendMessageResult = {
-    sendMessage(new aws.model.SendMessageRequest(queue.url, messageBody).withDelaySeconds(delay))
+  def sendMessageWithDelaySeconds(queue: Queue, messageBody: String, delaySeconds: Int): aws.model.SendMessageResult = {
+    sendMessage(new aws.model.SendMessageRequest(queue.url, messageBody).withDelaySeconds(delaySeconds))
   }
   def sendMessages(queue: Queue, messageBodies: Seq[String]): aws.model.SendMessageBatchResult = {
     val batchId = Thread.currentThread.getId + "-" + System.nanoTime
