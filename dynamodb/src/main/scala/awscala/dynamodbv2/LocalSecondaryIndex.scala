@@ -7,7 +7,7 @@ object LocalSecondaryIndex {
 
   def apply(v: aws.model.LocalSecondaryIndexDescription): LocalSecondaryIndex = new LocalSecondaryIndex(
     name = v.getIndexName,
-    keySchema = v.getKeySchema.asScala.map(k => KeySchema(k)),
+    keySchema = v.getKeySchema.asScala.map(k => KeySchema(k)).toSeq,
     projection = Projection(v.getProjection))
 }
 case class LocalSecondaryIndex(

@@ -5,7 +5,7 @@ import com.amazonaws.services.{ dynamodbv2 => aws }
 
 object Projection {
   def apply(p: aws.model.Projection): Projection = new Projection(
-    nonKeyAttributes = Option(p.getNonKeyAttributes).map(_.asScala).getOrElse(Nil),
+    nonKeyAttributes = Option(p.getNonKeyAttributes).map(_.asScala).getOrElse(Nil).toSeq,
     projectionType = aws.model.ProjectionType.fromValue(p.getProjectionType))
 }
 

@@ -24,10 +24,10 @@ object Cluster {
     restoreStatus = RestoreStatus(c.getRestoreStatus),
     preferredMaintenanceWindow = c.getPreferredMaintenanceWindow,
     pendingModifiedValues = PendingModifiedValues(c.getPendingModifiedValues),
-    parameterGroupStatuses = c.getClusterParameterGroups.asScala.map(p => ClusterParameterGroupStatus(p)),
-    securityGroupMemberships = c.getClusterSecurityGroups.asScala.map(m => ClusterSecurityGroupMembership(m)),
+    parameterGroupStatuses = c.getClusterParameterGroups.asScala.map(p => ClusterParameterGroupStatus(p)).toSeq,
+    securityGroupMemberships = c.getClusterSecurityGroups.asScala.map(m => ClusterSecurityGroupMembership(m)).toSeq,
     vpcId = c.getVpcId,
-    vpcSecurityGroupMemberships = c.getVpcSecurityGroups.asScala.map(m => VpcSecurityGroupMembership(m)),
+    vpcSecurityGroupMemberships = c.getVpcSecurityGroups.asScala.map(m => VpcSecurityGroupMembership(m)).toSeq,
     createdAt = new DateTime(c.getClusterCreateTime))
 }
 

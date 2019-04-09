@@ -7,7 +7,7 @@ object GlobalSecondaryIndex {
 
   def apply(v: aws.model.GlobalSecondaryIndexDescription): GlobalSecondaryIndex = new GlobalSecondaryIndex(
     name = v.getIndexName,
-    keySchema = v.getKeySchema.asScala.map(k => KeySchema(k)),
+    keySchema = v.getKeySchema.asScala.map(k => KeySchema(k)).toSeq,
     projection = Projection(v.getProjection),
     provisionedThroughput = ProvisionedThroughput(v.getProvisionedThroughput.getReadCapacityUnits, v.getProvisionedThroughput.getWriteCapacityUnits))
 

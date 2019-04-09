@@ -50,14 +50,14 @@ sealed trait ResultPager[TReq, TRes] extends Iterator[Item] {
           items = Seq(Item(table, Seq(Attribute("Count", AttributeValue(new AttributeValue(n = Some(getCount(result).toString)))))))
         else {
           invokeCallback(result)
-          items = getItems(result).asScala.map(i => Item(table, i))
+          items = getItems(result).asScala.map(i => Item(table, i)).toSeq
         }
       case req: aws.model.ScanRequest =>
         if (req.getSelect == aws.model.Select.COUNT.toString)
           items = Seq(Item(table, Seq(Attribute("Count", AttributeValue(new AttributeValue(n = Some(getCount(result).toString)))))))
         else {
           invokeCallback(result)
-          items = getItems(result).asScala.map(i => Item(table, i))
+          items = getItems(result).asScala.map(i => Item(table, i)).toSeq
         }
     }
 
