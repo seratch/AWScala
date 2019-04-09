@@ -1,7 +1,6 @@
 package awscala.emr
 
 import awscala._
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -97,7 +96,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
     //building task node
     val taskGroupConfig = buildTaskGroupConfig(taskInstanceType, taskInstanceCount, taskMarketType, taskBidPrice)
     val clusterGroups = List(masterGroupConfig, coreGroupConfig, taskGroupConfig)
-    val addInstanceGroupsRequest = new AddInstanceGroupsRequest().withInstanceGroups(clusterGroups)
+    val addInstanceGroupsRequest = new AddInstanceGroupsRequest().withInstanceGroups(clusterGroups.asJava)
     new JobFlowInstancesConfig()
       .withEc2KeyName(ec2KeyName)
       .withHadoopVersion(hadoopVersion)
@@ -107,7 +106,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
   //Step #2
   def buildJobFlowStepsRequest[T](steps: List[T], jobFlowId: String = ""): AddJobFlowStepsRequest = {
     val stepConfig = buildSteps(steps.asInstanceOf[List[jarStep]])
-    val addJobFlowStepsRequest = new AddJobFlowStepsRequest().withSteps(stepConfig)
+    val addJobFlowStepsRequest = new AddJobFlowStepsRequest().withSteps(stepConfig.asJava)
     if (jobFlowId != "") addJobFlowStepsRequest.withJobFlowId(jobFlowId)
 
     addJobFlowStepsRequest
@@ -120,7 +119,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
       step <- steps
       aStepConfigJar = new HadoopJarStepConfig(step.stepPath)
         .withMainClass(step.stepClass)
-        .withArgs(step.stepArgs)
+        .withArgs(step.stepArgs.asJava)
 
       aStepConfig = new StepConfig()
         .withName(step.stepName)
