@@ -11,7 +11,7 @@ object InstanceProfile {
     name = g.getInstanceProfileName,
     arn = g.getArn,
     path = g.getPath,
-    roles = g.getRoles.asScala.map(r => Role(r)),
+    roles = g.getRoles.asScala.map(r => Role(r)).toSeq,
     createdAt = new DateTime(g.getCreateDate))
 }
 

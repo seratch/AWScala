@@ -32,7 +32,7 @@ trait IAM extends aws.AmazonIdentityManagement {
   // Account Aliases
   // ------------------------------------------
 
-  def accountAliases: Seq[String] = listAccountAliases.getAccountAliases.asScala
+  def accountAliases: Seq[String] = listAccountAliases.getAccountAliases.asScala.toSeq
   def createAccountAlias(alias: String): Unit = {
     createAccountAlias(new aws.model.CreateAccountAliasRequest().withAccountAlias(alias))
   }

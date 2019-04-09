@@ -91,7 +91,7 @@ case class BucketPolicy(bucket: Bucket, policyText: String) extends aws.model.Bu
 
 object BucketCrossOriginConfiguration {
   def apply(bucket: Bucket, c: aws.model.BucketCrossOriginConfiguration): BucketCrossOriginConfiguration = {
-    BucketCrossOriginConfiguration(bucket, c.getRules.asScala)
+    BucketCrossOriginConfiguration(bucket, c.getRules.asScala.toSeq)
   }
 }
 case class BucketCrossOriginConfiguration(bucket: Bucket, rules: Seq[aws.model.CORSRule])
@@ -102,7 +102,7 @@ case class BucketCrossOriginConfiguration(bucket: Bucket, rules: Seq[aws.model.C
 
 object BucketLifecycleConfiguration {
   def apply(bucket: Bucket, c: aws.model.BucketLifecycleConfiguration): BucketLifecycleConfiguration = {
-    BucketLifecycleConfiguration(bucket, c.getRules.asScala)
+    BucketLifecycleConfiguration(bucket, c.getRules.asScala.toSeq)
   }
 }
 case class BucketLifecycleConfiguration(bucket: Bucket, rules: Seq[aws.model.BucketLifecycleConfiguration.Rule])
@@ -121,7 +121,7 @@ case class BucketLoggingConfiguration(bucket: Bucket, logFilePrefix: String)
 
 object BucketNotificationConfiguration {
   def apply(bucket: Bucket, c: aws.model.BucketNotificationConfiguration): BucketNotificationConfiguration = {
-    BucketNotificationConfiguration(bucket, c.getTopicConfigurations.asScala)
+    BucketNotificationConfiguration(bucket, c.getTopicConfigurations.asScala.toSeq)
   }
 }
 case class BucketNotificationConfiguration(
@@ -130,7 +130,7 @@ case class BucketNotificationConfiguration(
 
 object BucketTaggingConfiguration {
   def apply(bucket: Bucket, c: aws.model.BucketTaggingConfiguration): BucketTaggingConfiguration = {
-    BucketTaggingConfiguration(bucket, c.getAllTagSets.asScala)
+    BucketTaggingConfiguration(bucket, c.getAllTagSets.asScala.toSeq)
   }
 }
 case class BucketTaggingConfiguration(bucket: Bucket, tagSets: Seq[aws.model.TagSet])
@@ -152,7 +152,7 @@ case class BucketVersioningConfiguration(bucket: Bucket, status: String, mfaDele
 
 object BucketWebsiteConfiguration {
   def apply(bucket: Bucket, c: aws.model.BucketWebsiteConfiguration): BucketWebsiteConfiguration = {
-    BucketWebsiteConfiguration(bucket, c.getIndexDocumentSuffix, c.getErrorDocument, c.getRoutingRules.asScala)
+    BucketWebsiteConfiguration(bucket, c.getIndexDocumentSuffix, c.getErrorDocument, c.getRoutingRules.asScala.toSeq)
   }
 }
 case class BucketWebsiteConfiguration(
