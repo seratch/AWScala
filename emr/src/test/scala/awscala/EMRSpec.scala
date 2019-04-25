@@ -3,7 +3,6 @@ package awscala
 import org.slf4j._
 import org.scalatest._
 import awscala.emr._
-import scala.collection.JavaConversions._
 
 class EMRSpec extends FlatSpec with Matchers {
 
