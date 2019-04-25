@@ -4,8 +4,8 @@ lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
   version := "0.8.2-SNAPSHOT",
-  scalaVersion := "2.12.7",
-  crossScalaVersions := Seq("2.12.7", "2.11.12", "2.10.7"),
+  scalaVersion := "2.12.8",
+  crossScalaVersions := Seq("2.12.8", "2.11.12", "2.10.7"),
   resolvers += "spray repo" at "http://repo.spray.io",
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
@@ -54,7 +54,7 @@ lazy val commonSettings = Seq(
   sonatypeProfileName := "com.github.seratch"
 )
 
-lazy val awsJavaSdkVersion = "1.11.445"
+lazy val awsJavaSdkVersion = "1.11.539"
 
 lazy val all = (project in file("."))
   .settings(commonSettings)
