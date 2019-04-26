@@ -6,7 +6,6 @@ lazy val commonSettings = Seq(
   version := "0.8.2-SNAPSHOT",
   scalaVersion := "2.12.8",
   crossScalaVersions := Seq("2.12.8", "2.11.12", "2.10.7"),
-  resolvers += "spray repo" at "http://repo.spray.io",
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
