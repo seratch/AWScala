@@ -1,9 +1,11 @@
 package awscala
 
 import awscala.dynamodbv2._
+import com.amazonaws.services.dynamodbv2.util.TableUtils
 import com.amazonaws.services.{ dynamodbv2 => aws }
 import org.scalatest._
 import org.slf4j._
+
 import scala.util.Try
 
 class DynamoDBV2Spec extends FlatSpec with Matchers {
@@ -22,14 +24,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
-    var isTableActivated = false
-    while (!isTableActivated) {
-      dynamoDB.describe(createdTableMeta.table).map { meta =>
-        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
-      }
-      Thread.sleep(1000L)
-      print(".")
-    }
+    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
     println("")
     println(s"Created DynamoDB table has been activated.")
 
@@ -86,14 +81,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
-    var isTableActivated = false
-    while (!isTableActivated) {
-      dynamoDB.describe(createdTableMeta.table).map { meta =>
-        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
-      }
-      Thread.sleep(1000L)
-      print(".")
-    }
+    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
     println("")
     println(s"Created DynamoDB table has been activated.")
 
@@ -143,14 +131,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
-    var isTableActivated = false
-    while (!isTableActivated) {
-      dynamoDB.describe(createdTableMeta.table).map { meta =>
-        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
-      }
-      Thread.sleep(1000L)
-      print(".")
-    }
+    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
     println("")
     println(s"Created DynamoDB table has been activated.")
 
@@ -180,22 +161,15 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
-    var isTableActivated = false
-    while (!isTableActivated) {
-      dynamoDB.describe(createdTableMeta.table).map { meta =>
-        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
-      }
-      Thread.sleep(1000L)
-      print(".")
-    }
+    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
     println("")
     println(s"Created DynamoDB table has been activated.")
 
     val members: Table = dynamoDB.table(tableName).get
 
     members.put(1, "Japan", "Name" -> List(Map("bar" -> "brack")), "Age" -> 23, "Company" -> "Google")
-    members.get(1, "Japan").get.attributes.find(_.name == "Name").get.value.m.get.get(0).getM()
-      .get("bar").getS() should equal("brack")
+    members.get(1, "Japan").get.attributes.find(_.name == "Name").get.value.l.head.getM
+      .get("bar").getS should equal("brack")
   }
 
   it should "provide cool APIs to use global secondary index" in {
@@ -219,14 +193,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
-    var isTableActivated = false
-    while (!isTableActivated) {
-      dynamoDB.describe(createdTableMeta.table).map { meta =>
-        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
-      }
-      Thread.sleep(1000L)
-      print(".")
-    }
+    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
     println("")
     println(s"Created DynamoDB table has been activated.")
 
@@ -261,14 +228,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
-    var isTableActivated = false
-    while (!isTableActivated) {
-      dynamoDB.describe(createdTableMeta.table).map { meta =>
-        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
-      }
-      Thread.sleep(1000L)
-      print(".")
-    }
+    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
     println("")
     println(s"Created DynamoDB table has been activated.")
 
@@ -374,14 +334,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
-    var isTableActivated = false
-    while (!isTableActivated) {
-      dynamoDB.describe(createdTableMeta.table).map { meta =>
-        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
-      }
-      Thread.sleep(1000L)
-      print(".")
-    }
+    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
     println("")
     println(s"Created DynamoDB table has been activated.")
 
@@ -479,14 +432,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     log.info(s"Created Table: ${createdTableMeta}")
 
     println(s"Waiting for DynamoDB table activation...")
-    var isTableActivated = false
-    while (!isTableActivated) {
-      dynamoDB.describe(createdTableMeta.table).map { meta =>
-        isTableActivated = meta.status == aws.model.TableStatus.ACTIVE
-      }
-      Thread.sleep(1000L)
-      print(".")
-    }
+    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
     println("")
     println(s"Created DynamoDB table has been activated.")
 
