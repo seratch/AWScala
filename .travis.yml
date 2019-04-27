@@ -7,5 +7,5 @@ scala:
   - 2.11.12
   - 2.10.7
 script:
-- sbt "++${TRAVIS_SCALA_VERSION}!" test:compile
+- sbt "++${TRAVIS_SCALA_VERSION}!" test:compile dynamodb/test
 - git diff --exit-code
