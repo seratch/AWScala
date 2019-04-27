@@ -1,6 +1,7 @@
 package awscala.dynamodbv2
 
-import com.amazonaws.services.{ dynamodbv2 => aws }
+import com.amazonaws.services.dynamodbv2.model.BillingMode
+import com.amazonaws.services.{dynamodbv2 => aws}
 
 case class Table(
   name: String,
@@ -9,7 +10,8 @@ case class Table(
   attributes: Seq[AttributeDefinition] = Nil,
   localSecondaryIndexes: Seq[LocalSecondaryIndex] = Nil,
   globalSecondaryIndexes: Seq[GlobalSecondaryIndex] = Nil,
-  provisionedThroughput: Option[ProvisionedThroughput] = None) {
+  provisionedThroughput: Option[ProvisionedThroughput] = None,
+  billingMode: BillingMode = BillingMode.Provisioned) {
 
   // ------------------------------------------
   // Items
