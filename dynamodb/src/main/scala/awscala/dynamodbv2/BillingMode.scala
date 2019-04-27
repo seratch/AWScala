@@ -1,6 +1,6 @@
 package awscala.dynamodbv2
 
-import com.amazonaws.services.{dynamodbv2 => aws}
+import com.amazonaws.services.{ dynamodbv2 => aws }
 
 object BillingMode {
 

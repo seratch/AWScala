@@ -1,7 +1,7 @@
 package awscala.dynamodbv2
 
 import awscala._
-import com.amazonaws.services.{dynamodbv2 => aws}
+import com.amazonaws.services.{ dynamodbv2 => aws }
 
 import scala.collection.JavaConverters._
 
@@ -18,8 +18,7 @@ object TableMeta {
     }.getOrElse(Nil),
     provisionedThroughput = ProvisionedThroughputMeta(t.getProvisionedThroughput),
     createdAt = new DateTime(t.getCreationDateTime),
-    billingModeSummary = BillingModeSummary(t.getBillingModeSummary)
-  )
+    billingModeSummary = BillingModeSummary(t.getBillingModeSummary))
 }
 
 case class TableMeta(
@@ -41,8 +40,7 @@ case class TableMeta(
     attributes = attributes,
     localSecondaryIndexes = localSecondaryIndexes.map(e => LocalSecondaryIndex(e)),
     provisionedThroughput = Some(ProvisionedThroughput(provisionedThroughput)),
-    billingMode = aws.model.BillingMode.fromValue(billingModeSummary.getBillingMode)
-  )
+    billingMode = aws.model.BillingMode.fromValue(billingModeSummary.getBillingMode))
 
   setAttributeDefinitions(attributes.map(_.asInstanceOf[aws.model.AttributeDefinition]).asJava)
   setCreationDateTime(createdAt.toDate)
@@ -100,14 +98,14 @@ case class ProvisionedThroughputMeta(
   setWriteCapacityUnits(writeCapacityUnits)
 }
 
-
 object BillingModeSummary {
   def apply(p: aws.model.BillingModeSummary): BillingModeSummary = new BillingModeSummary(
     billingMode = p.getBillingMode,
     lastUpdateToPayPerRequestDateTime = new DateTime(p.getLastUpdateToPayPerRequestDateTime))
 }
-case class BillingModeSummary(billingMode: String,
-                              lastUpdateToPayPerRequestDateTime: DateTime) extends aws.model.BillingModeSummary {
+case class BillingModeSummary(
+  billingMode: String,
+  lastUpdateToPayPerRequestDateTime: DateTime) extends aws.model.BillingModeSummary {
 
   setBillingMode(billingMode)
   setLastUpdateToPayPerRequestDateTime(lastUpdateToPayPerRequestDateTime.toDate)
