@@ -12,7 +12,7 @@ lazy val commonSettings = Seq(
   publishTo := _publishTo(version.value),
   publishMavenStyle := true,
   publishArtifact in Test := false,
-  pomIncludeRepository := { x =>
+  pomIncludeRepository := { _ =>
     false
   },
   pomExtra := <url>https://github.com/seratch/awscala</url>
@@ -53,7 +53,7 @@ lazy val commonSettings = Seq(
   sonatypeProfileName := "com.github.seratch"
 )
 
-lazy val awsJavaSdkVersion = "1.11.539"
+lazy val awsJavaSdkVersion = "1.11.541"
 
 lazy val all = (project in file("."))
   .settings(commonSettings)
@@ -71,7 +71,7 @@ lazy val core = project
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-java-sdk-core" % awsJavaSdkVersion,
       "joda-time" % "joda-time" % "2.10.1",
-      "org.joda" % "joda-convert" % "2.1.2",
+      "org.joda" % "joda-convert" % "2.2.0",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
       "org.scalatest" %% "scalatest" % "3.0.7" % "test"
@@ -86,7 +86,7 @@ lazy val ec2 = awsProject("ec2")
   )
 
 lazy val iam = awsProject("iam")
-lazy val dynamodb = awsProject("dynamodb")
+lazy val dynamodb = awsProject("dynamodb").settings(dynamoTestSettings)
 lazy val emr = awsProject("emr")
 lazy val redshift = awsProject("redshift")
 lazy val s3 = awsProject("s3")
@@ -109,6 +109,15 @@ def awsProject(service: String) = {
     )
     .dependsOn(core)
 }
+
+lazy val dynamoTestSettings = Seq(
+  dynamoDBLocalDownloadDir := file(".dynamodb-local"),
+  dynamoDBLocalPort := 8000,
+  startDynamoDBLocal := startDynamoDBLocal.dependsOn(compile in Test).value,
+  test in Test := (test in Test).dependsOn(startDynamoDBLocal).value,
+  testOptions in Test += dynamoDBLocalTestCleanup.value,
+  parallelExecution in Test := false
+)
 
 def _publishTo(v: String) = {
   val nexus = "https://oss.sonatype.org/"

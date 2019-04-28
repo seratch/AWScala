@@ -9,7 +9,8 @@ case class Table(
   attributes: Seq[AttributeDefinition] = Nil,
   localSecondaryIndexes: Seq[LocalSecondaryIndex] = Nil,
   globalSecondaryIndexes: Seq[GlobalSecondaryIndex] = Nil,
-  provisionedThroughput: Option[ProvisionedThroughput] = None) {
+  provisionedThroughput: Option[ProvisionedThroughput] = None,
+  billingMode: aws.model.BillingMode = BillingMode.Provisioned) {
 
   // ------------------------------------------
   // Items

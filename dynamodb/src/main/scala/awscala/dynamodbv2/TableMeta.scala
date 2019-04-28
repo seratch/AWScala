@@ -1,8 +1,9 @@
 package awscala.dynamodbv2
 
 import awscala._
-import scala.collection.JavaConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
+
+import scala.collection.JavaConverters._
 
 object TableMeta {
   def apply(t: aws.model.TableDescription): TableMeta = new TableMeta(
@@ -13,10 +14,11 @@ object TableMeta {
     attributes = Option(t.getAttributeDefinitions).map { _.asScala.map(a => AttributeDefinition(a)).toSeq }.getOrElse(Nil),
     keySchema = Option(t.getKeySchema).map { _.asScala.map(s => KeySchema(s)).toSeq }.getOrElse(Nil),
     localSecondaryIndexes = Option(t.getLocalSecondaryIndexes).map { indexes =>
-      indexes.asScala.map(i => LocalSecondaryIndexMeta(i)).toSeq
+      indexes.asScala.map(i => LocalSecondaryIndexMeta(i))
     }.getOrElse(Nil),
     provisionedThroughput = ProvisionedThroughputMeta(t.getProvisionedThroughput),
-    createdAt = new DateTime(t.getCreationDateTime))
+    createdAt = new DateTime(t.getCreationDateTime),
+    billingModeSummary = BillingModeSummary(t.getBillingModeSummary))
 }
 
 case class TableMeta(
@@ -28,6 +30,7 @@ case class TableMeta(
   keySchema: Seq[KeySchema],
   localSecondaryIndexes: Seq[LocalSecondaryIndexMeta],
   provisionedThroughput: ProvisionedThroughputMeta,
+  billingModeSummary: BillingModeSummary,
   createdAt: DateTime) extends aws.model.TableDescription {
 
   def table: Table = Table(
@@ -36,7 +39,8 @@ case class TableMeta(
     rangePK = keySchema.find(_.keyType == aws.model.KeyType.RANGE).map(_.attributeName),
     attributes = attributes,
     localSecondaryIndexes = localSecondaryIndexes.map(e => LocalSecondaryIndex(e)),
-    provisionedThroughput = Some(ProvisionedThroughput(provisionedThroughput)))
+    provisionedThroughput = Some(ProvisionedThroughput(provisionedThroughput)),
+    billingMode = aws.model.BillingMode.fromValue(billingModeSummary.getBillingMode))
 
   setAttributeDefinitions(attributes.map(_.asInstanceOf[aws.model.AttributeDefinition]).asJava)
   setCreationDateTime(createdAt.toDate)
@@ -47,6 +51,7 @@ case class TableMeta(
   setTableName(name)
   setTableSizeBytes(sizeBytes)
   setTableStatus(status)
+  setBillingModeSummary(billingModeSummary)
 }
 
 object LocalSecondaryIndexMeta {
@@ -54,7 +59,7 @@ object LocalSecondaryIndexMeta {
     name = i.getIndexName,
     sizeBytes = i.getIndexSizeBytes,
     itemCount = i.getItemCount,
-    keySchema = i.getKeySchema.asScala.map(k => KeySchema(k)).toSeq,
+    keySchema = i.getKeySchema.asScala.map(k => KeySchema(k)),
     projection = Projection(i.getProjection))
 }
 case class LocalSecondaryIndexMeta(
@@ -91,4 +96,17 @@ case class ProvisionedThroughputMeta(
   setNumberOfDecreasesToday(numberOfDecreasesToday)
   setReadCapacityUnits(readCapacityUnits)
   setWriteCapacityUnits(writeCapacityUnits)
+}
+
+object BillingModeSummary {
+  def apply(p: aws.model.BillingModeSummary): BillingModeSummary = new BillingModeSummary(
+    billingMode = p.getBillingMode,
+    lastUpdateToPayPerRequestDateTime = new DateTime(p.getLastUpdateToPayPerRequestDateTime))
+}
+case class BillingModeSummary(
+  billingMode: String,
+  lastUpdateToPayPerRequestDateTime: DateTime) extends aws.model.BillingModeSummary {
+
+  setBillingMode(billingMode)
+  setLastUpdateToPayPerRequestDateTime(lastUpdateToPayPerRequestDateTime.toDate)
 }
