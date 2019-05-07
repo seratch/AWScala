@@ -14,7 +14,7 @@ case class Projection(projectionType: ProjectionType, nonKeyAttributes: Seq[Stri
 
   if (projectionType == ProjectionType.Include) {
     setNonKeyAttributes(nonKeyAttributes.asJava)
-  } else if (!nonKeyAttributes.isEmpty) {
+  } else if (nonKeyAttributes.nonEmpty) {
     throw new IllegalArgumentException("You shouldn't specify `nonKeyAttributes` when ProjectionType is other than INCLUDE.")
   }
 }

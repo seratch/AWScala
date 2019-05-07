@@ -13,7 +13,7 @@ package object dynamodbv2 {
   type ComparisonOperator = aws.model.ComparisonOperator
   type Select = aws.model.Select
 
-  val cond = awscala.dynamodbv2.DynamoDBCondition
+  val cond: DynamoDBCondition.type = awscala.dynamodbv2.DynamoDBCondition
 
 }
 

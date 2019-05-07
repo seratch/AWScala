@@ -17,25 +17,23 @@ object AttributeValue {
   }
 
   def toJavaValue(v: Any): aws.model.AttributeValue = {
-    val value = new aws.model.AttributeValue
+    val attributeValue = new aws.model.AttributeValue
     v match {
       case null => null
-      case s: String => value.withS(s)
-      case bl: Boolean => value.withBOOL(bl)
-      case n: java.lang.Number => value.withN(n.toString)
-      case b: ByteBuffer => value.withB(b)
+      case s: String => attributeValue.withS(s)
+      case bl: Boolean => attributeValue.withBOOL(bl)
+      case n: java.lang.Number => attributeValue.withN(n.toString)
+      case b: ByteBuffer => attributeValue.withB(b)
       case xs: Seq[_] => xs.headOption match {
-        case Some(m: Map[_, _]) => value.withL(xs.map(toJavaValue).asJavaCollection)
-        case Some(s: String) => value.withSS(xs.map(_.asInstanceOf[String]).asJava)
-        case Some(n: java.lang.Number) => value.withNS(xs.map(_.toString).asJava)
-        case Some(s: ByteBuffer) => value.withBS(xs.map(_.asInstanceOf[ByteBuffer]).asJava)
-        case Some(v) => value.withSS(xs.map(_.toString).asJava)
+        case Some(_: Map[_, _]) => attributeValue.withL(xs.map(toJavaValue).asJavaCollection)
+        case Some(_: String) => attributeValue.withSS(xs.map(_.asInstanceOf[String]).asJava)
+        case Some(_: java.lang.Number) => attributeValue.withNS(xs.map(_.toString).asJava)
+        case Some(_: ByteBuffer) => attributeValue.withBS(xs.map(_.asInstanceOf[ByteBuffer]).asJava)
+        case Some(_) => attributeValue.withSS(xs.map(_.toString).asJava)
         case _ => null
       }
-      case m: Map[_, _] => {
-        val _m: Map[String, Any] = m.map { case (k, v) => k.asInstanceOf[String] -> v }
-        value.withM(recurseMapValue(_m).asJava)
-      }
+      case m: Map[_, _] =>
+        attributeValue.withM(recurseMapValue(m.map { case (k, value) => k.asInstanceOf[String] -> value }).asJava)
       case _ => null
     }
   }
@@ -49,7 +47,8 @@ object AttributeValue {
     l = Option(v.getL).map(_.asScala).getOrElse(Nil),
     ss = Option(v.getSS).map(_.asScala).getOrElse(Nil),
     ns = Option(v.getNS).map(_.asScala).getOrElse(Nil),
-    bs = Option(v.getBS).map(_.asScala).getOrElse(Nil))
+    bs = Option(v.getBS).map(_.asScala).getOrElse(Nil)
+  )
 }
 
 case class AttributeValue(

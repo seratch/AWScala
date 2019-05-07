@@ -8,5 +8,6 @@ object Item {
     table = table,
     attributes = attributes.asScala.toSeq.map { case (k, v) => Attribute(k, AttributeValue(v)) })
 }
+
 case class Item(table: Table, attributes: Seq[Attribute])
 

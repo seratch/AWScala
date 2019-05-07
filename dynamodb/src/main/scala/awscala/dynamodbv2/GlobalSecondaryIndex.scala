@@ -12,6 +12,7 @@ object GlobalSecondaryIndex {
     provisionedThroughput = ProvisionedThroughput(v.getProvisionedThroughput.getReadCapacityUnits, v.getProvisionedThroughput.getWriteCapacityUnits))
 
 }
+
 case class GlobalSecondaryIndex(
   name: String,
   keySchema: Seq[KeySchema],

@@ -1,5 +1,9 @@
 package awscala.dynamodbv2
 
+import java.util
+
+import com.amazonaws.services.dynamodbv2.model
+import com.amazonaws.services.dynamodbv2.model.{ QueryRequest, ScanRequest }
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
 import scala.collection.JavaConverters._
@@ -29,9 +33,9 @@ sealed trait ResultPager[TReq, TRes] extends Iterator[Item] {
   def operation: TReq => TRes
   def request: TReq
 
-  var items: Seq[Item] = null
+  var items: Seq[Item] = _
   var pageNo = 0
-  var lastKey: java.util.Map[String, aws.model.AttributeValue] = null
+  var lastKey: java.util.Map[String, aws.model.AttributeValue] = _
   var index = 0
   nextPage(request)
 
@@ -89,11 +93,11 @@ sealed trait ResultPager[TReq, TRes] extends Iterator[Item] {
 // a pager specialized for query request/results
 class QueryResultPager(val table: Table, val operation: aws.model.QueryRequest => aws.model.QueryResult, val request: aws.model.QueryRequest, pageStatsCallback: PageStats => Unit)
   extends ResultPager[aws.model.QueryRequest, aws.model.QueryResult] {
-  override def getItems(result: aws.model.QueryResult) = result.getItems
-  override def getCount(result: aws.model.QueryResult) = result.getCount
-  override def getLastEvaluatedKey(result: aws.model.QueryResult) = result.getLastEvaluatedKey
-  override def withExclusiveStartKey(request: aws.model.QueryRequest, lastKey: java.util.Map[String, aws.model.AttributeValue]) = request.withExclusiveStartKey(lastKey)
-  override def invokeCallback(result: aws.model.QueryResult) = {
+  override def getItems(result: aws.model.QueryResult): util.List[util.Map[String, model.AttributeValue]] = result.getItems
+  override def getCount(result: aws.model.QueryResult): Int = result.getCount
+  override def getLastEvaluatedKey(result: aws.model.QueryResult): util.Map[String, model.AttributeValue] = result.getLastEvaluatedKey
+  override def withExclusiveStartKey(request: aws.model.QueryRequest, lastKey: java.util.Map[String, aws.model.AttributeValue]): QueryRequest = request.withExclusiveStartKey(lastKey)
+  override def invokeCallback(result: aws.model.QueryResult): Unit = {
     Option(pageStatsCallback).foreach(fun => fun(PageStats(pageNo, result.getLastEvaluatedKey == null, request.getLimit, result.getScannedCount, result.getCount, result.getConsumedCapacity)))
   }
 }
@@ -101,11 +105,11 @@ class QueryResultPager(val table: Table, val operation: aws.model.QueryRequest =
 // a pager specialized for scan request/results
 class ScanResultPager(val table: Table, val operation: aws.model.ScanRequest => aws.model.ScanResult, val request: aws.model.ScanRequest, pageStatsCallback: PageStats => Unit)
   extends ResultPager[aws.model.ScanRequest, aws.model.ScanResult] {
-  override def getItems(result: aws.model.ScanResult) = result.getItems
-  override def getCount(result: aws.model.ScanResult) = result.getCount
-  override def getLastEvaluatedKey(result: aws.model.ScanResult) = result.getLastEvaluatedKey
-  override def withExclusiveStartKey(request: aws.model.ScanRequest, lastKey: java.util.Map[String, aws.model.AttributeValue]) = request.withExclusiveStartKey(lastKey)
-  override def invokeCallback(result: aws.model.ScanResult) = {
+  override def getItems(result: aws.model.ScanResult): util.List[util.Map[String, model.AttributeValue]] = result.getItems
+  override def getCount(result: aws.model.ScanResult): Int = result.getCount
+  override def getLastEvaluatedKey(result: aws.model.ScanResult): util.Map[String, model.AttributeValue] = result.getLastEvaluatedKey
+  override def withExclusiveStartKey(request: aws.model.ScanRequest, lastKey: java.util.Map[String, aws.model.AttributeValue]): ScanRequest = request.withExclusiveStartKey(lastKey)
+  override def invokeCallback(result: aws.model.ScanResult): Unit = {
     Option(pageStatsCallback).foreach(fun => fun(PageStats(pageNo, result.getLastEvaluatedKey == null, request.getLimit, result.getScannedCount, result.getCount, result.getConsumedCapacity)))
   }
 }
