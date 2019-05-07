@@ -47,8 +47,7 @@ object AttributeValue {
     l = Option(v.getL).map(_.asScala).getOrElse(Nil),
     ss = Option(v.getSS).map(_.asScala).getOrElse(Nil),
     ns = Option(v.getNS).map(_.asScala).getOrElse(Nil),
-    bs = Option(v.getBS).map(_.asScala).getOrElse(Nil)
-  )
+    bs = Option(v.getBS).map(_.asScala).getOrElse(Nil))
 }
 
 case class AttributeValue(

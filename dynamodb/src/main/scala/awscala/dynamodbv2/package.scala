@@ -2,7 +2,7 @@ package awscala
 
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
-package object dynamodbv2 {
+package object dynamodbv2 extends DynamoDBImplicits {
 
   type TableStatus = aws.model.TableStatus
   type KeyType = aws.model.KeyType
