@@ -126,9 +126,9 @@
         </dependency>
         
         <dependency>
-            <groupId>com.decodified</groupId>
-            <artifactId>scala-ssh_2.11</artifactId>
-            <version>0.7.0</version>
+            <groupId>com.github.seratch.com.veact</groupId>
+            <artifactId>scala-ssh_${scalaArtifactIDVersion}</artifactId>
+            <version>0.8.0-1</version>
             <scope>provided</scope>
         </dependency>
         
