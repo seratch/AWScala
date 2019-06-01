@@ -34,23 +34,23 @@ case class Table(
     dynamoDB.batchGet(Map(this -> attributes))
   }
 
-  def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB) = putItem(hashPK, attributes: _*)
-  def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB) = putItem(hashPK, rangePK, attributes: _*)
+  def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
+  def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
-  def putItem(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB) = {
+  def putItem(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = {
     dynamoDB.put(this, hashPK, attributes: _*)
   }
-  def putItem(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB) = {
+  def putItem(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = {
     dynamoDB.put(this, hashPK, rangePK, attributes: _*)
   }
 
-  def delete(hashPK: Any)(implicit dynamoDB: DynamoDB) = deleteItem(hashPK)
-  def delete(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB) = deleteItem(hashPK, rangePK)
+  def delete(hashPK: Any)(implicit dynamoDB: DynamoDB): Unit = deleteItem(hashPK)
+  def delete(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB): Unit = deleteItem(hashPK, rangePK)
 
-  def deleteItem(hashPK: Any)(implicit dynamoDB: DynamoDB) = {
+  def deleteItem(hashPK: Any)(implicit dynamoDB: DynamoDB): Unit = {
     dynamoDB.deleteItem(this, hashPK)
   }
-  def deleteItem(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB) = {
+  def deleteItem(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB): Unit = {
     dynamoDB.deleteItem(this, hashPK, rangePK)
   }
 
@@ -148,10 +148,10 @@ case class Table(
     dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
   }
 
-  def update(throughput: ProvisionedThroughput)(implicit dynamoDB: DynamoDB) = {
+  def update(throughput: ProvisionedThroughput)(implicit dynamoDB: DynamoDB): TableMeta = {
     dynamoDB.updateTableProvisionedThroughput(this, throughput)
   }
 
-  def destroy()(implicit dynamoDB: DynamoDB) = dynamoDB.delete(this)
+  def destroy()(implicit dynamoDB: DynamoDB): Unit = dynamoDB.delete(this)
 
 }

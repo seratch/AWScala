@@ -12,16 +12,16 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
   behavior of "DynamoDB"
 
-  val log = LoggerFactory.getLogger(this.getClass)
+  val log: Logger = LoggerFactory.getLogger(this.getClass)
 
   it should "provide cool APIs for Hash PK tables" in {
-    implicit val dynamoDB = DynamoDB.local()
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
     val tableName = s"Companies_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
       name = tableName,
       hashPK = "Id" -> AttributeType.String)
-    log.info(s"Created Table: ${createdTableMeta}")
+    log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
     TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
@@ -65,7 +65,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
   }
 
   it should "provide cool APIs for Hash/Range PK tables" in {
-    implicit val dynamoDB = DynamoDB.local()
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
     val tableName = s"Members_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
@@ -78,7 +78,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
           name = "CompanyIndex",
           keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
           projection = Projection(ProjectionType.Include, Seq("Company")))))
-    log.info(s"Created Table: ${createdTableMeta}")
+    log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
     TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
@@ -115,7 +115,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
   }
 
   it should "convert maps to attribute values implicitly" in {
-    implicit val dynamoDB = DynamoDB.local()
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
     val tableName = s"Members_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
@@ -128,7 +128,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
           name = "CompanyIndex",
           keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
           projection = Projection(ProjectionType.Include, Seq("Company")))))
-    log.info(s"Created Table: ${createdTableMeta}")
+    log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
     TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
@@ -138,14 +138,14 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     val members: Table = dynamoDB.table(tableName).get
 
     members.put(1, "Japan", "Name" -> Map("foo" -> Map("bar" -> "brack")), "Age" -> 23, "Company" -> "Google")
-    members.get(1, "Japan").get.attributes.find(_.name == "Name").get.value.m.get.get("foo").getM().get("bar").getS() should equal("brack")
+    members.get(1, "Japan").get.attributes.find(_.name == "Name").get.value.m.get.get("foo").asScala.m.get.get("bar").asScala.s.get should equal("brack")
 
     members.put(2, "Micronesia", "Name" -> Map("aliases" -> List("foo", "bar", "other")), "Age" -> 26, "Company" -> "Spotify")
-    members.get(2, "Micronesia").get.attributes.find(_.name == "Name").get.value.m.get.get("aliases").getSS() should contain allOf ("foo", "bar", "other")
+    members.get(2, "Micronesia").get.attributes.find(_.name == "Name").get.value.m.get.get("aliases").asScala.ss should contain allOf ("foo", "bar", "other")
   }
 
   it should "convert list of maps to attribute values implicitly" in {
-    implicit val dynamoDB = DynamoDB.local()
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
     val tableName = s"Members_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
@@ -158,7 +158,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
           name = "CompanyIndex",
           keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
           projection = Projection(ProjectionType.Include, Seq("Company")))))
-    log.info(s"Created Table: ${createdTableMeta}")
+    log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
     TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
@@ -173,7 +173,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
   }
 
   it should "provide cool APIs to use global secondary index" in {
-    implicit val dynamoDB = DynamoDB.local()
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
     val tableName = s"Users_${System.currentTimeMillis}"
     val globalSecondaryIndex = GlobalSecondaryIndex(
@@ -190,7 +190,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
         AttributeDefinition("Age", AttributeType.Number)),
       globalSecondaryIndexes = Seq(globalSecondaryIndex))
     val createdTableMeta: TableMeta = dynamoDB.createTable(table)
-    log.info(s"Created Table: ${createdTableMeta}")
+    log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
     TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
@@ -216,7 +216,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
   }
 
   it should "support paging for table scans" in {
-    implicit val dynamoDB = DynamoDB.local()
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
     val tableName = s"Cities_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
@@ -225,7 +225,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       rangePK = "Country" -> AttributeType.String,
       otherAttributes = Seq(),
       indexes = Seq())
-    log.info(s"Created Table: ${createdTableMeta}")
+    log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
     TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
@@ -259,12 +259,12 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     var pages = 0
     var scanned = 0
     var found = 0
-    def resetCounts = {
+    def resetCounts(): Unit = {
       pages = 0
       scanned = 0
       found = 0
     }
-    def addPageCounts(page: PageStats) = {
+    def addPageCounts(page: PageStats): Unit = {
       pages += 1
       scanned += page.scanned
       found += page.items
@@ -278,7 +278,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     pages should be(11)
     scanned should be(20)
     found should be(4)
-    resetCounts
+    resetCounts()
 
     // a limit of 3, with 20 items, will divide into 7 pages
     // (and need 7 page fetches as the last page is partial so DynamoDB can tell it's done)
@@ -288,7 +288,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     pages should be(7)
     scanned should be(20)
     found should be(4)
-    resetCounts
+    resetCounts()
 
     // a filter of population > 2 should return 20/20 cities, and a limit of 101 gives all results on a single page
     val all1: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 101, pageStatsCallback = addPageCounts)
@@ -296,15 +296,15 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     pages should be(1)
     scanned should be(20)
     found should be(20)
-    resetCounts
+    resetCounts()
 
     // but if you only take a few items from the sequence, it shouldn't fetch more pages than needed
     val all1b: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 3, pageStatsCallback = addPageCounts)
-    val List(first, second) = all1b.take(2).flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)).toList
+    all1b.take(2).flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)).toList.size shouldBe 2
     pages should be(1) // it should only fetch a single page
     scanned should be(3) // but it would scan the entire page,
     found should be(3) // and find every match on the page, even though we just asked for one (from that page)
-    resetCounts
+    resetCounts()
 
     // a filter of population > 2 should return 20/20 cities, and a limit of 11 gives two pages with results on both
     val all2: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 11, pageStatsCallback = addPageCounts)
@@ -312,7 +312,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     pages should be(2)
     scanned should be(20)
     found should be(20)
-    resetCounts
+    resetCounts()
 
     // the same query should work fine without a callback
     val all3: Seq[Item] = cities.scan(Seq("Population" -> cond.gt(2)), limit = 11, pageStatsCallback = addPageCounts)
@@ -322,7 +322,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
   }
 
   it should "support paging for table queries" in {
-    implicit val dynamoDB = DynamoDB.local()
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
     val tableName = s"Cities_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
@@ -331,7 +331,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       rangePK = "Population" -> AttributeType.Number,
       otherAttributes = Seq(),
       indexes = Seq())
-    log.info(s"Created Table: ${createdTableMeta}")
+    log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
     TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
@@ -365,12 +365,12 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     var pages = 0
     var scanned = 0
     var found = 0
-    def resetCounts = {
+    def resetCounts(): Unit = {
       pages = 0
       scanned = 0
       found = 0
     }
-    def addPageCounts(page: PageStats) = {
+    def addPageCounts(page: PageStats): Unit = {
       pages += 1
       scanned += page.scanned
       found += page.items
@@ -384,7 +384,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     pages should be(3)
     scanned should be(2)
     found should be(2)
-    resetCounts
+    resetCounts()
 
     // a limit of 2, with 3 matching Chinese cities, will divide into 2 pages
     // (and need 2 page fetches as the last page is partial so DynamoDB can tell it's done)
@@ -394,7 +394,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     pages should be(2)
     scanned should be(3)
     found should be(3)
-    resetCounts
+    resetCounts()
 
     // but if you only take a few items from the sequence, it shouldn't fetch more pages than needed
     val hugeChinese2b: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(10000000)), limit = 2, pageStatsCallback = addPageCounts)
@@ -402,7 +402,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     pages should be(1) // it should only fetch a single page
     scanned should be(2) // but it would scan the entire page,
     found should be(2) // and find every match on the page, even though we just asked for one (from that page)
-    resetCounts
+    resetCounts()
 
     // a filter of population > 2 should return 4 matching Chinese cities, and a limit of 11 gives all results on a single page
     val allChinese1: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(2)), limit = 11, pageStatsCallback = addPageCounts)
@@ -410,7 +410,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     pages should be(1)
     scanned should be(4)
     found should be(4)
-    resetCounts
+    resetCounts()
 
     // the same query should work fine without a callback
     val allChinese2: Seq[Item] = cities.query(Seq("Country" -> cond.eq("China"), "Population" -> cond.gt(2)), limit = 11)
@@ -420,7 +420,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
   }
 
   it should "support count operations for table queries and scans" in {
-    implicit val dynamoDB = DynamoDB.local()
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
     val tableName = s"Cities_${System.currentTimeMillis}"
     val createdTableMeta: TableMeta = dynamoDB.createTable(
@@ -429,7 +429,7 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       rangePK = "Population" -> AttributeType.Number,
       otherAttributes = Seq(),
       indexes = Seq())
-    log.info(s"Created Table: ${createdTableMeta}")
+    log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
     TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)

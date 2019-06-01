@@ -10,6 +10,7 @@ object LocalSecondaryIndex {
     keySchema = v.getKeySchema.asScala.map(k => KeySchema(k)),
     projection = Projection(v.getProjection))
 }
+
 case class LocalSecondaryIndex(
   name: String,
   keySchema: Seq[KeySchema],
