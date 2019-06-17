@@ -11,8 +11,15 @@ object TableMeta {
     sizeBytes = t.getTableSizeBytes,
     itemCount = t.getItemCount,
     status = aws.model.TableStatus.fromValue(t.getTableStatus),
-    attributes = Option(t.getAttributeDefinitions).map { _.asScala.map(a => AttributeDefinition(a)).toSeq }.getOrElse(Nil),
-    keySchema = Option(t.getKeySchema).map { _.asScala.map(s => KeySchema(s)).toSeq }.getOrElse(Nil),
+    attributes = Option(t.getAttributeDefinitions)
+      .map(_.asScala.map(a => AttributeDefinition(a)).toSeq)
+      .getOrElse(Nil),
+    keySchema = Option(t.getKeySchema)
+      .map(_.asScala.map(s => KeySchema(s)).toSeq)
+      .getOrElse(Nil),
+    globalSecondaryIndexes = Option(t.getGlobalSecondaryIndexes)
+      .map(_.asScala.map(GlobalSecondaryIndex.apply))
+      .getOrElse(Nil),
     localSecondaryIndexes = Option(t.getLocalSecondaryIndexes).map { indexes =>
       indexes.asScala.map(i => LocalSecondaryIndexMeta(i))
     }.getOrElse(Nil),
@@ -28,6 +35,7 @@ case class TableMeta(
   status: TableStatus,
   attributes: Seq[AttributeDefinition],
   keySchema: Seq[KeySchema],
+  globalSecondaryIndexes: Seq[GlobalSecondaryIndex],
   localSecondaryIndexes: Seq[LocalSecondaryIndexMeta],
   provisionedThroughput: ProvisionedThroughputMeta,
   billingModeSummary: Option[BillingModeSummary],
@@ -38,6 +46,7 @@ case class TableMeta(
     hashPK = keySchema.find(_.keyType == aws.model.KeyType.HASH).get.attributeName,
     rangePK = keySchema.find(_.keyType == aws.model.KeyType.RANGE).map(_.attributeName),
     attributes = attributes,
+    globalSecondaryIndexes = globalSecondaryIndexes,
     localSecondaryIndexes = localSecondaryIndexes.map(e => LocalSecondaryIndex(e)),
     provisionedThroughput = Some(ProvisionedThroughput(provisionedThroughput)),
     billingMode = billingModeSummary.map(_.billingMode).map(aws.model.BillingMode.fromValue))
@@ -46,6 +55,7 @@ case class TableMeta(
   setCreationDateTime(createdAt.toDate)
   setItemCount(itemCount)
   setKeySchema(keySchema.map(_.asInstanceOf[aws.model.KeySchemaElement]).asJava)
+  setGlobalSecondaryIndexes(globalSecondaryIndexes.map(_.asInstanceOf[aws.model.GlobalSecondaryIndexDescription]).asJava)
   setLocalSecondaryIndexes(localSecondaryIndexes.map(_.asInstanceOf[aws.model.LocalSecondaryIndexDescription]).asJava)
   setProvisionedThroughput(provisionedThroughput)
   setTableName(name)
