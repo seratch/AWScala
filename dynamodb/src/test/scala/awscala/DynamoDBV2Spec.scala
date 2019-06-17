@@ -1,5 +1,7 @@
 package awscala
 
+import java.util.Date
+
 import awscala.dynamodbv2._
 import com.amazonaws.services.dynamodbv2.model.{ ProvisionedThroughputDescription, TableDescription, TableStatus }
 import com.amazonaws.services.dynamodbv2.util.TableUtils
@@ -483,7 +485,9 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
   it should "describe table without BillingMode (#199)" in {
     TableMeta(new TableDescription()
-      .withProvisionedThroughput(new ProvisionedThroughputDescription())
+      .withTableSizeBytes(0L)
+      .withItemCount(0L)
+      .withProvisionedThroughput(new ProvisionedThroughputDescription().withNumberOfDecreasesToday(0L).withLastIncreaseDateTime(new Date()).withLastDecreaseDateTime(new Date()).withReadCapacityUnits(0L).withWriteCapacityUnits(0L))
       .withTableStatus(TableStatus.ACTIVE).withBillingModeSummary(null))
       .billingModeSummary shouldBe None
   }
