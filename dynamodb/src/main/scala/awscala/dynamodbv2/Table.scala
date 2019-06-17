@@ -2,6 +2,20 @@ package awscala.dynamodbv2
 
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
+object Table {
+  def apply(
+    name: String,
+    hashPK: String,
+    rangePK: Option[String],
+    attributes: Seq[AttributeDefinition],
+    localSecondaryIndexes: Seq[LocalSecondaryIndex],
+    globalSecondaryIndexes: Seq[GlobalSecondaryIndex],
+    provisionedThroughput: Option[ProvisionedThroughput],
+    billingMode: aws.model.BillingMode): Table =
+    new Table(name, hashPK, rangePK, attributes, localSecondaryIndexes,
+      globalSecondaryIndexes, provisionedThroughput, Option(billingMode))
+}
+
 case class Table(
   name: String,
   hashPK: String,
@@ -10,7 +24,7 @@ case class Table(
   localSecondaryIndexes: Seq[LocalSecondaryIndex] = Nil,
   globalSecondaryIndexes: Seq[GlobalSecondaryIndex] = Nil,
   provisionedThroughput: Option[ProvisionedThroughput] = None,
-  billingMode: aws.model.BillingMode = BillingMode.Provisioned) {
+  billingMode: Option[aws.model.BillingMode] = None) {
 
   // ------------------------------------------
   // Items

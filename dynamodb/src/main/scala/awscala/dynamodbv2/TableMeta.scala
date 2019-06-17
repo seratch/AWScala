@@ -18,7 +18,7 @@ object TableMeta {
     }.getOrElse(Nil),
     provisionedThroughput = ProvisionedThroughputMeta(t.getProvisionedThroughput),
     createdAt = new DateTime(t.getCreationDateTime),
-    billingModeSummary = BillingModeSummary(t.getBillingModeSummary))
+    billingModeSummary = Option(t.getBillingModeSummary).map(BillingModeSummary.apply))
 }
 
 case class TableMeta(
@@ -30,7 +30,7 @@ case class TableMeta(
   keySchema: Seq[KeySchema],
   localSecondaryIndexes: Seq[LocalSecondaryIndexMeta],
   provisionedThroughput: ProvisionedThroughputMeta,
-  billingModeSummary: BillingModeSummary,
+  billingModeSummary: Option[BillingModeSummary],
   createdAt: DateTime) extends aws.model.TableDescription {
 
   def table: Table = Table(
@@ -40,7 +40,7 @@ case class TableMeta(
     attributes = attributes,
     localSecondaryIndexes = localSecondaryIndexes.map(e => LocalSecondaryIndex(e)),
     provisionedThroughput = Some(ProvisionedThroughput(provisionedThroughput)),
-    billingMode = aws.model.BillingMode.fromValue(billingModeSummary.getBillingMode))
+    billingMode = billingModeSummary.map(_.billingMode).map(aws.model.BillingMode.fromValue))
 
   setAttributeDefinitions(attributes.map(_.asInstanceOf[aws.model.AttributeDefinition]).asJava)
   setCreationDateTime(createdAt.toDate)
@@ -51,7 +51,7 @@ case class TableMeta(
   setTableName(name)
   setTableSizeBytes(sizeBytes)
   setTableStatus(status)
-  setBillingModeSummary(billingModeSummary)
+  billingModeSummary.foreach(setBillingModeSummary)
 }
 
 object LocalSecondaryIndexMeta {

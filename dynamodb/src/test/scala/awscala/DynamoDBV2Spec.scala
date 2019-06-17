@@ -1,6 +1,7 @@
 package awscala
 
 import awscala.dynamodbv2._
+import com.amazonaws.services.dynamodbv2.model.{ ProvisionedThroughputDescription, TableDescription, TableStatus }
 import com.amazonaws.services.dynamodbv2.util.TableUtils
 import com.amazonaws.services.{ dynamodbv2 => aws }
 import org.scalatest._
@@ -478,5 +479,12 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     scanZeroCounts.map(item => item.attributes.find(_.name == "Count").get.value.n.get.toInt).head should be(0)
 
     cities.destroy()
+  }
+
+  it should "describe table without BillingMode (#199)" in {
+    TableMeta(new TableDescription()
+      .withProvisionedThroughput(new ProvisionedThroughputDescription())
+      .withTableStatus(TableStatus.ACTIVE).withBillingModeSummary(null))
+      .billingModeSummary shouldBe None
   }
 }

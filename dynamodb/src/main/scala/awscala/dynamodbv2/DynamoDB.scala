@@ -107,7 +107,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
         table.provisionedThroughput.map(_.asInstanceOf[aws.model.ProvisionedThroughput]).getOrElse {
           ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10)
         })
-      .withBillingMode(table.billingMode)
+
+    table.billingMode.map(_.toString).foreach(req.setBillingMode)
 
     if (table.localSecondaryIndexes.nonEmpty) {
       req.setLocalSecondaryIndexes(table.localSecondaryIndexes.map(_.asInstanceOf[aws.model.LocalSecondaryIndex]).asJava)
