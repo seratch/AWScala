@@ -5,22 +5,30 @@ import com.amazonaws.services.{ dynamodbv2 => aws }
 
 object GlobalSecondaryIndex {
 
-  def apply(v: aws.model.GlobalSecondaryIndexDescription): GlobalSecondaryIndex = new GlobalSecondaryIndex(
+  def apply(v: aws.model.GlobalSecondaryIndexDescription): GlobalSecondaryIndex = GlobalSecondaryIndex(
     name = v.getIndexName,
     keySchema = v.getKeySchema.asScala.map(k => KeySchema(k)),
     projection = Projection(v.getProjection),
-    provisionedThroughput = ProvisionedThroughput(v.getProvisionedThroughput.getReadCapacityUnits, v.getProvisionedThroughput.getWriteCapacityUnits))
+    provisionedThroughput =
+      Option(v.getProvisionedThroughput)
+        .map { pt => ProvisionedThroughput(pt.getReadCapacityUnits, pt.getWriteCapacityUnits) })
 
+  def apply(
+    name: String,
+    keySchema: Seq[KeySchema],
+    projection: Projection,
+    provisionedThroughput: ProvisionedThroughput): GlobalSecondaryIndex =
+    new GlobalSecondaryIndex(name, keySchema, projection, Option(provisionedThroughput))
 }
 
 case class GlobalSecondaryIndex(
   name: String,
   keySchema: Seq[KeySchema],
   projection: Projection,
-  provisionedThroughput: ProvisionedThroughput) extends aws.model.GlobalSecondaryIndex with SecondaryIndex {
+  provisionedThroughput: Option[ProvisionedThroughput] = None) extends aws.model.GlobalSecondaryIndex with SecondaryIndex {
 
   setIndexName(name)
   setKeySchema(keySchema.map(_.asInstanceOf[aws.model.KeySchemaElement]).asJava)
   setProjection(projection)
-  setProvisionedThroughput(provisionedThroughput)
+  provisionedThroughput.foreach(setProvisionedThroughput)
 }
