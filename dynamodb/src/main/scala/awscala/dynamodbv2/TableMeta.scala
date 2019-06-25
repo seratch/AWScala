@@ -67,7 +67,7 @@ object LocalSecondaryIndexMeta {
     name = i.getIndexName,
     sizeBytes = i.getIndexSizeBytes,
     itemCount = i.getItemCount,
-    keySchema = i.getKeySchema.asScala.map(k => KeySchema(k)),
+    keySchema = i.getKeySchema.asScala.toSeq.map(k => KeySchema(k)),
     projection = Projection(i.getProjection))
 }
 case class LocalSecondaryIndexMeta(
