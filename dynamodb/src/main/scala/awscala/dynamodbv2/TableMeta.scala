@@ -17,7 +17,7 @@ object TableMeta {
     keySchema = Option(t.getKeySchema)
       .map(_.asScala.map(s => KeySchema(s)).toSeq)
       .getOrElse(Nil),
-    globalSecondaryIndexes = Option(t.getGlobalSecondaryIndexes).map(_.asScala.toSeq).getOrElse(Nil),
+    globalSecondaryIndexes = Option(t.getGlobalSecondaryIndexes).map(_.asScala.toSeq).getOrElse(Seq.empty),
     localSecondaryIndexes = Option(t.getLocalSecondaryIndexes).map { indexes =>
       indexes.asScala.map(i => LocalSecondaryIndexMeta(i))
     }.getOrElse(Nil),
