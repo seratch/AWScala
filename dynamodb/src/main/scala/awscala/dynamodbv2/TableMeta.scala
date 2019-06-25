@@ -11,14 +11,19 @@ object TableMeta {
     sizeBytes = t.getTableSizeBytes,
     itemCount = t.getItemCount,
     status = aws.model.TableStatus.fromValue(t.getTableStatus),
-    attributes = Option(t.getAttributeDefinitions).map { _.asScala.map(a => AttributeDefinition(a)).toSeq }.getOrElse(Nil),
-    keySchema = Option(t.getKeySchema).map { _.asScala.map(s => KeySchema(s)).toSeq }.getOrElse(Nil),
+    attributes = Option(t.getAttributeDefinitions)
+      .map(_.asScala.map(a => AttributeDefinition(a)).toSeq)
+      .getOrElse(Nil),
+    keySchema = Option(t.getKeySchema)
+      .map(_.asScala.map(s => KeySchema(s)).toSeq)
+      .getOrElse(Nil),
+    globalSecondaryIndexes = Option(t.getGlobalSecondaryIndexes).map(_.asScala).getOrElse(Nil),
     localSecondaryIndexes = Option(t.getLocalSecondaryIndexes).map { indexes =>
       indexes.asScala.map(i => LocalSecondaryIndexMeta(i))
     }.getOrElse(Nil),
     provisionedThroughput = ProvisionedThroughputMeta(t.getProvisionedThroughput),
     createdAt = new DateTime(t.getCreationDateTime),
-    billingModeSummary = BillingModeSummary(t.getBillingModeSummary))
+    billingModeSummary = Option(t.getBillingModeSummary).map(BillingModeSummary.apply))
 }
 
 case class TableMeta(
@@ -28,9 +33,10 @@ case class TableMeta(
   status: TableStatus,
   attributes: Seq[AttributeDefinition],
   keySchema: Seq[KeySchema],
+  globalSecondaryIndexes: Seq[aws.model.GlobalSecondaryIndexDescription],
   localSecondaryIndexes: Seq[LocalSecondaryIndexMeta],
   provisionedThroughput: ProvisionedThroughputMeta,
-  billingModeSummary: BillingModeSummary,
+  billingModeSummary: Option[BillingModeSummary],
   createdAt: DateTime) extends aws.model.TableDescription {
 
   def table: Table = Table(
@@ -38,20 +44,22 @@ case class TableMeta(
     hashPK = keySchema.find(_.keyType == aws.model.KeyType.HASH).get.attributeName,
     rangePK = keySchema.find(_.keyType == aws.model.KeyType.RANGE).map(_.attributeName),
     attributes = attributes,
+    globalSecondaryIndexes = globalSecondaryIndexes.map(GlobalSecondaryIndex.apply),
     localSecondaryIndexes = localSecondaryIndexes.map(e => LocalSecondaryIndex(e)),
     provisionedThroughput = Some(ProvisionedThroughput(provisionedThroughput)),
-    billingMode = aws.model.BillingMode.fromValue(billingModeSummary.getBillingMode))
+    billingMode = billingModeSummary.map(_.billingMode).map(aws.model.BillingMode.fromValue))
 
   setAttributeDefinitions(attributes.map(_.asInstanceOf[aws.model.AttributeDefinition]).asJava)
   setCreationDateTime(createdAt.toDate)
   setItemCount(itemCount)
   setKeySchema(keySchema.map(_.asInstanceOf[aws.model.KeySchemaElement]).asJava)
+  setGlobalSecondaryIndexes(globalSecondaryIndexes.asJava)
   setLocalSecondaryIndexes(localSecondaryIndexes.map(_.asInstanceOf[aws.model.LocalSecondaryIndexDescription]).asJava)
   setProvisionedThroughput(provisionedThroughput)
   setTableName(name)
   setTableSizeBytes(sizeBytes)
   setTableStatus(status)
-  setBillingModeSummary(billingModeSummary)
+  billingModeSummary.foreach(setBillingModeSummary)
 }
 
 object LocalSecondaryIndexMeta {

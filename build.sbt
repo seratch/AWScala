@@ -5,7 +5,7 @@ lazy val commonSettings = Seq(
   name := "awscala",
   version := "0.8.3-SNAPSHOT",
   scalaVersion := "2.12.8",
-  crossScalaVersions := Seq(scalaVersion.value, "2.11.12", "2.10.7", "2.13.0-RC1"),
+  crossScalaVersions := Seq(scalaVersion.value, "2.11.12", "2.10.7", "2.13.0"),
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
@@ -74,7 +74,7 @@ lazy val core = project
       "org.joda" % "joda-convert" % "2.2.0",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.0.8-RC2" % "test"
+      "org.scalatest" %% "scalatest" % "3.0.8" % "test"
     )
   )
 
@@ -104,7 +104,7 @@ def awsProject(service: String) = {
       libraryDependencies ++= Seq(
         "com.amazonaws" % s"aws-java-sdk-$service" % awsJavaSdkVersion,
         "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-        "org.scalatest" %% "scalatest" % "3.0.8-RC2" % "test"
+        "org.scalatest" %% "scalatest" % "3.0.8" % "test"
       )
     )
     .dependsOn(core)

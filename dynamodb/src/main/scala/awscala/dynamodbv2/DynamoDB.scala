@@ -1,6 +1,9 @@
 package awscala.dynamodbv2
 
+import java.util
+
 import awscala._
+
 import scala.collection.JavaConverters._
 import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth.AWSCredentialsProvider
@@ -54,7 +57,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   def describe(table: Table): Option[TableMeta] = describe(table.name)
   def describe(tableName: String): Option[TableMeta] = try {
     Option(TableMeta(describeTable(new aws.model.DescribeTableRequest().withTableName(tableName)).getTable))
-  } catch { case e: aws.model.ResourceNotFoundException => None }
+  } catch { case _: aws.model.ResourceNotFoundException => None }
 
   /**
    * Gets the table by name if it exists.
@@ -104,7 +107,8 @@ trait DynamoDB extends aws.AmazonDynamoDB {
         table.provisionedThroughput.map(_.asInstanceOf[aws.model.ProvisionedThroughput]).getOrElse {
           ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10)
         })
-      .withBillingMode(table.billingMode)
+
+    table.billingMode.map(_.toString).foreach(req.setBillingMode)
 
     if (table.localSecondaryIndexes.nonEmpty) {
       req.setLocalSecondaryIndexes(table.localSecondaryIndexes.map(_.asInstanceOf[aws.model.LocalSecondaryIndex]).asJava)
@@ -137,7 +141,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       .withConsistentRead(consistentRead)).getItem
 
     Option(attributes).map(Item(table, _))
-  } catch { case e: aws.model.ResourceNotFoundException => None }
+  } catch { case _: aws.model.ResourceNotFoundException => None }
 
   def get(table: Table, hashPK: Any, rangePK: Any): Option[Item] = getItem(table, hashPK, rangePK)
 
@@ -154,7 +158,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
             .withConsistentRead(consistentRead)).getItem
 
           Option(attributes).map(Item(table, _))
-        } catch { case e: aws.model.ResourceNotFoundException => None }
+        } catch { case _: aws.model.ResourceNotFoundException => None }
     }
   }
 
@@ -167,10 +171,9 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     def next(state: State): (Option[Item], State) =
       state match {
         case State(head :: tail, remaining) => (Some(head), State(tail, remaining))
-        case State(Nil, remaining) if !remaining.isEmpty => {
+        case State(Nil, remaining) if !remaining.isEmpty =>
           val result = batchGetItem(new BatchGetItemRequest(remaining))
-          next(State(toItems(result).toList, result.getUnprocessedKeys()))
-        }
+          next(State(toItems(result).toList, result.getUnprocessedKeys))
         case State(Nil, remaining) if remaining.isEmpty => (None, state)
       }
 
@@ -182,11 +185,11 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
     def toItems(result: BatchGetItemResult): Seq[Item] = {
       result.getResponses.asScala.toSeq.flatMap {
-        case (t, as) => { table(t).map(table => as.asScala.toSeq.map { a => Item(table, a) }).getOrElse(Nil) }
+        case (t, as) => table(t).map(table => as.asScala.map { a => Item(table, a) }).getOrElse(Nil)
       }
     }
 
-    def toJava(tableAndAttributes: Map[Table, List[(String, Any)]]) =
+    def toJava(tableAndAttributes: Map[Table, List[(String, Any)]]): util.Map[String, KeysAndAttributes] =
       tableAndAttributes.map {
         case (table, attributes) =>
           table.name -> new KeysAndAttributes().withKeys(
@@ -286,7 +289,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     scanIndexForward: Boolean = true,
     consistentRead: Boolean = false,
     limit: Int = 1000,
-    pageStatsCallback: (PageStats => Unit) = null): Seq[Item] = try {
+    pageStatsCallback: PageStats => Unit = null): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
       .withTableName(table.name)
@@ -303,7 +306,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
     val pager = new QueryResultPager(table, query, req, pageStatsCallback)
     pager.toSeq // will return a Stream[Item]
-  } catch { case e: aws.model.ResourceNotFoundException => Nil }
+  } catch { case _: aws.model.ResourceNotFoundException => Nil }
 
   def query(
     table: Table,
@@ -313,7 +316,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     scanIndexForward: Boolean = true,
     consistentRead: Boolean = false,
     limit: Int = 1000,
-    pageStatsCallback: (PageStats => Unit) = null): Seq[Item] = try {
+    pageStatsCallback: PageStats => Unit = null): Seq[Item] = try {
 
     val req = new aws.model.QueryRequest()
       .withTableName(table.name)
@@ -329,7 +332,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
     val pager = new QueryResultPager(table, query, req, pageStatsCallback)
     pager.toSeq // will return a Stream[Item]
-  } catch { case e: aws.model.ResourceNotFoundException => Nil }
+  } catch { case _: aws.model.ResourceNotFoundException => Nil }
 
   def scan(
     table: Table,
@@ -340,7 +343,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     select: Select = aws.model.Select.ALL_ATTRIBUTES,
     attributesToGet: Seq[String] = Nil,
     consistentRead: Boolean = false,
-    pageStatsCallback: (PageStats => Unit) = null): Seq[Item] = try {
+    pageStatsCallback: PageStats => Unit = null): Seq[Item] = try {
 
     val req = new aws.model.ScanRequest()
       .withTableName(table.name)
@@ -357,7 +360,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
 
     val pager = new ScanResultPager(table, scan, req, pageStatsCallback)
     pager.toSeq // will return a Stream[Item]
-  } catch { case e: aws.model.ResourceNotFoundException => Nil }
+  } catch { case _: aws.model.ResourceNotFoundException => Nil }
 }
 
 /**
