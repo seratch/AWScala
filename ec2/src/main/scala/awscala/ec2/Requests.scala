@@ -46,7 +46,7 @@ object IpPermission {
     IpPermission(
       fromPort = if (i.getFromPort == null) -1 else i.getFromPort,
       toPort = if (i.getToPort == null) -1 else i.getToPort,
-      ipRanges = i.getIpRanges.asScala,
+      ipRanges = i.getIpv4Ranges.asScala.map(_.getCidrIp),
       ipProtocol = i.getIpProtocol,
       userIdGroupPairs = i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_)))
 
