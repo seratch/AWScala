@@ -58,6 +58,8 @@ object Region0 {
   val Stockholm = EU_NORTH_1
 
   val GovCloud = apply(awsregions.Regions.GovCloud)
+  val USGovWest1 = GovCloud
+  val USGovEast1 = apply(awsregions.Regions.US_GOV_EAST_1)
 
   val SA_EAST_1 = apply(awsregions.Regions.SA_EAST_1)
   val SaoPaulo = SA_EAST_1
@@ -88,7 +90,8 @@ object Region0 {
     Stockholm,
     London,
     Paris,
-    GovCloud,
+    USGovEast1,
+    USGovWest1,
     SaoPaulo,
     NorthernVirginia,
     Ohio,

@@ -13,8 +13,10 @@ class RegionSpec extends FlatSpec with Matchers {
 
     val regionsFromAwsScala = Region0.all.toArray.map(_.getName.toUpperCase).sorted
 
-    regionsFromAwsScala should contain theSameElementsAs regionsFromAws
+    regionsFromAwsScala.diff(regionsFromAws) shouldBe empty
+    regionsFromAws.diff(regionsFromAwsScala) shouldBe empty
 
+    regionsFromAwsScala should contain theSameElementsAs regionsFromAws
   }
 
 }
