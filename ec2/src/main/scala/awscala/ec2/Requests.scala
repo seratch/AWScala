@@ -34,8 +34,8 @@ object SecurityGroup {
       k.getGroupId,
       k.getGroupName,
       k.getDescription,
-      k.getIpPermissions.asScala.map(IpPermission(_)).toSeq,
-      k.getIpPermissionsEgress.asScala.map(IpPermission(_)).toSeq,
+      k.getIpPermissions.asScala.map(IpPermission(_)),
+      k.getIpPermissionsEgress.asScala.map(IpPermission(_)),
       k.getOwnerId,
       k.getTags.asScala.map(t => t.getKey -> t.getValue).toMap,
       k.getVpcId)
@@ -46,9 +46,9 @@ object IpPermission {
     IpPermission(
       fromPort = if (i.getFromPort == null) -1 else i.getFromPort,
       toPort = if (i.getToPort == null) -1 else i.getToPort,
-      ipRanges = i.getIpRanges.asScala.toSeq,
+      ipRanges = i.getIpv4Ranges.asScala.map(_.getCidrIp),
       ipProtocol = i.getIpProtocol,
-      userIdGroupPairs = i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_)).toSeq)
+      userIdGroupPairs = i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_)))
 
   }
 }
