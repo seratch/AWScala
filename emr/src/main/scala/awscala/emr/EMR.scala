@@ -136,11 +136,15 @@ trait EMR extends aws.AmazonElasticMapReduce {
     amiVersion: String = "latest",
     loggingURI: String = "",
     visibleToAllUsers: Boolean = true,
+    instanceProfile: String = "EMR_EC2_DefaultRole",
+    serviceRole: String = "EMR_DefaultRole",
     jobFlowInstancesConfig: JobFlowInstancesConfig,
     jobFlowStepsRequest: AddJobFlowStepsRequest): RunJobFlowRequest = {
     new RunJobFlowRequest()
       .withName(jobName)
       .withAmiVersion(amiVersion)
+      .withJobFlowRole(instanceProfile)
+      .withServiceRole(serviceRole)
       .withSteps(jobFlowStepsRequest.getSteps())
       .withLogUri(loggingURI)
       .withVisibleToAllUsers(visibleToAllUsers)
@@ -166,6 +170,8 @@ trait EMR extends aws.AmazonElasticMapReduce {
     jobName: String = "AWSscala",
     amiVersion: String = "latest",
     loggingURI: String = "",
+    instanceProfile: String = "EMR_EC2_DefaultRole",
+    serviceRole: String = "EMR_DefaultRole",
     visibleToAllUsers: Boolean = true): aws.model.RunJobFlowResult = {
 
     val jobFlowInstancesConfig = buildJobFlowInstancesConfig(
@@ -192,6 +198,8 @@ trait EMR extends aws.AmazonElasticMapReduce {
       amiVersion,
       loggingURI,
       visibleToAllUsers,
+      instanceProfile,
+      serviceRole,
       jobFlowInstancesConfig,
       jobFlowStepsRequest)
 

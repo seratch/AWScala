@@ -87,7 +87,7 @@ lazy val ec2 = awsProject("ec2")
 
 lazy val iam = awsProject("iam")
 lazy val dynamodb = awsProject("dynamodb").settings(dynamoTestSettings)
-lazy val emr = awsProject("emr")
+lazy val emr = awsProject("emr").dependsOn(ec2 % "test")
 lazy val redshift = awsProject("redshift")
 lazy val s3 = awsProject("s3")
 lazy val simpledb = awsProject("simpledb")
