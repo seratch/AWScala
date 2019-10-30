@@ -1,7 +1,7 @@
 package awscala.emr
 
 import com.amazonaws.services.{ elasticmapreduce => aws }
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 case class Cluster(in: aws.model.Cluster) extends aws.model.Cluster {
   setApplications(in.getApplications())

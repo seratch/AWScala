@@ -1,7 +1,7 @@
 package awscala.dynamodbv2
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 import java.util.{ Map => JMap }
 

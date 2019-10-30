@@ -1,6 +1,6 @@
 package awscala.simpledb
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ simpledb => aws }
 
 object Item {

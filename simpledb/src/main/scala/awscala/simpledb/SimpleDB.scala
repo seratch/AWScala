@@ -1,7 +1,7 @@
 package awscala.simpledb
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ simpledb => aws }
 import com.amazonaws.services.simpledb.model.ListDomainsRequest

@@ -4,7 +4,7 @@ import java.util
 
 import awscala._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ dynamodbv2 => aws }

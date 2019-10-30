@@ -6,7 +6,7 @@ import com.amazonaws.services.dynamodbv2.model
 import com.amazonaws.services.dynamodbv2.model.{ QueryRequest, ScanRequest }
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * The ResultPager allows iteration over the results from a DynamoDB query/scan as a single stream of items,

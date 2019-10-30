@@ -3,7 +3,7 @@ package awscala.dynamodbv2
 import awscala._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object TableMeta {
   def apply(t: aws.model.TableDescription): TableMeta = new TableMeta(
@@ -20,7 +20,7 @@ object TableMeta {
     globalSecondaryIndexes = Option(t.getGlobalSecondaryIndexes).map(_.asScala.toSeq).getOrElse(Seq.empty),
     localSecondaryIndexes = Option(t.getLocalSecondaryIndexes).map { indexes =>
       indexes.asScala.map(i => LocalSecondaryIndexMeta(i))
-    }.getOrElse(Nil),
+    }.getOrElse(Nil).toSeq,
     provisionedThroughput = ProvisionedThroughputMeta(t.getProvisionedThroughput),
     createdAt = new DateTime(t.getCreationDateTime),
     billingModeSummary = Option(t.getBillingModeSummary).map(BillingModeSummary.apply))

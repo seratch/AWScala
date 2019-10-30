@@ -1,7 +1,7 @@
 package awscala.ec2
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ ec2 => aws }
 import java.util.Date
 
@@ -50,7 +50,7 @@ class Instance(val underlying: aws.model.Instance) {
 
   def architecture: String = underlying.getArchitecture
 
-  def blockDeviceMappings: Seq[aws.model.InstanceBlockDeviceMapping] = underlying.getBlockDeviceMappings.asScala
+  def blockDeviceMappings: Seq[aws.model.InstanceBlockDeviceMapping] = underlying.getBlockDeviceMappings.asScala.toSeq
 
   def clientToken: String = underlying.getClientToken
 
@@ -70,13 +70,13 @@ class Instance(val underlying: aws.model.Instance) {
 
   def monitoring: aws.model.Monitoring = underlying.getMonitoring
 
-  def networkInterfaces: Seq[aws.model.InstanceNetworkInterface] = underlying.getNetworkInterfaces.asScala
+  def networkInterfaces: Seq[aws.model.InstanceNetworkInterface] = underlying.getNetworkInterfaces.asScala.toSeq
 
   def placement: aws.model.Placement = underlying.getPlacement
 
   def platform: Option[String] = Option(underlying.getPlatform)
 
-  def productCodes: Seq[aws.model.ProductCode] = underlying.getProductCodes.asScala
+  def productCodes: Seq[aws.model.ProductCode] = underlying.getProductCodes.asScala.toSeq
 
   def getRamdiskId: Option[String] = Option(ramdiskId)
 
@@ -86,7 +86,7 @@ class Instance(val underlying: aws.model.Instance) {
 
   def rootDeviceType: String = underlying.getRootDeviceType
 
-  def securityGroups: Seq[aws.model.GroupIdentifier] = underlying.getSecurityGroups.asScala
+  def securityGroups: Seq[aws.model.GroupIdentifier] = underlying.getSecurityGroups.asScala.toSeq
 
   def spotInstanceRequestId: Option[String] = Option(underlying.getSpotInstanceRequestId)
 

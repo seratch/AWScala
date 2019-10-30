@@ -1,7 +1,7 @@
 package awscala.emr
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import com.amazonaws.auth.AWSCredentialsProvider
@@ -202,7 +202,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
     clusterSummaries(clusterStates, createdBefore, createdAfter) map { x => toCluster(x) }
 
   private def toCluster(summary: ClusterSummary): awscala.emr.Cluster =
-    Cluster(describeCluster(new DescribeClusterRequest().withClusterId(summary.getId)).getCluster())
+    awscala.emr.Cluster(describeCluster(new DescribeClusterRequest().withClusterId(summary.getId)).getCluster())
 
   def runningClusters() = clusters(Seq("RUNNING"))
 

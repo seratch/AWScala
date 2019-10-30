@@ -1,7 +1,7 @@
 package awscala.s3
 
 import java.io.{ InputStream, File }
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ s3 => aws }
 import com.amazonaws.services.s3.model.GetObjectMetadataRequest
 

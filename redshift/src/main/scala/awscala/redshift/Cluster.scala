@@ -1,7 +1,7 @@
 package awscala.redshift
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ redshift => aws }
 
 object Cluster {
