@@ -1,12 +1,11 @@
-import sbt.addCompilerPlugin
 import xerial.sbt.Sonatype.autoImport._
 
 lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
   version := "0.8.3-SNAPSHOT",
-  scalaVersion := "2.13.1",
-  crossScalaVersions := Seq(scalaVersion.value, "2.12.10"),
+  scalaVersion := "2.12.8",
+  crossScalaVersions := Seq("2.12.8", "2.11.12", "2.10.7"),
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
@@ -54,7 +53,7 @@ lazy val commonSettings = Seq(
   sonatypeProfileName := "com.github.seratch"
 )
 
-lazy val awsJavaSdkVersion = "1.11.541"
+lazy val awsJavaSdkVersion = "1.11.621"
 
 lazy val all = (project in file("."))
   .settings(commonSettings)
@@ -89,7 +88,7 @@ lazy val ec2 = awsProject("ec2")
 
 lazy val iam = awsProject("iam")
 lazy val dynamodb = awsProject("dynamodb").settings(dynamoTestSettings)
-lazy val emr = awsProject("emr")
+lazy val emr = awsProject("emr").dependsOn(ec2 % "test")
 lazy val redshift = awsProject("redshift")
 lazy val s3 = awsProject("s3")
 lazy val simpledb = awsProject("simpledb")
