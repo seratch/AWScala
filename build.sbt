@@ -6,7 +6,7 @@ lazy val root = (project in file(".")).settings(
   organization := "com.github.seratch",
   name := "awscala",
   version := "0.5.9",
-  scalaVersion := "2.12.0",
+  scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.12.0", "2.11.8", "2.10.6"),
   publishMavenStyle := true,
   resolvers += "spray repo" at "http://repo.spray.io",
@@ -34,7 +34,7 @@ lazy val root = (project in file(".")).settings(
   publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := { x => false },
-  pomExtra := <url>https://github.com/seratch/awscala</url>
+  pomExtra := <url>https://github.com/ltassoneVisua/awscala</url>
     <licenses>
       <license>
         <name>Apache License, Version 2.0</name>
@@ -43,8 +43,8 @@ lazy val root = (project in file(".")).settings(
       </license>
     </licenses>
     <scm>
-      <url>git@github.com:seratch/awscala.git</url>
-      <connection>scm:git:git@github.com:seratch/awscala.git</connection>
+      <url>git@github.com:ltassoneVisua/awscala.git</url>
+      <connection>scm:git:git@github.com:ltassoneVisua/awscala.git</connection>
     </scm>
     <developers>
       <developer>
@@ -68,6 +68,6 @@ lazy val root = (project in file(".")).settings(
         <url>https://github.com/gribeiro</url>
       </developer>
     </developers>,
-  organization := "com.github.seratch",
-  sonatypeProfileName := "com.github.seratch"
+  organization := "com.github.ltassoneVisua",
+  sonatypeProfileName := "com.github.ltassoneVisua"
 ).settings(scalariformSettings)
