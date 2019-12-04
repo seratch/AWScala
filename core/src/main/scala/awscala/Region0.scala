@@ -9,7 +9,14 @@ object Region0 {
   def default(): Region = defaultRegion
   def default(region: Region): Unit = defaultRegion = region
 
-  def apply(name: String): Region = apply(awsregions.Regions.fromName(name))
+  def apply(name: String): Region = {
+    try {
+      apply(awsregions.Regions.fromName(name))
+    } catch {
+      case _: IllegalArgumentException => null
+    }
+  }
+
   def apply(name: awsregions.Regions): Region = awsregions.Region.getRegion(name)
 
   val AP_NORTHEAST_1 = apply(awsregions.Regions.AP_NORTHEAST_1)
