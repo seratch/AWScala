@@ -14,6 +14,12 @@ object S3 {
 
   def apply(credentials: Credentials)(implicit region: Region): S3 = apply(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
 
+  def apply(credentialsProvider: AWSCredentialsProvider, endpoint: String)(implicit region: Region): S3 = {
+    val client = new S3Client(credentialsProvider).at(region)
+    client.setEndpoint(endpoint)
+    client
+  }
+  
   def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): S3 = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
 
   def apply(credentialsProvider: AWSCredentialsProvider = CredentialsLoader.load())(implicit region: Region = Region.default()): S3 = new S3Client(credentialsProvider).at(region)

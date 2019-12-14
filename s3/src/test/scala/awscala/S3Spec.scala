@@ -66,4 +66,11 @@ class S3Spec extends FlatSpec with Matchers {
     bucket.destroy()
   }
 
+  it should "create connection with a custom endpoint" in {
+    val cred     = Credentials("", "")
+    val endpoint = ""
+    val prov     = BasicCredentialsProvider(cred)
+
+    implicit val s3 = S3(prov, endpoint)(Region.US_EAST_1)    
+  }
 }

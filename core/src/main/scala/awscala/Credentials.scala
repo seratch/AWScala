@@ -10,6 +10,9 @@ class SessionCredentials(accessKeyId: String, secretAccessKey: String, token: St
   override def getSessionToken: String = token
 }
 
+class EndpointCredentials(accessKeyId: String, secretAccessKey: String, token: String, endpoint: String)
+  extends SessionCredentials(accessKeyId, secretAccessKey, token)
+
 object Credentials {
   def apply(accessKeyId: String, secretAccessKey: String): Credentials =
     new Credentials(accessKeyId, secretAccessKey)
