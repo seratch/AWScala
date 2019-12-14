@@ -4,8 +4,8 @@ lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
   version := "0.8.3",
-  scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.12.8", "2.11.12", "2.10.7"),
+  scalaVersion := "2.12.10",
+  crossScalaVersions := Seq("2.12.10", "2.11.12", "2.10.7"),
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
@@ -53,7 +53,7 @@ lazy val commonSettings = Seq(
   sonatypeProfileName := "com.github.seratch"
 )
 
-lazy val awsJavaSdkVersion = "1.11.621"
+lazy val awsJavaSdkVersion = "1.11.693"
 
 lazy val all = (project in file("."))
   .settings(commonSettings)
