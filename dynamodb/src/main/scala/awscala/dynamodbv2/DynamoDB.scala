@@ -305,7 +305,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     }
 
     val pager = new QueryResultPager(table, query, req, pageStatsCallback)
-    pager.toSeq // will return a Stream[Item]
+    pager.toStream
   } catch { case _: aws.model.ResourceNotFoundException => Nil }
 
   def query(
@@ -331,7 +331,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     }
 
     val pager = new QueryResultPager(table, query, req, pageStatsCallback)
-    pager.toSeq // will return a Stream[Item]
+    pager.toStream
   } catch { case _: aws.model.ResourceNotFoundException => Nil }
 
   def scan(
@@ -359,7 +359,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     }
 
     val pager = new ScanResultPager(table, scan, req, pageStatsCallback)
-    pager.toSeq // will return a Stream[Item]
+    pager.toStream
   } catch { case _: aws.model.ResourceNotFoundException => Nil }
 }
 
