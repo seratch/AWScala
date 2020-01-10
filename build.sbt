@@ -3,7 +3,7 @@ import xerial.sbt.Sonatype.autoImport._
 lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
-  version := "0.8.3-SNAPSHOT",
+  version := "0.8.4-SNAPSHOT",
   scalaVersion := "2.13.1",
   crossScalaVersions := Seq("2.12.10", "2.13.1"),
   sbtPlugin := false,
