@@ -1,7 +1,7 @@
 package awscala.sqs
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ sqs => aws }
 import com.amazonaws.auth.{ AWSCredentialsProvider, AWSSessionCredentials }
 
@@ -66,7 +66,7 @@ trait SQS extends aws.AmazonSQS {
     sendMessage(new aws.model.SendMessageRequest(queue.url, messageBody).withDelaySeconds(delaySeconds))
   }
   def sendMessages(queue: Queue, messageBodies: Seq[String]): aws.model.SendMessageBatchResult = {
-    val batchId = Thread.currentThread.getId + "-" + System.nanoTime
+    val batchId = s"${Thread.currentThread.getId}-${System.nanoTime}"
     sendMessageBatch(queue, messageBodies.zipWithIndex.map { case (body, idx) => new MessageBatchEntry(s"${batchId}-${idx}", body) })
   }
   def sendMessageBatch(queue: Queue, messages: Seq[MessageBatchEntry]): aws.model.SendMessageBatchResult = {
@@ -90,7 +90,7 @@ trait SQS extends aws.AmazonSQS {
     deleteMessage(request)
   }
   def deleteMessages(messages: Seq[Message], requestCredentials: Option[AWSSessionCredentials] = None): aws.model.DeleteMessageBatchResult = {
-    val batchId = Thread.currentThread.getId + "-" + System.nanoTime
+    val batchId = s"${Thread.currentThread.getId}-${System.nanoTime}"
     deleteMessageBatch(
       messages.head.queue,
       messages.zipWithIndex.map { case (msg, idx) => new DeleteMessageBatchEntry(s"${batchId}-${idx}", msg.receiptHandle) },

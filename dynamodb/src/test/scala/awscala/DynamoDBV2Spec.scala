@@ -109,10 +109,10 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
     val exp = DynamoDBExpectedAttributeValue
     Try(dynamoDB.putConditional(tableName, "Id" -> 3, "Country" -> "Japan",
-      "Name" -> "Kris")(Seq("Age" -> exp.lt(29)))) should be a 'failure
+      "Name" -> "Kris")(Seq("Age" -> exp.lt(29)))) should be a Symbol("failure")
 
     Try(dynamoDB.putConditional(tableName, "Id" -> 3, "Country" -> "Japan",
-      "Name" -> "Kris")(Seq("Age" -> exp.lt(30)))) should be a 'success
+      "Name" -> "Kris")(Seq("Age" -> exp.lt(30)))) should be a Symbol("success")
 
     members.destroy()
   }

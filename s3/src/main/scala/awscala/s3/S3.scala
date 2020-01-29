@@ -8,7 +8,7 @@ import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ s3 => aws }
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object S3 {
 

@@ -1,7 +1,7 @@
 package awscala.ec2
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ ec2 => aws }
 import scala.annotation.tailrec
@@ -31,17 +31,17 @@ trait EC2 extends aws.AmazonEC2Async {
   // ------------------------------------------
 
   def instances: Seq[Instance] = {
-    describeInstances.getReservations.asScala.flatMap(_.getInstances.asScala.toSeq.map(Instance(_)))
+    describeInstances.getReservations.asScala.flatMap(_.getInstances.asScala.toSeq.map(Instance(_))).toSeq
   }
 
   def instances(instanceId: String*): Seq[Instance] = {
     describeInstances(new aws.model.DescribeInstancesRequest().withInstanceIds(instanceId: _*))
-      .getReservations.asScala.flatMap(_.getInstances.asScala).map(Instance(_))
+      .getReservations.asScala.flatMap(_.getInstances.asScala).map(Instance(_)).toSeq
   }
 
   def instances(instanceIds: Seq[String] = Nil, filters: Seq[aws.model.Filter] = Nil): Seq[Instance] = {
     describeInstances(new aws.model.DescribeInstancesRequest().withInstanceIds(instanceIds.asJava).withFilters(filters.asJava))
-      .getReservations.asScala.flatMap(_.getInstances.asScala).map(Instance(_))
+      .getReservations.asScala.flatMap(_.getInstances.asScala).map(Instance(_)).toSeq
   }
 
   def runAndAwait(
@@ -65,7 +65,8 @@ trait EC2 extends aws.AmazonEC2Async {
     }
   }
 
-  def runAndAwait(request: aws.model.RunInstancesRequest): Seq[Instance] = awaitInstances(runInstances(request).getReservation.getInstances.asScala.map(Instance(_)))
+  def runAndAwait(request: aws.model.RunInstancesRequest): Seq[Instance] =
+    awaitInstances(runInstances(request).getReservation.getInstances.asScala.map(Instance(_)).toSeq)
 
   def start(instance: Instance*) = startInstances(new aws.model.StartInstancesRequest()
     .withInstanceIds(instance.map(_.instanceId): _*))
@@ -83,7 +84,7 @@ trait EC2 extends aws.AmazonEC2Async {
   // Key Pairs
   // ------------------------------------------
 
-  def keyPairs: Seq[KeyPair] = describeKeyPairs.getKeyPairs.asScala.map(KeyPair(_))
+  def keyPairs: Seq[KeyPair] = describeKeyPairs.getKeyPairs.asScala.map(KeyPair(_)).toSeq
 
   def keyPair(name: String): Option[KeyPair] = {
     describeKeyPairs(new aws.model.DescribeKeyPairsRequest().withKeyNames(name))
@@ -99,7 +100,7 @@ trait EC2 extends aws.AmazonEC2Async {
   // Security Groups
   // ------------------------------------------
 
-  def securityGroups: Seq[SecurityGroup] = describeSecurityGroups.getSecurityGroups.asScala.map(SecurityGroup(_))
+  def securityGroups: Seq[SecurityGroup] = describeSecurityGroups.getSecurityGroups.asScala.map(SecurityGroup(_)).toSeq
 
   def securityGroup(name: String): Option[SecurityGroup] = {
     describeSecurityGroups(new aws.model.DescribeSecurityGroupsRequest().withGroupNames(name))

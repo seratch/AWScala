@@ -1,6 +1,6 @@
 package awscala.ec2
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ ec2 => aws }
 
 case class RunInstancesRequest(imageId: String, min: Int = 1, max: Int = 1)
@@ -34,8 +34,8 @@ object SecurityGroup {
       k.getGroupId,
       k.getGroupName,
       k.getDescription,
-      k.getIpPermissions.asScala.map(IpPermission(_)),
-      k.getIpPermissionsEgress.asScala.map(IpPermission(_)),
+      k.getIpPermissions.asScala.toSeq.map(IpPermission(_)),
+      k.getIpPermissionsEgress.asScala.toSeq.map(IpPermission(_)),
       k.getOwnerId,
       k.getTags.asScala.map(t => t.getKey -> t.getValue).toMap,
       k.getVpcId)
@@ -46,9 +46,9 @@ object IpPermission {
     IpPermission(
       fromPort = if (i.getFromPort == null) -1 else i.getFromPort,
       toPort = if (i.getToPort == null) -1 else i.getToPort,
-      ipRanges = i.getIpv4Ranges.asScala.map(_.getCidrIp),
+      ipRanges = i.getIpv4Ranges.asScala.toSeq.map(_.getCidrIp),
       ipProtocol = i.getIpProtocol,
-      userIdGroupPairs = i.getUserIdGroupPairs.asScala.map(UserIdGroupPair(_)))
+      userIdGroupPairs = i.getUserIdGroupPairs.asScala.toSeq.map(UserIdGroupPair(_)))
 
   }
 }

@@ -1,6 +1,6 @@
 package awscala
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.auth.{ policy => aws }
 
 case class Policy(statements: Seq[Statement], id: Option[String] = None) extends aws.Policy {

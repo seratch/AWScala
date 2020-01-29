@@ -1,7 +1,7 @@
 package awscala.sqs
 
 import com.amazonaws.services.sqs.model.MessageAttributeValue
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object Message {
 

@@ -1,7 +1,7 @@
 package awscala.iam
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ identitymanagement => aws }
 
 object InstanceProfile {
@@ -11,7 +11,7 @@ object InstanceProfile {
     name = g.getInstanceProfileName,
     arn = g.getArn,
     path = g.getPath,
-    roles = g.getRoles.asScala.map(r => Role(r)),
+    roles = g.getRoles.asScala.map(r => Role(r)).toSeq,
     createdAt = new DateTime(g.getCreateDate))
 }
 

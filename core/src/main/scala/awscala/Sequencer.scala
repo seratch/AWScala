@@ -1,6 +1,6 @@
 package awscala
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * Sequencer is a trait that provides a method to returns a Stream over a list of items from AWS

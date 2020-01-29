@@ -1,13 +1,13 @@
 package awscala.dynamodbv2
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
 object GlobalSecondaryIndex {
 
   def apply(v: aws.model.GlobalSecondaryIndexDescription): GlobalSecondaryIndex = GlobalSecondaryIndex(
     name = v.getIndexName,
-    keySchema = v.getKeySchema.asScala.map(k => KeySchema(k)),
+    keySchema = v.getKeySchema.asScala.map(k => KeySchema(k)).toSeq,
     projection = Projection(v.getProjection),
     provisionedThroughput =
       Option(v.getProvisionedThroughput)

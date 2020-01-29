@@ -23,7 +23,7 @@ class KeyPairSpec extends FlatSpec with Matchers {
       keyPair.name should be(keyPairName)
       keyPair.fingerprint.size should be > (0)
       // Newly created key pair has material (i.e. private key)
-      keyPair.material should be('defined)
+      keyPair.material should be(Symbol("defined"))
       keyPair.material.get.size should be > (0)
 
       keyPair.getKeyName should equal(keyPair.name)

@@ -4,7 +4,7 @@ import java.util
 
 import awscala._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ dynamodbv2 => aws }
@@ -51,7 +51,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   // Tables
   // ------------------------------------------
 
-  def tableNames: Seq[String] = listTables.getTableNames.asScala
+  def tableNames: Seq[String] = listTables.getTableNames.asScala.toSeq
   def lastEvaluatedTableName: Option[String] = Option(listTables.getLastEvaluatedTableName)
 
   def describe(table: Table): Option[TableMeta] = describe(table.name)
@@ -216,41 +216,41 @@ trait DynamoDB extends aws.AmazonDynamoDB {
   }
 
   def attributeValues(attributes: Seq[(String, Any)]): java.util.Map[String, aws.model.AttributeValue] =
-    attributes.toMap.mapValues(AttributeValue.toJavaValue).asJava
+    attributes.toMap.mapValues(AttributeValue.toJavaValue(_)).toMap.asJava
 
   def put(table: Table, attributes: (String, Any)*): Unit = putItem(table.name, attributes: _*)
   def putItem(tableName: String, attributes: (String, Any)*): Unit = {
     putItem(new aws.model.PutItemRequest()
       .withTableName(tableName)
-      .withItem(attributeValues(attributes)))
+      .withItem(attributeValues(attributes.toSeq)))
   }
 
   def putConditional(tableName: String, attributes: (String, Any)*)(cond: Seq[(String, aws.model.ExpectedAttributeValue)]): Unit = {
     putItem(new aws.model.PutItemRequest()
       .withTableName(tableName)
-      .withItem(attributeValues(attributes))
+      .withItem(attributeValues(attributes.toSeq))
       .withExpected(cond.toMap.asJava))
   }
 
   def addAttributes(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
-    updateAttributes(table, hashPK, None, aws.model.AttributeAction.ADD, attributes)
+    updateAttributes(table, hashPK, None, aws.model.AttributeAction.ADD, attributes.toSeq)
   }
   def addAttributes(table: Table, hashPK: Any, rangePK: Any, attributes: (String, Any)*): Unit = {
-    updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.ADD, attributes)
+    updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.ADD, attributes.toSeq)
   }
 
   def deleteAttributes(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
-    updateAttributes(table, hashPK, None, aws.model.AttributeAction.DELETE, attributes)
+    updateAttributes(table, hashPK, None, aws.model.AttributeAction.DELETE, attributes.toSeq)
   }
   def deleteAttributes(table: Table, hashPK: Any, rangePK: Any, attributes: (String, Any)*): Unit = {
-    updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.DELETE, attributes)
+    updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.DELETE, attributes.toSeq)
   }
 
   def putAttributes(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
-    updateAttributes(table, hashPK, None, aws.model.AttributeAction.PUT, attributes)
+    updateAttributes(table, hashPK, None, aws.model.AttributeAction.PUT, attributes.toSeq)
   }
   def putAttributes(table: Table, hashPK: Any, rangePK: Any, attributes: (String, Any)*): Unit = {
-    updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
+    updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes.toSeq)
   }
 
   private[dynamodbv2] def updateAttributes(
@@ -305,7 +305,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     }
 
     val pager = new QueryResultPager(table, query, req, pageStatsCallback)
-    pager.toSeq // will return a Stream[Item]
+    pager.toStream
   } catch { case _: aws.model.ResourceNotFoundException => Nil }
 
   def query(
@@ -331,7 +331,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     }
 
     val pager = new QueryResultPager(table, query, req, pageStatsCallback)
-    pager.toSeq // will return a Stream[Item]
+    pager.toStream
   } catch { case _: aws.model.ResourceNotFoundException => Nil }
 
   def scan(
@@ -359,7 +359,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     }
 
     val pager = new ScanResultPager(table, scan, req, pageStatsCallback)
-    pager.toSeq // will return a Stream[Item]
+    pager.toStream
   } catch { case _: aws.model.ResourceNotFoundException => Nil }
 }
 

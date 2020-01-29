@@ -1,6 +1,6 @@
 package awscala
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.auth.{ policy => aws }
 
 case class Condition(key: String, typeName: String, conditionValues: Seq[String]) extends aws.Condition {
@@ -8,5 +8,5 @@ case class Condition(key: String, typeName: String, conditionValues: Seq[String]
   setType(typeName)
   setValues(conditionValues.asJava)
 
-  def specifiedValues: Seq[String] = getValues.asScala
+  def specifiedValues: Seq[String] = getValues.asScala.toSeq
 }

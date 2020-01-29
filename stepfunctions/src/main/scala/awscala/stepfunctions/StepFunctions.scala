@@ -9,7 +9,7 @@ import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.stepfunctions.model._
 import com.amazonaws.services.{ stepfunctions => aws }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.{ blocking, ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
 
