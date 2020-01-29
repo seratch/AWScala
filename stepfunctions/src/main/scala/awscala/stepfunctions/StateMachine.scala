@@ -6,7 +6,7 @@ import awscala.{ DateTime, Sequencer }
 import awscala.stepfunctions.ArnFormat.ResourceArn
 import com.amazonaws.services.stepfunctions.model._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 case class StateMachine(arn: String) {
   val name: String = ArnFormat.parseArn(arn, ResourceArn)

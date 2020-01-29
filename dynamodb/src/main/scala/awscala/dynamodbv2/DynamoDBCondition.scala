@@ -2,7 +2,7 @@ package awscala.dynamodbv2
 
 import com.amazonaws.services.dynamodbv2.model.{ Condition, ExpectedAttributeValue }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
 trait DynamoCompares[A] {

@@ -3,9 +3,9 @@ import xerial.sbt.Sonatype.autoImport._
 lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
-  version := "0.8.3",
-  scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.12.8", "2.11.12", "2.10.7"),
+  version := "0.8.4-SNAPSHOT",
+  scalaVersion := "2.13.1",
+  crossScalaVersions := Seq("2.12.10", "2.13.1"),
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
@@ -72,6 +72,7 @@ lazy val core = project
       "com.amazonaws" % "aws-java-sdk-core" % awsJavaSdkVersion,
       "joda-time" % "joda-time" % "2.10.3",
       "org.joda" % "joda-convert" % "2.2.1",
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.1",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
       "org.scalatest" %% "scalatest" % "3.0.8" % "test"
@@ -81,7 +82,7 @@ lazy val core = project
 lazy val ec2 = awsProject("ec2")
   .settings(
     libraryDependencies ++= Seq(
-      "com.github.seratch.com.veact" %% "scala-ssh" % "0.8.0-1" % "provided"
+      "com.decodified" %% "scala-ssh" % "0.10.0" % "provided"
     )
   )
 

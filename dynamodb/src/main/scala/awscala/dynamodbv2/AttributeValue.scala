@@ -1,7 +1,7 @@
 package awscala.dynamodbv2
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 import java.util.{ Map => JMap }
 
@@ -44,10 +44,10 @@ object AttributeValue {
     n = Option(v.getN),
     b = Option(v.getB),
     m = Option(v.getM),
-    l = Option(v.getL).map(_.asScala).getOrElse(Nil),
-    ss = Option(v.getSS).map(_.asScala).getOrElse(Nil),
-    ns = Option(v.getNS).map(_.asScala).getOrElse(Nil),
-    bs = Option(v.getBS).map(_.asScala).getOrElse(Nil))
+    l = Option(v.getL).map(_.asScala).getOrElse(Nil).toSeq,
+    ss = Option(v.getSS).map(_.asScala).getOrElse(Nil).toSeq,
+    ns = Option(v.getNS).map(_.asScala).getOrElse(Nil).toSeq,
+    bs = Option(v.getBS).map(_.asScala).getOrElse(Nil).toSeq)
 }
 
 case class AttributeValue(

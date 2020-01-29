@@ -2,6 +2,9 @@ package awscala.ec2
 
 import awscala._
 import com.amazonaws.services.{ ec2 => aws }
+import com.decodified.scalassh.HostKeyVerifiers.DontVerify
+
+import scala.util.{ Failure, Success, Try }
 
 case class InstanceWithKeyPair(
   override val underlying: aws.model.Instance,
@@ -11,22 +14,21 @@ case class InstanceWithKeyPair(
 
   import com.decodified.scalassh._
 
-  def ssh[T](f: SshClient => SSH.Result[T]) = SSH[T](publicDnsName, provider(keyPairFile))(f)
+  def ssh[T](f: SshClient => SSH.Result[T]): Try[T] = SSH[T](publicDnsName, provider(keyPairFile))(f)
 
-  private[this] def provider(keyPairFile: File): HostConfigProvider = new FromStringsHostConfigProvider {
-    def rawLines(host: String): com.decodified.scalassh.Validated[(String, TraversableOnce[String])] =
-      if (keyPairFile.exists()) {
-        Right("dummy_source" -> (
-          Seq(
-            "login-type = keyfile",
-            s"username = $user",
-            s"keyfile = ${keyPairFile.getAbsolutePath}",
-            s"command-timeout = $connectionTimeout",
-            "fingerprint = any" //TODO: ask if user will trust any host key provided by the server. Currently it's always YES.
-          )))
-      } else {
-        Left(s"KeyFile ${keyPairFile.getAbsolutePath} does not exist")
-      }
+  private[this] def provider(keyPairFile: File): HostConfigProvider = new HostConfigProvider {
+    override def apply(v1: String): Try[HostConfig] =
+      Success(HostConfig(
+        login = PublicKeyLogin(user, None, List(keyPairFile.getAbsolutePath)),
+        hostName = "",
+        port = 22,
+        connectTimeout = None,
+        connectionTimeout = None,
+        commandTimeout = Some(connectionTimeout),
+        enableCompression = false,
+        hostKeyVerifier = DontVerify,
+        ptyConfig = None,
+        sshjConfig = HostConfig.DefaultSshjConfig))
   }
 
 }

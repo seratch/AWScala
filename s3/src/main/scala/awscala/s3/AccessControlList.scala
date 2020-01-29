@@ -1,6 +1,6 @@
 package awscala.s3
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ s3 => aws }
 
 object AccessControlList {

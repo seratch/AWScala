@@ -1,7 +1,7 @@
 package awscala.iam
 
 import awscala._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ identitymanagement => aws }
 
@@ -32,7 +32,7 @@ trait IAM extends aws.AmazonIdentityManagement {
   // Account Aliases
   // ------------------------------------------
 
-  def accountAliases: Seq[String] = listAccountAliases.getAccountAliases.asScala
+  def accountAliases: Seq[String] = listAccountAliases.getAccountAliases.asScala.toSeq
   def createAccountAlias(alias: String): Unit = {
     createAccountAlias(new aws.model.CreateAccountAliasRequest().withAccountAlias(alias))
   }

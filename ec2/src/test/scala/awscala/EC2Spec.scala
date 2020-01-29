@@ -1,10 +1,9 @@
 package awscala
 
-import awscala._, ec2._
-
+import awscala._
+import ec2._
 import org.slf4j._
 import org.scalatest._
-
 import java.io._
 
 class EC2Spec extends FlatSpec with Matchers {
@@ -40,7 +39,7 @@ class EC2Spec extends FlatSpec with Matchers {
     ec2.runAndAwait("ami-2819aa29", keyPair).headOption.foreach { instance =>
       instance.withKeyPair(kpFile) { i =>
         i.ssh { client =>
-          client.exec("ls -la").right.map { result =>
+          client.exec("ls -la").map { result =>
             log.info(s"Run command on this EC2 instance:${instance.instanceId} Result:\n" + result.stdOutAsString())
           }
         }
