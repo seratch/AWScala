@@ -6,7 +6,6 @@ import awscala.emr._
 import awscala.ec2._
 import scala.collection.JavaConverters._
 
-
 class EMRSpec extends FlatSpec with Matchers with BeforeAndAfterAll {
 
   behavior of "EMR"
