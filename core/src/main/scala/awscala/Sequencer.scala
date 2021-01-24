@@ -28,13 +28,13 @@ trait Sequencer[Item, Result, Marker] {
       case State(Nil, None) => (None, state)
     }
 
-    def toLazyList(state: State[Item]): LazyList[Item] =
+    def toStream(state: State[Item]): Stream[Item] =
       next(state) match {
-        case (Some(item), nextState) => LazyList.cons(item, toLazyList(nextState))
-        case (None, _) => LazyList.empty
+        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
+        case (None, _) => Stream.Empty
       }
 
     val result = getInitial
-    toLazyList(State(getList(result).asScala.toList, Option(getMarker(result))))
+    toStream(State(getList(result).asScala.toList, Option(getMarker(result))))
   }
 }
