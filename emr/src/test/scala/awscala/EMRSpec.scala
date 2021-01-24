@@ -4,7 +4,7 @@ import org.slf4j._
 import org.scalatest._
 import awscala.emr._
 import awscala.ec2._
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 
 
 class EMRSpec extends FlatSpec with Matchers with BeforeAndAfterAll {
