@@ -29,7 +29,7 @@ class S3Spec extends FlatSpec with Matchers {
     }
 
     // delete objects
-    val summaries = bucket.objectSummaries.toList
+    val summaries = bucket.objectSummaries().toList
 
     summaries foreach {
       o => { log.info("deleting ${o.getKey}"); s3.deleteObject(bucket.name, o.getKey) }
@@ -61,7 +61,7 @@ class S3Spec extends FlatSpec with Matchers {
 
     // delete objects
     s3obj.foreach(o => { o.content.close(); bucket.delete(o) })
-    bucket.get("S3Spec.scala").map { o => o.content.close(); o.destroy() } // working with implicit S3 instance
+    bucket.get("S3Spec.scala").foreach { o => o.content.close(); o.destroy() } // working with implicit S3 instance
 
     bucket.destroy()
   }

@@ -47,7 +47,7 @@ class SQSSpec extends FlatSpec with Matchers {
     }
 
     // receive messages
-    val receivedMessages = queue.messages // or sqs.receiveMessage(queue)
+    val receivedMessages = queue.messages() // or sqs.receiveMessage(queue)
     log.info(s"Received : ${receivedMessages}")
 
     // delete messages
@@ -57,7 +57,7 @@ class SQSSpec extends FlatSpec with Matchers {
     sqs.withQueue(queue) { s =>
       s.sendMessage("some message!")
       s.sendMessages("first", "second", "third")
-      s.receiveMessage.foreach(msg => s.deleteMessage(msg))
+      s.receiveMessage().foreach(msg => s.deleteMessage(msg))
     }
 
     // delete a queue

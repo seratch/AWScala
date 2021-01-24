@@ -22,20 +22,19 @@ trait Sequencer[Item, Result, Marker] {
     @scala.annotation.tailrec
     def next(state: State[Item]): (Option[Item], State[Item]) = state match {
       case State(head :: tail, nextMarker) => (Some(head), State(tail, nextMarker))
-      case State(Nil, Some(nextMarker)) => {
+      case State(Nil, Some(nextMarker)) =>
         val result = getFromMarker(nextMarker)
         next(State[Item](getList(result).asScala.toList, Option(getMarker(result))))
-      }
       case State(Nil, None) => (None, state)
     }
 
-    def toStream(state: State[Item]): Stream[Item] =
+    def toLazyList(state: State[Item]): LazyList[Item] =
       next(state) match {
-        case (Some(item), nextState) => Stream.cons(item, toStream(nextState))
-        case (None, _) => Stream.Empty
+        case (Some(item), nextState) => LazyList.cons(item, toLazyList(nextState))
+        case (None, _) => LazyList.empty
       }
 
     val result = getInitial
-    toStream(State(getList(result).asScala.toList, Option(getMarker(result))))
+    toLazyList(State(getList(result).asScala.toList, Option(getMarker(result))))
   }
 }

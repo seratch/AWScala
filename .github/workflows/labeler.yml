@@ -1,0 +1,14 @@
+name: labeler
+
+on: [ pull_request ]
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label the PR action
+        uses: TimonVS/pr-labeler-action@v3
+        with:
+          configuration-path: .github/labeler.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

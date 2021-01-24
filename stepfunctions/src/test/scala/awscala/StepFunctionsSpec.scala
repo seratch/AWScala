@@ -115,7 +115,7 @@ class StepFunctionsSpec extends FlatSpec with Matchers {
       assert(exec.stepStatus("Succeed Step") === Succeeded)
       assert(exec.stepStatus("Succeed Step Again") === Succeeded)
       assert(exec.stepStatus("Fail Step") === NotStarted)
-      val details = exec.details
+      val details = exec.details()
       assert(details.status === Succeeded)
       assert(details.output === Some(details.input))
       assert(details.input === input)

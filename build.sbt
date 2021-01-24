@@ -4,17 +4,15 @@ lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
   version := "0.8.4",
-  scalaVersion := "2.13.1",
-  crossScalaVersions := Seq("2.12.10", "2.13.1"),
+  scalaVersion := "2.13.4",
+  crossScalaVersions := Seq("2.12.13", "2.13.4"),
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
   publishTo := _publishTo(version.value),
   publishMavenStyle := true,
   publishArtifact in Test := false,
-  pomIncludeRepository := { _ =>
-    false
-  },
+  pomIncludeRepository := { _ => false },
   pomExtra := <url>https://github.com/seratch/awscala</url>
     <licenses>
       <license>

@@ -1,0 +1,28 @@
+categories:
+  - title: '🚀 Features'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: '🐛 Fixes'
+    labels:
+      - 'bugfix'
+      - 'fix'
+  - title: '🌱 Updates'
+    labels:
+      - 'update'
+      - 'dependency-update'
+exclude-labels:
+  - 'skip-changelog'
+  - 'invalid'
+template: |
+  ## 📢 What's changed?
+
+  $CHANGES
+
+  ## 👬 Contributors
+
+  $CONTRIBUTORS
+
+  ## 🔙 Previous
+
+  $PREVIOUS_TAG
