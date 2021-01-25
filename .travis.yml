@@ -3,8 +3,8 @@ jdk:
   - openjdk8
   - openjdk11
 scala:
-  - 2.12.10
-  - 2.13.1
+  - 2.12.13
+  - 2.13.4
 script:
 - sbt "++${TRAVIS_SCALA_VERSION}!" test:compile dynamodb/test
 - git diff --exit-code

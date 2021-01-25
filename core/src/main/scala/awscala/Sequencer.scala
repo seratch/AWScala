@@ -22,10 +22,9 @@ trait Sequencer[Item, Result, Marker] {
     @scala.annotation.tailrec
     def next(state: State[Item]): (Option[Item], State[Item]) = state match {
       case State(head :: tail, nextMarker) => (Some(head), State(tail, nextMarker))
-      case State(Nil, Some(nextMarker)) => {
+      case State(Nil, Some(nextMarker)) =>
         val result = getFromMarker(nextMarker)
         next(State[Item](getList(result).asScala.toList, Option(getMarker(result))))
-      }
       case State(Nil, None) => (None, state)
     }
 

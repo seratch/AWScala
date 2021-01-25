@@ -32,7 +32,7 @@ class IAMSpec extends FlatSpec with Matchers {
     val policy: Policy = Policy(Seq(Statement(Effect.Allow, Seq(Action("s3:*")), Seq(Resource("*")))))
     group.putPolicy(policyName, policy)
 
-    group.policyNames.foreach { policyName =>
+    group.policyNames().foreach { policyName =>
       group.policy(policyName).destroy()
     }
     group.destroy()

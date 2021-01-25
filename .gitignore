@@ -73,3 +73,4 @@ awscala-unit-test-keypair-*
 .ensime*
 
 .dynamodb-local
+/.bsp/

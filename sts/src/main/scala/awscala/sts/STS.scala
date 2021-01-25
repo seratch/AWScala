@@ -50,7 +50,9 @@ trait STS extends aws.AWSSecurityTokenService {
   def signinToken(credentials: TemporaryCredentials): String = {
     val sessionJsonValue = s"""{"sessionId":"${credentials.accessKeyId}","sessionKey":"${credentials.secretAccessKey}","sessionToken":"${credentials.sessionToken}"}\n"""
     val url = SIGNIN_URL + "?Action=getSigninToken&SessionType=json&Session=" + java.net.URLEncoder.encode(sessionJsonValue, "UTF-8")
-    val response = scala.io.Source.fromURL(new java.net.URL(url)).getLines.mkString("\n")
+    val source = scala.io.Source.fromURL(new java.net.URL(url))
+    val response = source.getLines().mkString("\n")
+    source.close()
     Jackson.jsonNodeOf(response).get("SigninToken").asText()
   }
 
@@ -58,7 +60,7 @@ trait STS extends aws.AWSSecurityTokenService {
     val token = URLEncoder.encode(signinToken(credentials), "UTF-8")
     val issuer = URLEncoder.encode(issuerUrl, "UTF-8")
     val destination = URLEncoder.encode(consoleUrl, "UTF-8")
-    s"${SIGNIN_URL}?Action=login&SigninToken=${token}&Issuer=${issuer}&Destination=${destination}"
+    s"$SIGNIN_URL?Action=login&SigninToken=$token&Issuer=$issuer&Destination=$destination"
   }
 
   def assumeRole(id: String, arn: String, sessionKey: String): TemporaryCredentials = {
