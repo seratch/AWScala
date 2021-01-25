@@ -74,3 +74,5 @@ awscala-unit-test-keypair-*
 
 .dynamodb-local
 /.bsp/
+
+.vscode/
