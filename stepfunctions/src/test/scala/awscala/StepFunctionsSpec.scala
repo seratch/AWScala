@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, Future }
 import scala.util.Try
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class StepFunctionsSpec extends FlatSpec with Matchers {
+class StepFunctionsSpec extends AnyFlatSpec with Matchers {
 
   behavior of "StepFunctions"
 

@@ -5,8 +5,10 @@ import org.scalatest._
 import awscala.emr._
 import awscala.ec2._
 import scala.collection.JavaConverters._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class EMRSpec extends FlatSpec with Matchers with BeforeAndAfterAll {
+class EMRSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 
   behavior of "EMR"
 

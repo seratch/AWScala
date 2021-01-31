@@ -1,10 +1,11 @@
 package awscala
 
-import org.scalatest.{ FlatSpec, Matchers }
 
 import com.amazonaws.regions.{ Regions => AwsRegions }
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RegionSpec extends FlatSpec with Matchers {
+class RegionSpec extends AnyFlatSpec with Matchers {
 
   behavior of "Region0"
 
