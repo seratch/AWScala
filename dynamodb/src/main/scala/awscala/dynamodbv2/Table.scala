@@ -1,6 +1,8 @@
 package awscala.dynamodbv2
 
-import com.amazonaws.services.{ dynamodbv2 => aws }
+import com.amazonaws.services.{dynamodbv2 => aws}
+
+import scala.reflect.ClassTag
 
 object Table {
   def apply(
@@ -50,6 +52,43 @@ case class Table(
 
   def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
+
+  def put[E <: AnyRef](hashPK: Any, entity: E)(implicit dynamoDB: DynamoDB) = {
+    dynamoDB.put(this, hashPK, getAttrValuesLst(entity): _*)
+  }
+
+  def getAttrValuesLst(entity: AnyRef) = {
+    val fields = entity.getClass.getDeclaredFields.map(_.getName).toList
+    println(fields)
+    fields.map(f => f -> getValueCC(f, entity))
+  }
+
+  def getValueCC(field: String,entity: AnyRef) = {
+    println(field)
+    val fv = entity.getClass.getDeclaredField(field)
+    fv.setAccessible(true)
+    fv.get(entity)
+  }
+
+
+  private def getValueFromEntity(entity: AnyRef, property: DynamoProperty[_]): Any = {
+    val f = entity.getClass.getDeclaredField(property.name)
+    f.setAccessible(true)
+    property.convert(f.get(entity))
+  }
+
+  case class DynamoAttribute[T](name: String)(implicit t: DynamoDataType[T]) extends DynamoProperty[T] {
+    def convert(value: Any): T = t.convert(value)
+  }
+
+  trait DynamoDataType[T] {
+    def convert(value: Any): T
+  }
+
+  trait DynamoProperty[T] {
+    val name: String
+    def convert(value: Any): T
+  }
 
   def putItem(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = {
     dynamoDB.put(this, hashPK, attributes: _*)

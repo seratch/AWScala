@@ -17,13 +17,79 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
   val log: Logger = LoggerFactory.getLogger(this.getClass)
 
-  it should "provide cool APIs for Hash PK tables" in {
-    implicit val dynamoDB: DynamoDB = DynamoDB.local()
+//  it should "provide cool APIs for Hash PK tables" in {
+//    implicit val dynamoDB: DynamoDB = DynamoDB.local()
+//
+//    val tableName = s"Companies_${System.currentTimeMillis}"
+//    val createdTableMeta: TableMeta = dynamoDB.createTable(
+//      name = tableName,
+//      hashPK = "Id" -> AttributeType.String)
+//    log.info(s"Created Table: $createdTableMeta")
+//
+//    println(s"Waiting for DynamoDB table activation...")
+//    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
+//    println("")
+//    println(s"Created DynamoDB table has been activated.")
+//
+//    val companies: Table = dynamoDB.table(tableName).get
+//
+//    companies.put("Amazon", "url" -> "http://www.amazon.com/")
+//    companies.put("Google", "url" -> "http://www.google.com/")
+//    companies.put("Microsoft")
+//
+//    // get by primary key
+//    val google: Option[Item] = companies.get("Google")
+//    google.get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.google.com/")
+//
+//    val nonExistant: Option[Item] = companies.get("I Don't Exist")
+//    nonExistant.isDefined should not be true
+//
+//    // batch get
+//    val batchedCompanies: Seq[Item] = companies.batchGet(List(("Id", "Google"), ("Id", "Microsoft")))
+//    batchedCompanies.size should equal(2)
+//    batchedCompanies.map(item => item.attributes.find(_.name == "Id").get.value.s.get.equals("Google")
+//      || item.attributes.find(_.name == "Id").get.value.s.get.equals("Microsoft")) should equal(Seq(true, true))
+//
+//    val batchedNonExistant: Seq[Item] = companies.batchGet(List(("Id", "I Don't Exist"), ("Id", "Neither Do I")))
+//    batchedNonExistant.size should equal(0)
+//
+//    // scan
+//    val foundCompanies: Seq[Item] = companies.scan(Seq("url" -> cond.isNotNull))
+//    foundCompanies.size should equal(2)
+//
+//    val scanNonExistant: Seq[Item] = companies.scan(Seq("url" -> cond.eq("I Don't Exist")))
+//    scanNonExistant.size should equal(0)
+//
+//    // putAttributes
+//    companies.putAttributes("Microsoft", Seq("url" -> "http://www.microsoft.com"))
+//    companies.get("Microsoft").get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.microsoft.com")
+//
+//    companies.destroy()
+//  }
 
-    val tableName = s"Companies_${System.currentTimeMillis}"
-    val createdTableMeta: TableMeta = dynamoDB.createTable(
+
+  case class User (
+    Sex: String,
+    Age: Int
+                  )
+
+  it should "allows to put case classes" in {
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
+    val tableName = s"Users_${System.currentTimeMillis}"
+    val globalSecondaryIndex = GlobalSecondaryIndex(
+      name = "SexIndex",
+      keySchema = Seq(KeySchema("Sex", KeyType.Hash), KeySchema("Age", KeyType.Range)),
+      projection = Projection(ProjectionType.All),
+      provisionedThroughput = ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10))
+    val table = Table(
       name = tableName,
-      hashPK = "Id" -> AttributeType.String)
+      hashPK = "Id",
+      attributes = Seq(
+        AttributeDefinition("Id", AttributeType.Number),
+        AttributeDefinition("Sex", AttributeType.String),
+        AttributeDefinition("Age", AttributeType.Number)),
+      globalSecondaryIndexes = Seq(globalSecondaryIndex))
+    val createdTableMeta: TableMeta = dynamoDB.createTable(table)
     log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
@@ -31,40 +97,15 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     println("")
     println(s"Created DynamoDB table has been activated.")
 
-    val companies: Table = dynamoDB.table(tableName).get
+    val users: Table = dynamoDB.table(tableName).get
 
-    companies.put("Amazon", "url" -> "http://www.amazon.com/")
-    companies.put("Google", "url" -> "http://www.google.com/")
-    companies.put("Microsoft")
+    users.put(1, "Name" -> "John", "Sex" -> "Male", "Age" -> 12)
+    val user = User("Male",22)
+    users.put(2,user)
+    val out = users.get(2)
 
-    // get by primary key
-    val google: Option[Item] = companies.get("Google")
-    google.get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.google.com/")
+    users.destroy()
 
-    val nonExistant: Option[Item] = companies.get("I Don't Exist")
-    nonExistant.isDefined should not be true
-
-    // batch get
-    val batchedCompanies: Seq[Item] = companies.batchGet(List(("Id", "Google"), ("Id", "Microsoft")))
-    batchedCompanies.size should equal(2)
-    batchedCompanies.map(item => item.attributes.find(_.name == "Id").get.value.s.get.equals("Google")
-      || item.attributes.find(_.name == "Id").get.value.s.get.equals("Microsoft")) should equal(Seq(true, true))
-
-    val batchedNonExistant: Seq[Item] = companies.batchGet(List(("Id", "I Don't Exist"), ("Id", "Neither Do I")))
-    batchedNonExistant.size should equal(0)
-
-    // scan
-    val foundCompanies: Seq[Item] = companies.scan(Seq("url" -> cond.isNotNull))
-    foundCompanies.size should equal(2)
-
-    val scanNonExistant: Seq[Item] = companies.scan(Seq("url" -> cond.eq("I Don't Exist")))
-    scanNonExistant.size should equal(0)
-
-    // putAttributes
-    companies.putAttributes("Microsoft", Seq("url" -> "http://www.microsoft.com"))
-    companies.get("Microsoft").get.attributes.find(_.name == "url").get.value.s.get should equal("http://www.microsoft.com")
-
-    companies.destroy()
   }
 
   it should "provide cool APIs for Hash/Range PK tables" in {
