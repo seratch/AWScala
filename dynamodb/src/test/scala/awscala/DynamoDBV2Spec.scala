@@ -67,18 +67,14 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 //    companies.destroy()
 //  }
 
+  case class Member(Country: String, Company: String, Age: Int)
 
-  case class User (
-    Sex: String,
-    Age: Int
-                  )
-
-  it should "allows to put case classes" in {
+  it should "allows to use case class in put method" in {
     implicit val dynamoDB: DynamoDB = DynamoDB.local()
-    val tableName = s"Users_${System.currentTimeMillis}"
+    val tableName = s"Members_${System.currentTimeMillis}"
     val globalSecondaryIndex = GlobalSecondaryIndex(
-      name = "SexIndex",
-      keySchema = Seq(KeySchema("Sex", KeyType.Hash), KeySchema("Age", KeyType.Range)),
+      name = "CountryIndex",
+      keySchema = Seq(KeySchema("Country", KeyType.Hash), KeySchema("Company", KeyType.Range)),
       projection = Projection(ProjectionType.All),
       provisionedThroughput = ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10))
     val table = Table(
@@ -86,7 +82,8 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
       hashPK = "Id",
       attributes = Seq(
         AttributeDefinition("Id", AttributeType.Number),
-        AttributeDefinition("Sex", AttributeType.String),
+        AttributeDefinition("Country", AttributeType.String),
+        AttributeDefinition("Company", AttributeType.Number),
         AttributeDefinition("Age", AttributeType.Number)),
       globalSecondaryIndexes = Seq(globalSecondaryIndex))
     val createdTableMeta: TableMeta = dynamoDB.createTable(table)
@@ -97,15 +94,19 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     println("")
     println(s"Created DynamoDB table has been activated.")
 
-    val users: Table = dynamoDB.table(tableName).get
+    val members: Table = dynamoDB.table(tableName).get
 
-    users.put(1, "Name" -> "John", "Sex" -> "Male", "Age" -> 12)
-    val user = User("Male",22)
-    users.put(2,user)
-    val out = users.get(2)
+    members.put(1, "Country" -> "PL", "Company" -> "DataMass", "Age" -> 21)
+    val member = Member("US","Acxiom",46)
+    members.put(2,member)
 
-    users.destroy()
+    members.get(1).get.attributes.find(_.name == "Company").get.value.s.get should equal("DataMass")
+    members.get(1).get.attributes.find(_.name == "Age").get.value.s.get should equal(21)
+    members.get(2).get.attributes.find(_.name == "Country").get.value.s.get should equal("US")
+    members.get(2).get.attributes.find(_.name == "Company").get.value.s.get should equal("Acxiom")
+    members.get(2).get.attributes.find(_.name == "Age").get.value.s.get should equal(46)
 
+    members.destroy()
   }
 
   it should "provide cool APIs for Hash/Range PK tables" in {
