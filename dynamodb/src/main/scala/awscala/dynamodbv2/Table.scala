@@ -59,12 +59,10 @@ case class Table(
 
   def getAttrValues(entity: AnyRef) = {
     val fields = entity.getClass.getDeclaredFields.map(_.getName).toList
-    println(fields)
     fields.map(f => f -> getValueFromEntity(f, entity))
   }
 
   def getValueFromEntity(field: String,entity: AnyRef) = {
-    println(field)
     val fv = entity.getClass.getDeclaredField(field)
     fv.setAccessible(true)
     fv.get(entity)
