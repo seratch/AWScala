@@ -41,7 +41,7 @@ trait SQS extends aws.AmazonSQS {
 
   def queuesByNamePrefix(name: String): Seq[Queue] = listQueues(name).getQueueUrls.asScala.map(url => Queue(url)).toSeq
 
-  def queue(name: String): Option[Queue] = queuesByName(name).find(_.url.split("/").last == name)
+  def queue(name: String): Option[Queue] = queuesByNamePrefix(name).find(_.url.split("/").last == name)
 
   def queueUrl(name: String): Option[String] = try {
     Some(getQueueUrl(new aws.model.GetQueueUrlRequest(name)).getQueueUrl)
