@@ -53,19 +53,34 @@ case class Table(
   def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
-  def put[E <: AnyRef](hashPK: Any, entity: E)(implicit dynamoDB: DynamoDB, c: ClassTag[E]): Unit =
-    dynamoDB.put(this, hashPK, getAttrValuesToList(entity): _*)
+  def put(entity: Product)(implicit dynamoDB: DynamoDB) = {
+    val attrs = getAttrValuesToList(entity)
+    if(attrs("keys").exists(x => x._1 == "hashPK") && attrs("keys").exists(x => x._1 == "rangePK")) {
+      val hashPK = attrs("keys").find(f => f._1 == "hashPK").get._2
+      val rangePK = attrs("keys").find(f => f._1 == "rangePK").get._2
+      dynamoDB.put(this, hashPK, rangePK, attrs("attributes"): _*)
+    }
+    else if (attrs("keys").exists(x => x._1 == "hashPK")) {
+      val hashPK = attrs("keys").find(f => f._1 == "hashPK").get._2
+      dynamoDB.put(this, hashPK, attrs("attributes"): _*)
+    }
+  }
 
-  def put[E <: AnyRef](hashPK: Any, rangePK: AnyRef, entity: E)(implicit dynamoDB: DynamoDB,c: ClassTag[E]): Unit =
-    dynamoDB.put(this, hashPK, rangePK, getAttrValuesToList(entity): _*)
-
-  private def getAttrValuesToList(entity: AnyRef) = {
-    val fields = entity.getClass.getDeclaredFields.map(_.getName).toList
-    fields.map(f => f -> {
+  private def getAttrValuesToList(entity: Product) = {
+    val fields = entity.productElementNames.toList
+    val f1 = fields.map(f => f -> {
       val fv = entity.getClass.getDeclaredField(f)
       fv.setAccessible(true)
       fv.get(entity)
     })
+
+    val keys = f1.filter(f => f._1 == "hashPK" || f._1 == "rangePK")
+    val attrs = f1.filterNot(f => keys.exists(k => f._1 == k._1))
+
+    if(!keys.exists(k => k._1 == "hashPK"))
+      throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
+
+    Map("keys" -> keys, "attributes" -> attrs)
   }
 
   def putItem(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = {
