@@ -53,23 +53,19 @@ case class Table(
   def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
-  def put[E <: AnyRef](hashPK: Any, entity: E)(implicit dynamoDB: DynamoDB, c: ClassTag[E]) = {
-    dynamoDB.put(this, hashPK, getAttrValues(entity): _*)
-  }
+  def put[E <: AnyRef](hashPK: Any, entity: E)(implicit dynamoDB: DynamoDB, c: ClassTag[E]): Unit =
+    dynamoDB.put(this, hashPK, getAttrValuesToList(entity): _*)
 
-  def put[E <: AnyRef](hashPK: Any, rangePK: AnyRef, entity: E)(implicit dynamoDB: DynamoDB,c: ClassTag[E]) = {
-    dynamoDB.put(this, hashPK, rangePK, getAttrValues(entity): _*)
-  }
+  def put[E <: AnyRef](hashPK: Any, rangePK: AnyRef, entity: E)(implicit dynamoDB: DynamoDB,c: ClassTag[E]): Unit =
+    dynamoDB.put(this, hashPK, rangePK, getAttrValuesToList(entity): _*)
 
-  def getAttrValues(entity: AnyRef) = {
+  private def getAttrValuesToList(entity: AnyRef) = {
     val fields = entity.getClass.getDeclaredFields.map(_.getName).toList
-    fields.map(f => f -> getValueFromEntity(f, entity))
-  }
-
-  def getValueFromEntity(field: String, entity: AnyRef) = {
-    val fv = entity.getClass.getDeclaredField(field)
-    fv.setAccessible(true)
-    fv.get(entity)
+    fields.map(f => f -> {
+      val fv = entity.getClass.getDeclaredField(f)
+      fv.setAccessible(true)
+      fv.get(entity)
+    })
   }
 
   def putItem(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = {
