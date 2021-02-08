@@ -68,7 +68,7 @@ lazy val core = project
     moduleName := "awscala-core",
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-java-sdk-core" % awsJavaSdkVersion,
-      "joda-time" % "joda-time" % "2.10.9",
+      "joda-time" % "joda-time" % "2.10.10",
       "org.joda" % "joda-convert" % "2.2.1",
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.1",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
