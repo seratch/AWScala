@@ -4,8 +4,10 @@ import awscala._, simpledb._
 
 import org.slf4j._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class SimpleDBSpec extends FlatSpec with Matchers {
+class SimpleDBSpec extends AnyFlatSpec with Matchers {
 
   behavior of "SimpleDB"
 

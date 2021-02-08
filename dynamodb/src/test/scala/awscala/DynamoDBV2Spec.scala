@@ -10,8 +10,10 @@ import org.scalatest._
 import org.slf4j._
 
 import scala.util.Try
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class DynamoDBV2Spec extends FlatSpec with Matchers {
+class DynamoDBV2Spec extends AnyFlatSpec with Matchers {
 
   behavior of "DynamoDB"
 

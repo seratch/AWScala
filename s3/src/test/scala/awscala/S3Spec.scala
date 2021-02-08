@@ -4,8 +4,10 @@ import awscala._, s3._
 
 import org.slf4j._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class S3Spec extends FlatSpec with Matchers {
+class S3Spec extends AnyFlatSpec with Matchers {
 
   behavior of "S3"
 
