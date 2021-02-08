@@ -67,26 +67,22 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
     companies.destroy()
   }
 
-  case class Member(Country: String, Company: String, Age: Int)
+  case class Member(Name: String, Age: Int, Company: String)
 
   it should "allows to use case class in put method" in {
     implicit val dynamoDB: DynamoDB = DynamoDB.local()
     val tableName = s"Members_${System.currentTimeMillis}"
-    val globalSecondaryIndex = GlobalSecondaryIndex(
-      name = "CountryIndex",
-      keySchema = Seq(KeySchema("Country", KeyType.Hash), KeySchema("Company", KeyType.Range)),
-      projection = Projection(ProjectionType.All),
-      provisionedThroughput = ProvisionedThroughput(readCapacityUnits = 10, writeCapacityUnits = 10))
-    val table = Table(
+    val createdTableMeta: TableMeta = dynamoDB.createTable(
       name = tableName,
-      hashPK = "Id",
-      attributes = Seq(
-        AttributeDefinition("Id", AttributeType.Number),
-        AttributeDefinition("Country", AttributeType.String),
-        AttributeDefinition("Company", AttributeType.Number),
-        AttributeDefinition("Age", AttributeType.Number)),
-      globalSecondaryIndexes = Seq(globalSecondaryIndex))
-    val createdTableMeta: TableMeta = dynamoDB.createTable(table)
+      hashPK = "Id" -> AttributeType.Number,
+      rangePK = "Country" -> AttributeType.String,
+      otherAttributes = Seq(
+        "Company" -> AttributeType.String),
+      indexes = Seq(
+        LocalSecondaryIndex(
+          name = "CompanyIndex",
+          keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
+          projection = Projection(ProjectionType.Include, Seq("Company")))))
     log.info(s"Created Table: $createdTableMeta")
 
     println(s"Waiting for DynamoDB table activation...")
@@ -96,15 +92,13 @@ class DynamoDBV2Spec extends FlatSpec with Matchers {
 
     val members: Table = dynamoDB.table(tableName).get
 
-    members.put(1, "Country" -> "PL", "Company" -> "DataMass", "Age" -> 21)
-    val member = Member("US","Acxiom",46)
-    members.put(2,member)
+    members.put(1, "Japan", "Name" -> "Alice", "Age" -> 23, "Company" -> "Google")
+    val member = Member("Alex", 29, "DataMass")
+    members.put(2,"PL", member)
 
-    members.get(1).get.attributes.find(_.name == "Company").get.value.s.get should equal("DataMass")
-    members.get(1).get.attributes.find(_.name == "Age").get.value.s.get should equal(21)
-    members.get(2).get.attributes.find(_.name == "Country").get.value.s.get should equal("US")
-    members.get(2).get.attributes.find(_.name == "Company").get.value.s.get should equal("Acxiom")
-    members.get(2).get.attributes.find(_.name == "Age").get.value.s.get should equal(46)
+    members.get(1, "Japan").get.attributes.find(_.name == "Company").get.value.s.get should equal("Google")
+    members.get(2, "PL").get.attributes.find(_.name == "Name").get.value.s.get should equal("Alex")
+    members.get(2, "PL").get.attributes.find(_.name == "Company").get.value.s.get should equal("DataMass")
 
     members.destroy()
   }
