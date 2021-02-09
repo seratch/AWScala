@@ -55,8 +55,8 @@ case class Table(
   def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
-  def put[E <: AnyRef](entity: E)(implicit dynamoDB: DynamoDB):Unit = {
-    val attrs = getAttrValuesToMap(entity)
+  def putItem[E <: AnyRef](entity: E)(implicit dynamoDB: DynamoDB): Unit = {
+    val attrs = getAttrValuesToMap(entity, true)
 
     if (attrs("keys").exists(x => x._1 == "hashPK") && attrs("keys").exists(x => x._1 == "rangePK")) {
       val hashPK = attrs("keys").find(f => f._1 == "hashPK").get._2
@@ -68,7 +68,12 @@ case class Table(
     }
   }
 
-  private def getAttrValuesToMap(entity: Any):Map[String, List[(String, AnyRef)]] = {
+  def putItem[E <: AnyRef](hashPK: Any, rangePK: Any, entity: E)(implicit dynamoDB: DynamoDB): Unit = {
+    val attrs = getAttrValuesToMap(entity, false)
+    dynamoDB.put(this, hashPK, rangePK, attrs("attributes"): _*)
+  }
+
+  private def getAttrValuesToMap(entity: Any, keysRequired: Boolean): Map[String, List[(String, AnyRef)]] = {
     val fields = getterNamesFromEntity(entity).map(getterName => {
       val value = entity.getClass.getDeclaredMethod(getterName).invoke(entity)
       getterName -> value
@@ -77,7 +82,7 @@ case class Table(
     val keys = fields.filter(f => f._1 == "hashPK" || f._1 == "rangePK")
     val attrs = fields.filterNot(f => keys.exists(k => f._1 == k._1))
 
-    if (!keys.exists(k => k._1 == "hashPK"))
+    if (!keys.exists(k => k._1 == "hashPK") && keysRequired)
       throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
 
     Map("keys" -> keys, "attributes" -> attrs)

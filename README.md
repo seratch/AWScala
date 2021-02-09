@@ -237,7 +237,9 @@ PUT method with case class usage
 import awscala._, dynamodbv2._ 
 
 implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
-case class Member(hashPK: Int, rangePK: String, Name: String, Age: Int, Company: String)
+
+case class Member(Name: String, Age: Int, Company: String)
+case class User(hashPK: Int, rangePK: String, Name: String, Age: Int, Company: String)
 
 val tableMeta: TableMeta = dynamoDB.createTable(
   name = "Members",
@@ -252,8 +254,12 @@ val tableMeta: TableMeta = dynamoDB.createTable(
 )
 
 val table: Table = dynamoDB.table("Members").get
-val member = Member(1, "PL", "Alex", 29, "DataMass")
-table.put(member)
+val member = Member("Alex", 29, "DataMass")
+table.putItem(1, "PL", member)
+
+// putItem() allows you to push the whole case class object with hashPK and rangePK included
+val user = User(2,"PL", "Jakub", 33, "DataMass")
+table.putItem(user)
 
 val members: Seq[Item] = table.scan(Seq("Company" -> cond.eq("DataMass")))
 table.destroy()
