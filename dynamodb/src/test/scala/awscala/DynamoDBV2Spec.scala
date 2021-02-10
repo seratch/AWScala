@@ -69,6 +69,46 @@ class DynamoDBV2Spec extends AnyFlatSpec with Matchers {
     companies.destroy()
   }
 
+  case class Member(hashPK: Int, rangePK: String, Name: String, Age: Int, Company: String)
+  case class User(Name: String, Age: Int, Company: String)
+  it should "allows to use case class in put method" in {
+    implicit val dynamoDB: DynamoDB = DynamoDB.local()
+    val tableName = s"Members_${System.currentTimeMillis}"
+    val createdTableMeta: TableMeta = dynamoDB.createTable(
+      name = tableName,
+      hashPK = "Id" -> AttributeType.Number,
+      rangePK = "Country" -> AttributeType.String,
+      otherAttributes = Seq(
+        "Company" -> AttributeType.String),
+      indexes = Seq(
+        LocalSecondaryIndex(
+          name = "CompanyIndex",
+          keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
+          projection = Projection(ProjectionType.Include, Seq("Company")))))
+    log.info(s"Created Table: $createdTableMeta")
+
+    println(s"Waiting for DynamoDB table activation...")
+    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
+    println("")
+    println(s"Created DynamoDB table has been activated.")
+
+    val members: Table = dynamoDB.table(tableName).get
+
+    members.put(1, "Japan", "Name" -> "Alice", "Age" -> 23, "Company" -> "Google")
+    val member = Member(2, "PL", "Alex", 29, "DataMass")
+    val user = User("Ben", 33, "GCP")
+    members.putItem(member)
+    members.putItem(3,"PL",user)
+
+
+    members.get(1, "Japan").get.attributes.find(_.name == "Company").get.value.s.get should equal("Google")
+    members.get(2, "PL").get.attributes.find(_.name == "Name").get.value.s.get should equal("Alex")
+    members.get(2, "PL").get.attributes.find(_.name == "Company").get.value.s.get should equal("DataMass")
+    members.get(3, "PL").get.attributes.find(_.name == "Company").get.value.s.get should equal("GCP")
+    members.get(3, "PL").get.attributes.find(_.name == "Name").get.value.s.get should equal("Ben")
+    members.destroy()
+  }
+
   it should "provide cool APIs for Hash/Range PK tables" in {
     implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
