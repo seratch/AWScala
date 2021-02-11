@@ -5,8 +5,10 @@ import ec2._
 import org.slf4j._
 import org.scalatest._
 import java.io._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class EC2Spec extends FlatSpec with Matchers {
+class EC2Spec extends AnyFlatSpec with Matchers {
 
   behavior of "EC2"
 

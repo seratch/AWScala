@@ -204,7 +204,7 @@ https://github.com/seratch/awscala/blob/master/redshift/src/main/scala/awscala/r
 ### Amazon DynamoDB
 
 ```scala
-import awscala._, dynamodbv2._
+import awscala._, dynamodbv2._ 
 
 implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
 
@@ -230,6 +230,42 @@ val googlers: Seq[Item] = table.scan(Seq("Company" -> cond.eq("Google")))
 
 table.destroy()
 ```
+
+PUT method with case class usage
+
+```scala
+import awscala._, dynamodbv2._ 
+
+implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
+
+case class Member(Name: String, Age: Int, Company: String)
+case class User(hashPK: Int, rangePK: String, Name: String, Age: Int, Company: String)
+
+val tableMeta: TableMeta = dynamoDB.createTable(
+  name = "Members",
+  hashPK =  "Id" -> AttributeType.Number,
+  rangePK = "Country" -> AttributeType.String,
+  otherAttributes = Seq("Company" -> AttributeType.String),
+  indexes = Seq(LocalSecondaryIndex(
+    name = "CompanyIndex",
+    keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
+    projection = Projection(ProjectionType.Include, Seq("Company"))
+  ))
+)
+
+val table: Table = dynamoDB.table("Members").get
+val member = Member("Alex", 29, "DataMass")
+table.putItem(1, "PL", member)
+
+// putItem() allows you to push the whole case class object with hashPK and rangePK included
+val user = User(2,"PL", "Jakub", 33, "DataMass")
+table.putItem(user)
+
+val members: Seq[Item] = table.scan(Seq("Company" -> cond.eq("DataMass")))
+table.destroy()
+```
+ 
+
 
 https://github.com/seratch/awscala/blob/master/dynamodb/src/main/scala/awscala/dynamodbv2/DynamoDB.scala
 

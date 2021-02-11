@@ -4,8 +4,10 @@ import awscala._, sts._
 
 import org.slf4j._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class STSSpec extends FlatSpec with Matchers {
+class STSSpec extends AnyFlatSpec with Matchers {
 
   behavior of "STS"
 

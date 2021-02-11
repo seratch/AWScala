@@ -4,8 +4,10 @@ import awscala._, sqs._
 
 import org.slf4j._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class SQSSpec extends FlatSpec with Matchers {
+class SQSSpec extends AnyFlatSpec with Matchers {
 
   behavior of "SQS"
 
