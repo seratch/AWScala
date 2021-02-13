@@ -30,29 +30,6 @@ object DynamoDB {
     client.setEndpoint("http://localhost:8000")
     client
   }
-
-  private[dynamodbv2] object BatchGet {
-
-    def toJavaForSimplePk(tableAndAttributes: Map[Table, List[SimplePk]]): util.Map[String, KeysAndAttributes] =
-      tableAndAttributes.map {
-        case (table, attributes) =>
-          table.name -> new KeysAndAttributes().withKeys(
-            attributes.map {
-              case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
-            }.asJava)
-      }.asJava
-
-    def toJavaForCompositePk(tableAndAttributes: Map[Table, List[CompositePk]]): util.Map[String, KeysAndAttributes] =
-      tableAndAttributes.map {
-        case (table, attributes) =>
-          table.name -> new KeysAndAttributes().withKeys(
-            attributes.map {
-              case (partition, pv, sort, sv) => Map(
-                partition -> AttributeValue.toJavaValue(pv),
-                sort -> AttributeValue.toJavaValue(sv)).asJava
-            }.asJava)
-      }.asJava
-  }
 }
 
 /**
@@ -188,9 +165,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     }
   }
 
-  def batchGet[T](
-    tableAndAttributes: Map[Table, List[T]],
-    toJava: Map[Table, List[T]] => util.Map[String, KeysAndAttributes]): Seq[Item] = {
+  def batchGet[T](tableAndAttributes: Map[Table, List[T]]): Seq[Item] = {
     import com.amazonaws.services.dynamodbv2.model.{ BatchGetItemRequest, BatchGetItemResult }
 
     case class State(items: List[Item], keys: java.util.Map[String, KeysAndAttributes])
@@ -216,6 +191,18 @@ trait DynamoDB extends aws.AmazonDynamoDB {
         case (t, as) => table(t).map(table => as.asScala.map { a => Item(table, a) }).getOrElse(Nil)
       }
     }
+
+    def toJava(tableAndAttributes: Map[Table, List[Any]]): util.Map[String, KeysAndAttributes] =
+      tableAndAttributes.map {
+        case (table, attributes) =>
+          table.name -> new KeysAndAttributes().withKeys(
+            attributes.map {
+              case (k: String, v: Any) => Map(k -> AttributeValue.toJavaValue(v)).asJava
+              case (partition: String, pv: Any, sort: String, sv: Any) => Map(
+                partition -> AttributeValue.toJavaValue(pv),
+                sort -> AttributeValue.toJavaValue(sv)).asJava
+            }.asJava)
+      }.asJava
 
     toStream(State(Nil, toJava(tableAndAttributes)))
   }

@@ -56,10 +56,10 @@ case class Table(
     batchGetItems(attributes)
 
   def batchGetItems(attributes: List[SimplePk])(implicit dynamoDB: DynamoDB): Seq[Item] =
-    dynamoDB.batchGet[SimplePk](Map(this -> attributes), DynamoDB.BatchGet.toJavaForSimplePk)
+    dynamoDB.batchGet[SimplePk](Map(this -> attributes))
 
   def batchGetItems(attributes: List[CompositePk])(implicit dynamoDB: DynamoDB, di: DummyImplicit): Seq[Item] =
-    dynamoDB.batchGet[CompositePk](Map(this -> attributes), DynamoDB.BatchGet.toJavaForCompositePk)
+    dynamoDB.batchGet[CompositePk](Map(this -> attributes))
 
   def put(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
