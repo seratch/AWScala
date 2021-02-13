@@ -3,6 +3,7 @@ package awscala.dynamodbv2
 import java.util
 
 import awscala._
+import DynamoDB._
 
 import scala.jdk.CollectionConverters._
 import com.amazonaws.ClientConfiguration
@@ -11,6 +12,8 @@ import com.amazonaws.services.{ dynamodbv2 => aws }
 import com.amazonaws.services.dynamodbv2.model.KeysAndAttributes
 
 object DynamoDB {
+  type SimplePk = (String, Any)
+  type CompositePk = (String, Any, String, Any)
 
   def apply(credentials: Credentials)(implicit region: Region): DynamoDB = apply(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey))(region)
   def apply(accessKeyId: String, secretAccessKey: String)(implicit region: Region): DynamoDB = apply(BasicCredentialsProvider(accessKeyId, secretAccessKey))(region)
@@ -162,7 +165,7 @@ trait DynamoDB extends aws.AmazonDynamoDB {
     }
   }
 
-  def batchGet(tableAndAttributes: Map[Table, List[(String, Any)]]): Seq[Item] = {
+  def batchGet[T](tableAndAttributes: Map[Table, List[T]]): Seq[Item] = {
     import com.amazonaws.services.dynamodbv2.model.{ BatchGetItemRequest, BatchGetItemResult }
 
     case class State(items: List[Item], keys: java.util.Map[String, KeysAndAttributes])
@@ -189,72 +192,75 @@ trait DynamoDB extends aws.AmazonDynamoDB {
       }
     }
 
-    def toJava(tableAndAttributes: Map[Table, List[(String, Any)]]): util.Map[String, KeysAndAttributes] =
+    def toJava(tableAndAttributes: Map[Table, List[Any]]): util.Map[String, KeysAndAttributes] =
       tableAndAttributes.map {
         case (table, attributes) =>
           table.name -> new KeysAndAttributes().withKeys(
             attributes.map {
-              case (k, v) => Map(k -> AttributeValue.toJavaValue(v)).asJava
+              case (k: String, v: Any) => Map(k -> AttributeValue.toJavaValue(v)).asJava
+              case (partition: String, pv: Any, sort: String, sv: Any) => Map(
+                partition -> AttributeValue.toJavaValue(pv),
+                sort -> AttributeValue.toJavaValue(sv)).asJava
             }.asJava)
       }.asJava
 
     toStream(State(Nil, toJava(tableAndAttributes)))
   }
 
-  def put(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
+  def put(table: Table, hashPK: Any, attributes: SimplePk*): Unit = {
     putItem(table, hashPK, attributes: _*)
   }
-  def putItem(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
+  def putItem(table: Table, hashPK: Any, attributes: SimplePk*): Unit = {
     put(table, Seq(table.hashPK -> hashPK) ++: attributes: _*)
   }
 
-  def put(table: Table, hashPK: Any, rangePK: Any, attributes: (String, Any)*): Unit = {
+  def put(table: Table, hashPK: Any, rangePK: Any, attributes: SimplePk*): Unit = {
     putItem(table, hashPK, rangePK, attributes: _*)
   }
-  def putItem(table: Table, hashPK: Any, rangePK: Any, attributes: (String, Any)*): Unit = {
+  def putItem(table: Table, hashPK: Any, rangePK: Any, attributes: SimplePk*): Unit = {
     put(table, Seq(table.hashPK -> hashPK, table.rangePK.get -> rangePK) ++: attributes: _*)
   }
 
-  def attributeValues(attributes: Seq[(String, Any)]): java.util.Map[String, aws.model.AttributeValue] =
+  def attributeValues(attributes: Seq[SimplePk]): java.util.Map[String, aws.model.AttributeValue] =
     attributes.toMap.mapValues(AttributeValue.toJavaValue(_)).toMap.asJava
 
-  def put(table: Table, attributes: (String, Any)*): Unit = putItem(table.name, attributes: _*)
-  def putItem(tableName: String, attributes: (String, Any)*): Unit = {
+  def put(table: Table, attributes: SimplePk*): Unit = putItem(table.name, attributes: _*)
+  def putItem(tableName: String, attributes: SimplePk*): Unit = {
     putItem(new aws.model.PutItemRequest()
       .withTableName(tableName)
       .withItem(attributeValues(attributes.toSeq)))
   }
 
-  def putConditional(tableName: String, attributes: (String, Any)*)(cond: Seq[(String, aws.model.ExpectedAttributeValue)]): Unit = {
+  def putConditional(tableName: String, attributes: SimplePk*)(cond: Seq[(String, aws.model.ExpectedAttributeValue)]): Unit = {
     putItem(new aws.model.PutItemRequest()
       .withTableName(tableName)
       .withItem(attributeValues(attributes.toSeq))
       .withExpected(cond.toMap.asJava))
   }
 
-  def addAttributes(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
+  def addAttributes(table: Table, hashPK: Any, attributes: SimplePk*): Unit = {
     updateAttributes(table, hashPK, None, aws.model.AttributeAction.ADD, attributes.toSeq)
   }
-  def addAttributes(table: Table, hashPK: Any, rangePK: Any, attributes: (String, Any)*): Unit = {
+  def addAttributes(table: Table, hashPK: Any, rangePK: Any, attributes: SimplePk*): Unit = {
     updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.ADD, attributes.toSeq)
   }
 
-  def deleteAttributes(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
+  def deleteAttributes(table: Table, hashPK: Any, attributes: SimplePk*): Unit = {
     updateAttributes(table, hashPK, None, aws.model.AttributeAction.DELETE, attributes.toSeq)
   }
-  def deleteAttributes(table: Table, hashPK: Any, rangePK: Any, attributes: (String, Any)*): Unit = {
+  def deleteAttributes(table: Table, hashPK: Any, rangePK: Any, attributes: SimplePk*): Unit = {
     updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.DELETE, attributes.toSeq)
   }
 
-  def putAttributes(table: Table, hashPK: Any, attributes: (String, Any)*): Unit = {
+  def putAttributes(table: Table, hashPK: Any, attributes: SimplePk*): Unit = {
     updateAttributes(table, hashPK, None, aws.model.AttributeAction.PUT, attributes.toSeq)
   }
-  def putAttributes(table: Table, hashPK: Any, rangePK: Any, attributes: (String, Any)*): Unit = {
+  def putAttributes(table: Table, hashPK: Any, rangePK: Any, attributes: SimplePk*): Unit = {
     updateAttributes(table, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes.toSeq)
   }
 
   private[dynamodbv2] def updateAttributes(
-    table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[(String, Any)]): Unit = {
+    table: Table, hashPK: Any, rangePK: Option[Any], action: AttributeAction, attributes: Seq[SimplePk]): Unit = {
 
     val tableKeys = Map(table.hashPK -> AttributeValue.toJavaValue(hashPK)) ++ rangePK.flatMap(rKey => table.rangePK.map(_ -> AttributeValue.toJavaValue(rKey)))
 

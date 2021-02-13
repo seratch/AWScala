@@ -98,8 +98,7 @@ class DynamoDBV2Spec extends AnyFlatSpec with Matchers {
     val member = Member(2, "PL", "Alex", 29, "DataMass")
     val user = User("Ben", 33, "GCP")
     members.putItem(member)
-    members.putItem(3,"PL",user)
-
+    members.putItem(3, "PL", user)
 
     members.get(1, "Japan").get.attributes.find(_.name == "Company").get.value.s.get should equal("Google")
     members.get(2, "PL").get.attributes.find(_.name == "Name").get.value.s.get should equal("Alex")
@@ -136,9 +135,24 @@ class DynamoDBV2Spec extends AnyFlatSpec with Matchers {
     members.put(2, "U.S.", "Name" -> "Bob", "Age" -> 36, "Company" -> "Google")
     members.put(3, "Japan", "Name" -> "Chris", "Age" -> 29, "Company" -> "Amazon")
 
+    // get by primary key
+    val exists = members.get(1, "Japan")
+    exists.get.attributes.find(_.name == "Company").get.value.s.get should equal("Google")
+
     val nonExistant: Option[Item] = members.get(4, "U.K.")
     nonExistant.isDefined should not be true
 
+    // batch get
+    val batchedMembers: Seq[Item] = members.batchGet(
+      List(("Id", 1, "Country", "Japan"), ("Id", 2, "Country", "U.S.")))
+    batchedMembers.size should equal(2)
+    val ids = batchedMembers.map(_.attributes.find(_.name == "Id").get.value.n.get.toInt).toList
+    ids should equal(List(1, 2))
+    val batchedNonExistant: Seq[Item] = members.batchGet(
+      List(("Id", 42, "Country", "blah"), ("Id", 1337, "Country", "bloo")))
+    batchedNonExistant.size should equal(0)
+
+    // scan
     val googlers: Seq[Item] = members.scan(Seq("Company" -> cond.eq("Google")))
     googlers.flatMap(_.attributes.find(_.name == "Name").map(_.value.s.get)) should equal(Seq("Bob", "Alice"))
 
