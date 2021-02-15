@@ -73,7 +73,8 @@ lazy val core = project
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.1",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.2.3" % "test"
+      "org.scalatest" %% "scalatest" % "3.2.3" % "test",
+      "org.scala-lang" % "scala-reflect" % "2.13.4"
     )
   )
 
