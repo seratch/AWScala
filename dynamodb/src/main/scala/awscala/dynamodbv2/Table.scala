@@ -58,26 +58,9 @@ case class Table(
   def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
-//  @deprecated
-//  def putItem[E <: AnyRef](entity: E)(implicit dynamoDB: DynamoDB): Unit = {
-//    val attrs = getAttrValuesToMap(entity, true)
-//
-//    if (attrs("keys").exists(x => x._1 == "hashPK") && attrs("keys").exists(x => x._1 == "rangePK")) {
-//      val hashPK = attrs("keys").find(f => f._1 == "hashPK").get._2
-//      val rangePK = attrs("keys").find(f => f._1 == "rangePK").get._2
-//      dynamoDB.put(this, hashPK, rangePK, attrs("attributes"): _*)
-//    } else if (attrs("keys").exists(x => x._1 == "hashPK")) {
-//      val hashPK = attrs("keys").find(f => f._1 == "hashPK").get._2
-//      dynamoDB.put(this, hashPK, attrs("attributes"): _*)
-//    }
-//  }
-
   def putItem[T: u.TypeTag](entity:T)(implicit dynamoDB: DynamoDB): Unit = {
     val annotations = getterAnnotationsFromEntity(entity)
-    val fields = getterNamesFromEntity(entity).map(getterName => {
-      val value = entity.getClass.getDeclaredMethod(getterName).invoke(entity)
-      getterName -> value
-    }).toList
+    val fields = getterNamesFromEntity(entity)
 
     val faJoined = annotations.map(tup1 => fields.filter(tup2 => tup2._1 == tup1._1.toString)
       .map(tup2 => (tup1._1.toString, tup1._2.head.toString, {
@@ -88,31 +71,22 @@ case class Table(
       }, tup1._3.toString)))
     val faJoinedFlat = faJoined.flatten
 
-    val hashKey = faJoinedFlat.filter(x => x._2.contains("hashPK")).map(y=>y._3).head
-    val rangeKey = faJoinedFlat.filter(x => x._2.contains("rangePK")).map(y=>y._3).head
+    val hashKey = faJoinedFlat.filter(x => x._2.contains("hashPK")).map(y=>y._3).headOption
+    val rangeKey = faJoinedFlat.filter(x => x._2.contains("rangePK")).map(y=>y._3).headOption
 
     val attributes = fields.filter(f => !faJoinedFlat.exists(_._1 == f._1))
-    dynamoDB.put(this, hashKey, rangeKey, attributes: _*)
+    if(hashKey.isEmpty)
+      throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
+
+    if(hashKey.isDefined && rangeKey.isDefined)
+      dynamoDB.put(this, hashKey.get, rangeKey.get, attributes: _*)
+    else if(hashKey.isDefined)
+      dynamoDB.put(this, hashKey.get, attributes: _*)
   }
 
   def putItem[E <: AnyRef](hashPK: Any, rangePK: Any, entity: E)(implicit dynamoDB: DynamoDB): Unit = {
-    val attrs = getAttrValuesToMap(entity, false)
-    dynamoDB.put(this, hashPK, rangePK, attrs("attributes"): _*)
-  }
-
-  private def getAttrValuesToMap(entity: Any, keysRequired: Boolean): Map[String, List[(String, AnyRef)]] = {
-    val fields = getterNamesFromEntity(entity).map(getterName => {
-      val value = entity.getClass.getDeclaredMethod(getterName).invoke(entity)
-      getterName -> value
-    }).toList
-
-    val keys = fields.filter(f => f._1 == "hashPK" || f._1 == "rangePK")
-    val attrs = fields.filterNot(f => keys.exists(k => f._1 == k._1))
-
-    if (!keys.exists(k => k._1 == "hashPK") && keysRequired)
-      throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
-
-    Map("keys" -> keys, "attributes" -> attrs)
+    val attrs = getterNamesFromEntity(entity)
+    dynamoDB.put(this, hashPK, rangePK, attrs: _*)
   }
 
   private def getterAnnotationsFromEntity[T: u.TypeTag](entity: T) = {
@@ -120,7 +94,7 @@ case class Table(
       .collect({case t: TermSymbol if (t.isVal && t.annotations.nonEmpty) => (t.name,t.annotations,t.typeSignature)})
   }
 
-  private def getterNamesFromEntity(obj: Any): Seq[String] = {
+  private def getterNamesFromEntity(obj: Any):List[(String, AnyRef)] = {
     val fieldNames = obj.getClass.getDeclaredFields
       .filter(f => Modifier.isPrivate(f.getModifiers))
       .filterNot(f => Modifier.isStatic(f.getModifiers))
@@ -129,13 +103,15 @@ case class Table(
     val methodNames = obj.getClass.getDeclaredMethods
       .filter(m => Modifier.isPublic(m.getModifiers))
       .filterNot(m => Modifier.isStatic(m.getModifiers))
-      .filterNot(m => m.getParameterTypes.size > 0)
+      .filterNot(m => m.getParameterTypes.length > 0)
       .map(_.getName)
 
     methodNames.filter(m => fieldNames.contains(m))
+    .map(getterName => {
+      val value = obj.getClass.getDeclaredMethod(getterName).invoke(obj)
+      getterName -> value
+    }).toList
   }
-
-
 
   def putItem(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = {
     dynamoDB.put(this, hashPK, attributes: _*)

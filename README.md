@@ -239,8 +239,14 @@ import awscala._, dynamodbv2._
 implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
 
 case class Member(Name: String, Age: Int, Company: String)
-case class User(hashPK: Int, rangePK: String, Name: String, Age: Int, Company: String)
-
+case class TestMember(
+                 @hashPK
+                 id: Int,
+                 @rangePK
+                 Country: String,
+                 Company: String,
+                 Name: String,
+                 Age: Int)
 val tableMeta: TableMeta = dynamoDB.createTable(
   name = "Members",
   hashPK =  "Id" -> AttributeType.Number,
@@ -258,7 +264,7 @@ val member = Member("Alex", 29, "DataMass")
 table.putItem(1, "PL", member)
 
 // putItem() allows you to push the whole case class object with hashPK and rangePK included
-val user = User(2,"PL", "Jakub", 33, "DataMass")
+val user = TestMember(2,"PL", "Jakub", 33, "DataMass")
 table.putItem(user)
 
 val members: Seq[Item] = table.scan(Seq("Company" -> cond.eq("DataMass")))
