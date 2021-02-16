@@ -2,8 +2,6 @@ package awscala.dynamodbv2
 
 import DynamoDB.{ SimplePk, CompositePk }
 import java.lang.reflect.Modifier
-import com.amazonaws.services.{ dynamodbv2 => aws }
-import scala.reflect.ClassTag
 import com.amazonaws.services.{dynamodbv2 => aws}
 import scala.annotation.StaticAnnotation
 import scala.reflect.runtime.{universe => u}
@@ -122,7 +120,7 @@ case class Table(
       getterName -> value
     }).toList
   }
-  
+
   def putItem(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = {
     dynamoDB.put(this, hashPK, attributes: _*)
   }

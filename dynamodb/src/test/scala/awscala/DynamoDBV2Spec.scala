@@ -69,7 +69,6 @@ class DynamoDBV2Spec extends AnyFlatSpec with Matchers {
     companies.destroy()
   }
 
-  case class Member(hashPK: Int, rangePK: String, Name: String, Age: Int, Company: String)
   case class User(Name: String, Age: Int, Company: String)
   it should "allows using case class in put method" in {
     implicit val dynamoDB: DynamoDB = DynamoDB.local()
@@ -95,14 +94,10 @@ class DynamoDBV2Spec extends AnyFlatSpec with Matchers {
     val members: Table = dynamoDB.table(tableName).get
 
     members.put(1, "Japan", "Name" -> "Alice", "Age" -> 23, "Company" -> "Google")
-    val member = Member(2, "PL", "Alex", 29, "DataMass")
     val user = User("Ben", 33, "GCP")
-    members.putItem(member)
     members.putItem(3, "PL", user)
 
     members.get(1, "Japan").get.attributes.find(_.name == "Company").get.value.s.get should equal("Google")
-    members.get(2, "PL").get.attributes.find(_.name == "Name").get.value.s.get should equal("Alex")
-    members.get(2, "PL").get.attributes.find(_.name == "Company").get.value.s.get should equal("DataMass")
     members.get(3, "PL").get.attributes.find(_.name == "Company").get.value.s.get should equal("GCP")
     members.get(3, "PL").get.attributes.find(_.name == "Name").get.value.s.get should equal("Ben")
     members.destroy()
