@@ -1,12 +1,16 @@
 package awscala.dynamodbv2
 
+import DynamoDB.{ SimplePk, CompositePk }
 import java.lang.reflect.Modifier
+import com.amazonaws.services.{ dynamodbv2 => aws }
+import scala.reflect.ClassTag
 import com.amazonaws.services.{dynamodbv2 => aws}
 import scala.annotation.StaticAnnotation
 import scala.reflect.runtime.{universe => u}
 import scala.reflect.runtime.universe.{TermSymbol, runtimeMirror, termNames}
 
 object Table {
+
   def apply(
     name: String,
     hashPK: String,
@@ -49,14 +53,20 @@ case class Table(
     dynamoDB.get(this, hashPK, rangePK)
   }
 
-  def batchGet(attributes: List[(String, Any)])(implicit dynamoDB: DynamoDB): Seq[Item] = batchGetItems(attributes)
+  def batchGet(attributes: List[SimplePk])(implicit dynamoDB: DynamoDB): Seq[Item] =
+    batchGetItems(attributes)
 
-  def batchGetItems(attributes: List[(String, Any)])(implicit dynamoDB: DynamoDB): Seq[Item] = {
-    dynamoDB.batchGet(Map(this -> attributes))
-  }
+  def batchGet(attributes: List[CompositePk])(implicit dynamoDB: DynamoDB, di: DummyImplicit): Seq[Item] =
+    batchGetItems(attributes)
 
-  def put(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
-  def put(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
+  def batchGetItems(attributes: List[SimplePk])(implicit dynamoDB: DynamoDB): Seq[Item] =
+    dynamoDB.batchGet[SimplePk](Map(this -> attributes))
+
+  def batchGetItems(attributes: List[CompositePk])(implicit dynamoDB: DynamoDB, di: DummyImplicit): Seq[Item] =
+    dynamoDB.batchGet[CompositePk](Map(this -> attributes))
+
+  def put(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
+  def put(hashPK: Any, rangePK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
   def putItem[T: u.TypeTag](entity:T)(implicit dynamoDB: DynamoDB): Unit = {
     val annotations = getterAnnotationsFromEntity(entity)
@@ -112,11 +122,11 @@ case class Table(
       getterName -> value
     }).toList
   }
-
-  def putItem(hashPK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = {
+  
+  def putItem(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = {
     dynamoDB.put(this, hashPK, attributes: _*)
   }
-  def putItem(hashPK: Any, rangePK: Any, attributes: (String, Any)*)(implicit dynamoDB: DynamoDB): Unit = {
+  def putItem(hashPK: Any, rangePK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = {
     dynamoDB.put(this, hashPK, rangePK, attributes: _*)
   }
 
@@ -191,34 +201,34 @@ case class Table(
       pageStatsCallback = pageStatsCallback)
   }
 
-  def addAttributes(hashPK: Any, attributes: (String, Any)*)(
+  def addAttributes(hashPK: Any, attributes: SimplePk*)(
     implicit
     dynamoDB: DynamoDB): Unit = {
     dynamoDB.updateAttributes(this, hashPK, None, aws.model.AttributeAction.ADD, attributes)
   }
-  def addAttributes(hashPK: Any, rangePK: Any, attributes: Seq[(String, Any)])(
+  def addAttributes(hashPK: Any, rangePK: Any, attributes: Seq[SimplePk])(
     implicit
     dynamoDB: DynamoDB): Unit = {
     dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.ADD, attributes)
   }
 
-  def deleteAttributes(hashPK: Any, attributes: Seq[(String, Any)])(
+  def deleteAttributes(hashPK: Any, attributes: Seq[SimplePk])(
     implicit
     dynamoDB: DynamoDB): Unit = {
     dynamoDB.updateAttributes(this, hashPK, None, aws.model.AttributeAction.DELETE, attributes)
   }
-  def deleteAttributes(hashPK: Any, rangePK: Any, attributes: Seq[(String, Any)])(
+  def deleteAttributes(hashPK: Any, rangePK: Any, attributes: Seq[SimplePk])(
     implicit
     dynamoDB: DynamoDB): Unit = {
     dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.DELETE, attributes)
   }
 
-  def putAttributes(hashPK: Any, attributes: Seq[(String, Any)])(
+  def putAttributes(hashPK: Any, attributes: Seq[SimplePk])(
     implicit
     dynamoDB: DynamoDB): Unit = {
     dynamoDB.updateAttributes(this, hashPK, None, aws.model.AttributeAction.PUT, attributes)
   }
-  def putAttributes(hashPK: Any, rangePK: Any, attributes: Seq[(String, Any)])(
+  def putAttributes(hashPK: Any, rangePK: Any, attributes: Seq[SimplePk])(
     implicit
     dynamoDB: DynamoDB): Unit = {
     dynamoDB.updateAttributes(this, hashPK, Some(rangePK), aws.model.AttributeAction.PUT, attributes)
