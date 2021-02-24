@@ -51,7 +51,7 @@ lazy val commonSettings = Seq(
   sonatypeProfileName := "com.github.seratch"
 )
 
-lazy val awsJavaSdkVersion = "1.11.954"
+lazy val awsJavaSdkVersion = "1.11.959"
 
 lazy val all = (project in file("."))
   .settings(commonSettings)
@@ -70,10 +70,10 @@ lazy val core = project
       "com.amazonaws" % "aws-java-sdk-core" % awsJavaSdkVersion,
       "joda-time" % "joda-time" % "2.10.10",
       "org.joda" % "joda-convert" % "2.2.1",
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.1",
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.2",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.2.3" % "test",
+      "org.scalatest" %% "scalatest" % "3.2.5" % "test",
       "org.scala-lang" % "scala-reflect" % "2.13.4"
     )
   )
@@ -104,7 +104,7 @@ def awsProject(service: String) = {
       libraryDependencies ++= Seq(
         "com.amazonaws" % s"aws-java-sdk-$service" % awsJavaSdkVersion,
         "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-        "org.scalatest" %% "scalatest" % "3.2.3" % "test"
+        "org.scalatest" %% "scalatest" % "3.2.5" % "test"
       )
     )
     .dependsOn(core)
