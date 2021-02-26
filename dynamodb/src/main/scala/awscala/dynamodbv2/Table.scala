@@ -2,10 +2,10 @@ package awscala.dynamodbv2
 
 import DynamoDB.{ SimplePk, CompositePk }
 import java.lang.reflect.Modifier
-import com.amazonaws.services.{dynamodbv2 => aws}
+import com.amazonaws.services.{ dynamodbv2 => aws }
 import scala.annotation.StaticAnnotation
-import scala.reflect.runtime.{universe => u}
-import scala.reflect.runtime.universe.{TermSymbol, runtimeMirror, termNames}
+import scala.reflect.runtime.{ universe => u }
+import scala.reflect.runtime.universe.{ TermSymbol, runtimeMirror, termNames }
 
 object Table {
 
@@ -66,7 +66,7 @@ case class Table(
   def put(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
-  def putItem[T: u.TypeTag](entity:T)(implicit dynamoDB: DynamoDB): Unit = {
+  def putItem[T: u.TypeTag](entity: T)(implicit dynamoDB: DynamoDB): Unit = {
     val annotations = getterAnnotationsFromEntity(entity)
     val fields = getterNamesFromEntity(entity)
 
@@ -79,16 +79,16 @@ case class Table(
       }, tup1._3.toString)))
     val faJoinedFlat = faJoined.flatten
 
-    val hashKey = faJoinedFlat.filter(x => x._2.contains("hashPK")).map(y=>y._3).headOption
-    val rangeKey = faJoinedFlat.filter(x => x._2.contains("rangePK")).map(y=>y._3).headOption
+    val hashKey = faJoinedFlat.filter(x => x._2.contains("hashPK")).map(y => y._3).headOption
+    val rangeKey = faJoinedFlat.filter(x => x._2.contains("rangePK")).map(y => y._3).headOption
 
     val attributes = fields.filter(f => !faJoinedFlat.exists(_._1 == f._1))
-    if(hashKey.isEmpty)
+    if (hashKey.isEmpty)
       throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
 
-    if(hashKey.isDefined && rangeKey.isDefined)
+    if (hashKey.isDefined && rangeKey.isDefined)
       dynamoDB.put(this, hashKey.get, rangeKey.get, attributes: _*)
-    else if(hashKey.isDefined)
+    else if (hashKey.isDefined)
       dynamoDB.put(this, hashKey.get, attributes: _*)
   }
 
@@ -99,10 +99,10 @@ case class Table(
 
   private def getterAnnotationsFromEntity[T: u.TypeTag](entity: T) = {
     u.typeOf[entity.type].decl(termNames.CONSTRUCTOR).asMethod.paramLists.flatten
-      .collect({case t: TermSymbol if (t.isVal && t.annotations.nonEmpty) => (t.name,t.annotations,t.typeSignature)})
+      .collect({ case t: TermSymbol if (t.isVal && t.annotations.nonEmpty) => (t.name, t.annotations, t.typeSignature) })
   }
 
-  private def getterNamesFromEntity(obj: Any):List[(String, AnyRef)] = {
+  private def getterNamesFromEntity(obj: Any): List[(String, AnyRef)] = {
     val fieldNames = obj.getClass.getDeclaredFields
       .filter(f => Modifier.isPrivate(f.getModifiers))
       .filterNot(f => Modifier.isStatic(f.getModifiers))
@@ -115,10 +115,10 @@ case class Table(
       .map(_.getName)
 
     methodNames.filter(m => fieldNames.contains(m))
-    .map(getterName => {
-      val value = obj.getClass.getDeclaredMethod(getterName).invoke(obj)
-      getterName -> value
-    }).toList
+      .map(getterName => {
+        val value = obj.getClass.getDeclaredMethod(getterName).invoke(obj)
+        getterName -> value
+      }).toList
   }
 
   def putItem(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = {

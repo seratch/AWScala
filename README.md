@@ -243,10 +243,10 @@ case class TestMember(
                  @hashPK
                  id: Int,
                  @rangePK
-                 Country: String,
-                 Company: String,
-                 Name: String,
-                 Age: Int)
+                 country: String,
+                 company: String,
+                 name: String,
+                 age: Int)
 val tableMeta: TableMeta = dynamoDB.createTable(
   name = "Members",
   hashPK =  "Id" -> AttributeType.Number,

@@ -104,13 +104,11 @@ class DynamoDBV2Spec extends AnyFlatSpec with Matchers {
   }
 
   case class TestMember(
-                     @hashPK
-                     id: Int,
-                     @rangePK
-                     Country: String,
-                     Company: String,
-                     Name: String,
-                     Age: Int)
+    @hashPK id: Int,
+    @rangePK Country: String,
+    Company: String,
+    Name: String,
+    Age: Int)
   it should "allows using case class with annotation in put method" in {
     implicit val dynamoDB: DynamoDB = DynamoDB.local()
     val tableName = s"Members_${System.currentTimeMillis}"
@@ -142,7 +140,6 @@ class DynamoDBV2Spec extends AnyFlatSpec with Matchers {
     members.get(1, "PL").get.attributes.find(_.name == "Country").get.value.s.get should equal("PL")
     members.destroy()
   }
-
 
   it should "provide cool APIs for Hash/Range PK tables" in {
     implicit val dynamoDB: DynamoDB = DynamoDB.local()
