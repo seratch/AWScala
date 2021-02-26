@@ -74,7 +74,7 @@ lazy val core = project
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
       "org.scalatest" %% "scalatest" % "3.2.5" % "test",
-      "org.scala-lang" % "scala-reflect" % "2.13.4"
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value
     )
   )
 
