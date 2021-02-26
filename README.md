@@ -240,13 +240,11 @@ implicit val dynamoDB = DynamoDB.at(Region.Tokyo)
 
 case class Member(Name: String, Age: Int, Company: String)
 case class TestMember(
-                 @hashPK
-                 id: Int,
-                 @rangePK
-                 country: String,
-                 company: String,
-                 name: String,
-                 age: Int)
+     @hashPK id: Int,
+     @rangePK country: String,
+     company: String,
+     name: String,
+     age: Int)
 val tableMeta: TableMeta = dynamoDB.createTable(
   name = "Members",
   hashPK =  "Id" -> AttributeType.Number,
