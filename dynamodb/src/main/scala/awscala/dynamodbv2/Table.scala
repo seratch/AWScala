@@ -24,6 +24,10 @@ object Table {
 
 class hashPK extends StaticAnnotation
 class rangePK extends StaticAnnotation
+case class AnnotationMeta(
+  name: String,
+  annotation: String,
+  typeSignature: String)
 
 case class Table(
   name: String,
@@ -67,41 +71,38 @@ case class Table(
   def put(hashPK: Any, rangePK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
   def putItem[T: u.TypeTag](entity: T)(implicit dynamoDB: DynamoDB): Unit = {
-    val annotations:List[(String, String, String)] = getterAnnotationsFromEntity(entity)
-    val fields:List[(String, AnyRef)] = getterNamesFromEntity(entity)
+    val annotations: List[AnnotationMeta] = getterAnnotationsFromEntity(entity)
+    val fields: List[(String, AnyRef)] = getterNamesFromEntity(entity)
 
-    val faJoined = annotations.map{
-      case (name, annotation, signature) => {
-        val found:Option[(String, AnyRef)] = fields.find { case (fieldName, _) => fieldName == name }
-        found match {
-          case Some((_, getterValue)) =>
-            (
-              name,
-              annotation,
-              {
-                signature match {
-                  case "Int" => getterValue.asInstanceOf[Int]
-                  case "String" => getterValue.asInstanceOf[String]
-                }
-              },
-              signature
-            )
-          case None => Nil
-        }
+    val faJoined = annotations.map(a => {
+      val found: Option[(String, AnyRef)] = fields.find { case (fieldName, _) => fieldName == a.name }
+      found match {
+        case Some((_, getterValue)) =>
+          (
+            a.name,
+            a.annotation, {
+              a.typeSignature match {
+                case "Int" => getterValue.asInstanceOf[Int]
+                case "String" => getterValue.asInstanceOf[String]
+              }
+            },
+            a.typeSignature)
+        case None => Nil
       }
-      case _ => Nil
-    }
+    })
 
-    val hashKey:Option[Any] = faJoined.asInstanceOf[List[(String, String ,Any ,String)]]
-      .find { case (_,annotation, _, _) => annotation.contains("hashPK") }
-      .map { case (_,_, hashKeyValue, _) => hashKeyValue }
+    val hashKey: Option[Any] = faJoined.asInstanceOf[List[(String, String, Any, String)]]
+      .find { case (_, annotation, _, _) => annotation.contains("hashPK") }
+      .map { case (_, _, hashKeyValue, _) => hashKeyValue }
 
-    val rangeKey:Option[Any] = faJoined.asInstanceOf[List[(String, String, Any, String)]]
+    val rangeKey: Option[Any] = faJoined.asInstanceOf[List[(String, String, Any, String)]]
       .find { case (_, annotation, _, _) => annotation.contains("rangePK") }
       .map { case (_, _, rangeKeyValue, _) => rangeKeyValue }
 
-    val attributes = fields.filter { case (getterName, _) =>
-      !faJoined.exists { case (name ,_ ,_ ,_) => getterName == name}}
+    val attributes = fields.filter {
+      case (getterName, _) =>
+        !faJoined.exists { case (name, _, _, _) => getterName == name }
+    }
 
     if (hashKey.isEmpty)
       throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
@@ -117,9 +118,12 @@ case class Table(
     dynamoDB.put(this, hashPK, rangePK, attrs: _*)
   }
 
-  private def getterAnnotationsFromEntity[T: u.TypeTag](entity: T): List[(String,String,String)] = {
+  private def getterAnnotationsFromEntity[T: u.TypeTag](entity: T): List[AnnotationMeta] = {
     u.typeOf[entity.type].decl(termNames.CONSTRUCTOR).asMethod.paramLists.flatten
-      .collect({ case t: TermSymbol if (t.isVal && t.annotations.nonEmpty) => (t.name.toString, t.annotations.head.toString, t.typeSignature.toString) })
+      .collect({
+        case t: TermSymbol if (t.isVal && t.annotations.nonEmpty) =>
+          AnnotationMeta(t.name.toString, t.annotations.head.toString, t.typeSignature.toString)
+      })
   }
 
   private def getterNamesFromEntity(obj: Any): List[(String, AnyRef)] = {
