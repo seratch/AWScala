@@ -1,11 +1,14 @@
 package awscala.dynamodbv2
 
-import DynamoDB.{ SimplePk, CompositePk }
+import DynamoDB.{ CompositePk, SimplePk }
+
 import java.lang.reflect.Modifier
 import com.amazonaws.services.{ dynamodbv2 => aws }
+
 import scala.annotation.StaticAnnotation
+import scala.collection.mutable.ListBuffer
 import scala.reflect.runtime.{ universe => u }
-import scala.reflect.runtime.universe.{ TermSymbol, runtimeMirror, termNames }
+import scala.reflect.runtime.universe.termNames
 
 object Table {
 
@@ -24,10 +27,6 @@ object Table {
 
 class hashPK extends StaticAnnotation
 class rangePK extends StaticAnnotation
-case class AnnotationMeta(
-  name: String,
-  annotation: String,
-  typeSignature: Any)
 
 case class Table(
   name: String,
@@ -70,80 +69,68 @@ case class Table(
   def put(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
-  def putItem[T: u.TypeTag](entity: T)(implicit dynamoDB: DynamoDB): Unit = {
-    val annotations: List[AnnotationMeta] = getterAnnotationsFromEntity(entity)
-    val fields: Seq[(String, AnyRef)] = getterNamesFromEntity(entity)
-
-    val annotationFields: Seq[AnnotationMeta] = annotations.flatMap(a => {
-      val found: Option[AnyRef] = fields
-        .find { case (fieldName, _) => fieldName == a.name }
-        .flatMap { case (_, getterValue) => Some(getterValue) }
-
-      found.map { f =>
-        AnnotationMeta(
-          a.name,
-          a.annotation,
-          {
-            a.typeSignature match {
-              case "Int" => f.asInstanceOf[Int]
-              case "String" => f.asInstanceOf[String]
-            }
-          })
-      }
-    })
-
-    val hashKey: Option[Any] = annotationFields
-      .find(a => a.annotation.contains("hashPK"))
-      .map(a => a.typeSignature)
-
-    val rangeKey: Option[Any] = annotationFields
-      .find(a => a.annotation.contains("rangePK"))
-      .map(a => a.typeSignature)
-
-    val attributes = fields.filter {
-      case (getterName, _) =>
-        !annotationFields.exists(a => getterName == a.name)
-    }
-
-    if (hashKey.isEmpty)
-      throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
-
-    if (hashKey.isDefined && rangeKey.isDefined)
-      dynamoDB.put(this, hashKey.get, rangeKey.get, attributes: _*)
-    else if (hashKey.isDefined)
-      dynamoDB.put(this, hashKey.get, attributes: _*)
-  }
-
   def putItem[E <: AnyRef](hashPK: Any, rangePK: Any, entity: E)(implicit dynamoDB: DynamoDB): Unit = {
-    val attrs = getterNamesFromEntity(entity)
+    val attrs = extractGetterNameAndValue(entity)
     dynamoDB.put(this, hashPK, rangePK, attrs: _*)
   }
 
-  private def getterAnnotationsFromEntity[T: u.TypeTag](entity: T): List[AnnotationMeta] = {
-    u.typeOf[entity.type].decl(termNames.CONSTRUCTOR).asMethod.paramLists.flatten
-      .collect({
-        case t: TermSymbol if (t.isVal && t.annotations.nonEmpty) =>
-          AnnotationMeta(t.name.toString, t.annotations.head.toString, t.typeSignature.toString)
-      })
+  def putItem[T: u.TypeTag](entity: T)(implicit dynamoDB: DynamoDB): Unit = {
+    val constructorArgs: Seq[AnnotatedConstructorArgMeta] = extractAnnotatedConstructorArgs(entity)
+    val getterCallResults: Seq[(String, AnyRef)] = extractGetterNameAndValue(entity)
+
+    var maybeHashPK: Option[Any] = None
+    var maybeRangePK: Option[Any] = None
+    val attributes: ListBuffer[(String, AnyRef)] = ListBuffer()
+    for (arg <- constructorArgs) {
+      getterCallResults.find { case (name, _) => name == arg.name } match {
+        case Some((_, value)) if arg.annotationNames.contains("hashPK") => maybeHashPK = Some(value)
+        case Some((_, value)) if arg.annotationNames.contains("rangePK") => maybeRangePK = Some(value)
+        case Some(nameAndValue) => attributes += nameAndValue
+        case _ => // noop
+      }
+    }
+    (maybeHashPK, maybeRangePK) match {
+      case (Some(hashPK), Some(rangePK)) =>
+        dynamoDB.put(this, hashPK, rangePK, attributes.toSeq: _*)
+      case (Some(hashPK), None) =>
+        dynamoDB.put(this, hashPK, attributes.toSeq: _*)
+      case _ =>
+        throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
+    }
   }
 
-  private def getterNamesFromEntity(obj: Any): Seq[(String, AnyRef)] = {
-    val fieldNames = obj.getClass.getDeclaredFields
-      .filter(f => Modifier.isPrivate(f.getModifiers))
-      .filterNot(f => Modifier.isStatic(f.getModifiers))
+  private case class AnnotatedConstructorArgMeta(name: String, annotationNames: Seq[String])
+
+  private def extractAnnotatedConstructorArgs[T: u.TypeTag](entity: T): Seq[AnnotatedConstructorArgMeta] = {
+    u.typeOf[entity.type].decl(termNames.CONSTRUCTOR).asMethod.paramLists.flatten
+      .collect({
+        case t if t != null && t.annotations.nonEmpty =>
+          Some(AnnotatedConstructorArgMeta(
+            name = t.name.toString,
+            // FIXME: should we use canonical name?
+            annotationNames = t.annotations.map(_.toString)))
+        case _ => None
+      }).flatten
+  }
+
+  private def extractGetterNameAndValue(obj: Any): Seq[(String, AnyRef)] = {
+    val clazz = obj.getClass
+    val privateInstanceFieldNames: Seq[String] = clazz.getDeclaredFields
+      .filter(f =>
+        Modifier.isPrivate(f.getModifiers)
+          && !Modifier.isStatic(f.getModifiers))
+      .toIndexedSeq // To avoid implicit conversion
+      .map(_.getName)
+    val getterMethodNames: Seq[String] = clazz.getDeclaredMethods
+      .filter(m =>
+        Modifier.isPublic(m.getModifiers)
+          && !Modifier.isStatic(m.getModifiers)
+          && m.getParameterTypes.length == 0
+          && privateInstanceFieldNames.contains(m.getName))
+      .toIndexedSeq // To avoid implicit conversion
       .map(_.getName)
 
-    val methodNames = obj.getClass.getDeclaredMethods
-      .filter(m => Modifier.isPublic(m.getModifiers))
-      .filterNot(m => Modifier.isStatic(m.getModifiers))
-      .filterNot(m => m.getParameterTypes.length > 0)
-      .map(_.getName)
-
-    methodNames.filter(m => fieldNames.contains(m))
-      .map(getterName => {
-        val value = obj.getClass.getDeclaredMethod(getterName).invoke(obj)
-        getterName -> value
-      }).toSeq
+    getterMethodNames.map(name => (name, clazz.getDeclaredMethod(name).invoke(obj)))
   }
 
   def putItem(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = {
