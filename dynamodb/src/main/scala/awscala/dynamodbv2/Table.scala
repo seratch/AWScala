@@ -1,12 +1,11 @@
 package awscala.dynamodbv2
 
 import DynamoDB.{ SimplePk, CompositePk }
-
 import java.lang.reflect.Modifier
-
 import com.amazonaws.services.{ dynamodbv2 => aws }
-
-import scala.reflect.ClassTag
+import scala.annotation.StaticAnnotation
+import scala.reflect.runtime.{ universe => u }
+import scala.reflect.runtime.universe.{ TermSymbol, runtimeMirror, termNames }
 
 object Table {
 
@@ -22,6 +21,13 @@ object Table {
     new Table(name, hashPK, rangePK, attributes, localSecondaryIndexes,
       globalSecondaryIndexes, provisionedThroughput, Option(billingMode))
 }
+
+class hashPK extends StaticAnnotation
+class rangePK extends StaticAnnotation
+case class AnnotationMeta(
+  name: String,
+  annotation: String,
+  typeSignature: Any)
 
 case class Table(
   name: String,
@@ -64,40 +70,64 @@ case class Table(
   def put(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, attributes: _*)
   def put(hashPK: Any, rangePK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = putItem(hashPK, rangePK, attributes: _*)
 
-  def putItem[E <: AnyRef](entity: E)(implicit dynamoDB: DynamoDB): Unit = {
-    val attrs = getAttrValuesToMap(entity, true)
+  def putItem[T: u.TypeTag](entity: T)(implicit dynamoDB: DynamoDB): Unit = {
+    val annotations: List[AnnotationMeta] = getterAnnotationsFromEntity(entity)
+    val fields: Seq[(String, AnyRef)] = getterNamesFromEntity(entity)
 
-    if (attrs("keys").exists(x => x._1 == "hashPK") && attrs("keys").exists(x => x._1 == "rangePK")) {
-      val hashPK = attrs("keys").find(f => f._1 == "hashPK").get._2
-      val rangePK = attrs("keys").find(f => f._1 == "rangePK").get._2
-      dynamoDB.put(this, hashPK, rangePK, attrs("attributes"): _*)
-    } else if (attrs("keys").exists(x => x._1 == "hashPK")) {
-      val hashPK = attrs("keys").find(f => f._1 == "hashPK").get._2
-      dynamoDB.put(this, hashPK, attrs("attributes"): _*)
+    val annotationFields: Seq[AnnotationMeta] = annotations.flatMap(a => {
+      val found: Option[AnyRef] = fields
+        .find { case (fieldName, _) => fieldName == a.name }
+        .flatMap { case (_, getterValue) => Some(getterValue) }
+
+      found.map { f =>
+        AnnotationMeta(
+          a.name,
+          a.annotation,
+          {
+            a.typeSignature match {
+              case "Int" => f.asInstanceOf[Int]
+              case "String" => f.asInstanceOf[String]
+            }
+          })
+      }
+    })
+
+    val hashKey: Option[Any] = annotationFields
+      .find(a => a.annotation.contains("hashPK"))
+      .map(a => a.typeSignature)
+
+    val rangeKey: Option[Any] = annotationFields
+      .find(a => a.annotation.contains("rangePK"))
+      .map(a => a.typeSignature)
+
+    val attributes = fields.filter {
+      case (getterName, _) =>
+        !annotationFields.exists(a => getterName == a.name)
     }
+
+    if (hashKey.isEmpty)
+      throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
+
+    if (hashKey.isDefined && rangeKey.isDefined)
+      dynamoDB.put(this, hashKey.get, rangeKey.get, attributes: _*)
+    else if (hashKey.isDefined)
+      dynamoDB.put(this, hashKey.get, attributes: _*)
   }
 
   def putItem[E <: AnyRef](hashPK: Any, rangePK: Any, entity: E)(implicit dynamoDB: DynamoDB): Unit = {
-    val attrs = getAttrValuesToMap(entity, false)
-    dynamoDB.put(this, hashPK, rangePK, attrs("attributes"): _*)
+    val attrs = getterNamesFromEntity(entity)
+    dynamoDB.put(this, hashPK, rangePK, attrs: _*)
   }
 
-  private def getAttrValuesToMap(entity: Any, keysRequired: Boolean): Map[String, List[(String, AnyRef)]] = {
-    val fields = getterNamesFromEntity(entity).map(getterName => {
-      val value = entity.getClass.getDeclaredMethod(getterName).invoke(entity)
-      getterName -> value
-    }).toList
-
-    val keys = fields.filter(f => f._1 == "hashPK" || f._1 == "rangePK")
-    val attrs = fields.filterNot(f => keys.exists(k => f._1 == k._1))
-
-    if (!keys.exists(k => k._1 == "hashPK") && keysRequired)
-      throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
-
-    Map("keys" -> keys, "attributes" -> attrs)
+  private def getterAnnotationsFromEntity[T: u.TypeTag](entity: T): List[AnnotationMeta] = {
+    u.typeOf[entity.type].decl(termNames.CONSTRUCTOR).asMethod.paramLists.flatten
+      .collect({
+        case t: TermSymbol if (t.isVal && t.annotations.nonEmpty) =>
+          AnnotationMeta(t.name.toString, t.annotations.head.toString, t.typeSignature.toString)
+      })
   }
 
-  private def getterNamesFromEntity(obj: Any): Seq[String] = {
+  private def getterNamesFromEntity(obj: Any): Seq[(String, AnyRef)] = {
     val fieldNames = obj.getClass.getDeclaredFields
       .filter(f => Modifier.isPrivate(f.getModifiers))
       .filterNot(f => Modifier.isStatic(f.getModifiers))
@@ -106,10 +136,14 @@ case class Table(
     val methodNames = obj.getClass.getDeclaredMethods
       .filter(m => Modifier.isPublic(m.getModifiers))
       .filterNot(m => Modifier.isStatic(m.getModifiers))
-      .filterNot(m => m.getParameterTypes.size > 0)
+      .filterNot(m => m.getParameterTypes.length > 0)
       .map(_.getName)
 
     methodNames.filter(m => fieldNames.contains(m))
+      .map(getterName => {
+        val value = obj.getClass.getDeclaredMethod(getterName).invoke(obj)
+        getterName -> value
+      }).toSeq
   }
 
   def putItem(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = {
