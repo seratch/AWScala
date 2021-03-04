@@ -74,37 +74,35 @@ case class Table(
     val annotations: List[AnnotationMeta] = getterAnnotationsFromEntity(entity)
     val fields: Seq[(String, AnyRef)] = getterNamesFromEntity(entity)
 
-    val annotationFields:List[Option[AnnotationMeta]] = annotations.map(a => {
+    val annotationFields: Seq[AnnotationMeta] = annotations.flatMap(a => {
       val found: Option[AnyRef] = fields
         .find { case (fieldName, _) => fieldName == a.name }
-        .flatMap{ case(_, getterValue) => Some(getterValue) }
+        .flatMap { case (_, getterValue) => Some(getterValue) }
 
-      found match {
-        case Some(getterValue) =>
-          Some(AnnotationMeta(
-            a.name,
-            a.annotation,
-            {
+      found.map { f =>
+        AnnotationMeta(
+          a.name,
+          a.annotation,
+          {
             a.typeSignature match {
-              case "Int" => getterValue.asInstanceOf[Int]
-              case "String" => getterValue.asInstanceOf[String]
+              case "Int" => f.asInstanceOf[Int]
+              case "String" => f.asInstanceOf[String]
             }
-          }))
-        case None => None
+          })
       }
     })
 
     val hashKey: Option[Any] = annotationFields
-      .find ( a => a.get.annotation.contains("hashPK") )
-      .map ( a => a.get.typeSignature )
+      .find(a => a.annotation.contains("hashPK"))
+      .map(a => a.typeSignature)
 
     val rangeKey: Option[Any] = annotationFields
-      .find ( a => a.get.annotation.contains("rangePK") )
-      .map ( a => a.get.typeSignature )
+      .find(a => a.annotation.contains("rangePK"))
+      .map(a => a.typeSignature)
 
     val attributes = fields.filter {
       case (getterName, _) =>
-        !annotationFields.exists(a => getterName == a.get.name)
+        !annotationFields.exists(a => getterName == a.name)
     }
 
     if (hashKey.isEmpty)
