@@ -1,11 +1,14 @@
 import xerial.sbt.Sonatype.autoImport._
 
+val scala213 = "2.13.4"
+val scala3 = "3.0.0-RC3"
+
 lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
   version := "0.9.1-SNAPSHOT",
-  scalaVersion := "2.13.4",
-  crossScalaVersions := Seq("2.13.4"),
+  scalaVersion := scala213,
+  crossScalaVersions := Seq(scala213),
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
@@ -73,27 +76,29 @@ lazy val core = project
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.3",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-      "org.scalatest" %% "scalatest" % "3.2.7" % "test",
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value
-    )
+      "org.scalatest" %% "scalatest" % "3.2.8" % "test",
+    ) ++ {scalaVersion.value.head match {
+      case '2' => Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value)
+      case _ => Seq()
+    }}
   )
 
 lazy val ec2 = awsProject("ec2")
   .settings(
     libraryDependencies ++= Seq(
-      "com.decodified" %% "scala-ssh" % "0.10.0" % "provided"
+      ("com.decodified" %% "scala-ssh" % "0.10.0" % "provided").cross(CrossVersion.for3Use2_13)
     )
   )
 
-lazy val iam = awsProject("iam")
+lazy val iam = awsProject("iam").settings(crossScalaVersions += scala3)
 lazy val dynamodb = awsProject("dynamodb").settings(dynamoTestSettings)
-lazy val emr = awsProject("emr").dependsOn(ec2 % "test")
-lazy val redshift = awsProject("redshift")
-lazy val s3 = awsProject("s3")
-lazy val simpledb = awsProject("simpledb")
-lazy val sqs = awsProject("sqs")
-lazy val sts = awsProject("sts")
-lazy val stepfunctions = awsProject("stepfunctions").dependsOn(iam % "test")
+lazy val emr = awsProject("emr").settings(crossScalaVersions += scala3).dependsOn(ec2 % "test")
+lazy val redshift = awsProject("redshift").settings(crossScalaVersions += scala3)
+lazy val s3 = awsProject("s3").settings(crossScalaVersions += scala3)
+lazy val simpledb = awsProject("simpledb").settings(crossScalaVersions += scala3)
+lazy val sqs = awsProject("sqs").settings(crossScalaVersions += scala3)
+lazy val sts = awsProject("sts").settings(crossScalaVersions += scala3)
+lazy val stepfunctions = awsProject("stepfunctions").settings(crossScalaVersions += scala3).dependsOn(iam % "test")
 
 def awsProject(service: String) = {
   Project
@@ -104,7 +109,7 @@ def awsProject(service: String) = {
       libraryDependencies ++= Seq(
         "com.amazonaws" % s"aws-java-sdk-$service" % awsJavaSdkVersion,
         "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
-        "org.scalatest" %% "scalatest" % "3.2.7" % "test"
+        "org.scalatest" %% "scalatest" % "3.2.8" % "test"
       )
     )
     .dependsOn(core)

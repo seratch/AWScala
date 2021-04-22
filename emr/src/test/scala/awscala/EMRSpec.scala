@@ -15,7 +15,7 @@ class EMRSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
   val keyPairName = s"awscala-emr-test-keypair-${System.currentTimeMillis}-${new scala.util.Random().nextInt(100)}"
 
   val awsRegion = Region.US_EAST_1
-  implicit val ec2 = EC2.at(awsRegion)
+  implicit val ec2: EC2 = EC2.at(awsRegion)
 
   override def beforeAll(): Unit = {
     ec2.createKeyPair(keyPairName)
@@ -25,7 +25,7 @@ class EMRSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
     ec2.deleteKeyPair(keyPairName)
   }
 
-  implicit val emr = EMR.at(awsRegion)
+  implicit val emr: EMR = EMR.at(awsRegion)
   val log = LoggerFactory.getLogger(this.getClass)
 
   // Basically we dont' support this module, please contact @CruncherBigData.
