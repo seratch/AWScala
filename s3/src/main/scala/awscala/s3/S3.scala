@@ -45,7 +45,7 @@ trait S3 extends aws.AmazonS3 {
     }
   }
 
-  private[this] var region: aws.model.Region = aws.model.Region.fromValue(s3RegionHack(Region.default.getName))
+  private[this] var region: aws.model.Region = aws.model.Region.fromValue(s3RegionHack(Region.default().getName))
 
   def at(region: Region): S3 = {
     this.setRegion(region)

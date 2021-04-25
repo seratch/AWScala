@@ -58,7 +58,7 @@ class S3Spec extends AnyFlatSpec with Matchers {
     // get objects
     val s3obj: Option[S3Object] = bucket.get("S3.scala")
     log.info(s"Object: ${s3obj}")
-    val summaries = bucket.objectSummaries
+    val summaries = bucket.objectSummaries()
     log.info(s"Object Summaries: ${summaries}")
 
     // delete objects
