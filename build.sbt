@@ -6,8 +6,9 @@ val scala3 = "3.0.0-RC3"
 lazy val commonSettings = Seq(
   organization := "com.github.seratch",
   name := "awscala",
-  version := "0.9.1-SNAPSHOT",
+  version := "0.9.1",
   scalaVersion := scala213,
+  // TODO: set scala3 for all projects
   crossScalaVersions := Seq(scala213),
   sbtPlugin := false,
   transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
