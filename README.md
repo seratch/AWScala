@@ -2,7 +2,7 @@ AWScala: AWS SDK on the Scala REPL
 =======
 
 [![Build Status](https://travis-ci.org/seratch/AWScala.svg)](https://travis-ci.org/seratch/AWScala)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.seratch/awscala_2.12.svg?label=Maven%20Central)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.seratch%22%20a%3A%22awscala_2.12%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.seratch/awscala_2.13.svg?label=Maven%20Central)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.seratch%22%20a%3A%22awscala_2.13%22)
 
 AWScala enables Scala developers to easily work with Amazon Web Services in the Scala way.
 
@@ -27,23 +27,23 @@ http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
 To pull in all modules:
 
 ```scala
-libraryDependencies += "com.github.seratch" %% "awscala" % "0.8.+"
+libraryDependencies += "com.github.seratch" %% "awscala" % "0.9.+"
 ```
 
 To pull in only selected modules:
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.seratch" %% "awscala-ec2" % "0.8.+",
-    "com.github.seratch" %% "awscala-iam" % "0.8.+",
-    "com.github.seratch" %% "awscala-dynamodb" % "0.8.+",
-    "com.github.seratch" %% "awscala-emr" % "0.8.+",
-    "com.github.seratch" %% "awscala-redshift" % "0.8.+",
-    "com.github.seratch" %% "awscala-s3" % "0.8.+",
-    "com.github.seratch" %% "awscala-simpledb" % "0.8.+",
-    "com.github.seratch" %% "awscala-sqs" % "0.8.+",
-    "com.github.seratch" %% "awscala-sts" % "0.8.+",
-    "com.github.seratch" %% "awscala-stepfunctions" % "0.8.+"
+    "com.github.seratch" %% "awscala-ec2" % "0.9.+",
+    "com.github.seratch" %% "awscala-iam" % "0.9.+",
+    "com.github.seratch" %% "awscala-dynamodb" % "0.9.+",
+    "com.github.seratch" %% "awscala-emr" % "0.9.+",
+    "com.github.seratch" %% "awscala-redshift" % "0.9.+",
+    "com.github.seratch" %% "awscala-s3" % "0.9.+",
+    "com.github.seratch" %% "awscala-simpledb" % "0.9.+",
+    "com.github.seratch" %% "awscala-sqs" % "0.9.+",
+    "com.github.seratch" %% "awscala-sts" % "0.9.+",
+    "com.github.seratch" %% "awscala-stepfunctions" % "0.9.+"
 )
 ```
 
