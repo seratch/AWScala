@@ -82,9 +82,10 @@ sealed trait ResultPager[TReq, TRes] extends Iterator[Item] {
     } else if (lastKey == null) {
       false
     } else {
-      do {
+      while ({
         nextPage(withExclusiveStartKey(request, lastKey))
-      } while (lastKey != null && items.isEmpty) // there are potentially more matching data, but this page didn't contain any
+        lastKey != null && items.isEmpty // there are potentially more matching data, but this page didn't contain any
+      }) {}
       items.nonEmpty
     }
   }
