@@ -87,7 +87,7 @@ lazy val core = project
 lazy val ec2 = awsProject("ec2")
   .settings(
     libraryDependencies ++= Seq(
-      ("com.decodified" %% "scala-ssh" % "0.11.0" % "provided").cross(CrossVersion.for3Use2_13)
+      ("com.decodified" %% "scala-ssh" % "0.11.1" % "provided").cross(CrossVersion.for3Use2_13)
     )
   )
 
