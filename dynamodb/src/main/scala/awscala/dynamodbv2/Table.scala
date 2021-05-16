@@ -81,12 +81,12 @@ case class Table(
     var maybeHashPK: Option[Any] = None
     var maybeRangePK: Option[Any] = None
     val attributes: ListBuffer[(String, AnyRef)] = ListBuffer()
-    for (arg <- constructorArgs) {
-      getterCallResults.find { case (name, _) => name == arg.name } match {
-        case Some((_, value)) if arg.annotationNames.contains("hashPK") => maybeHashPK = Some(value)
-        case Some((_, value)) if arg.annotationNames.contains("rangePK") => maybeRangePK = Some(value)
-        case Some(nameAndValue) => attributes += nameAndValue
-        case _ => // noop
+    for (nameAndValue <- getterCallResults) {
+      val (name, value) = nameAndValue
+      constructorArgs.find { arg => name == arg.name } match {
+        case Some(arg) if arg.annotationNames.exists(_.contains("hashPK")) => maybeHashPK = Some(value)
+        case Some(arg) if arg.annotationNames.exists(_.contains("rangePK")) => maybeRangePK = Some(value)
+        case _ => attributes += nameAndValue
       }
     }
     (maybeHashPK, maybeRangePK) match {
