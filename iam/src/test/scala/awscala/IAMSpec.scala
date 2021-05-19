@@ -1,7 +1,8 @@
 package awscala
 
-import awscala.iam._
+import java.util.Date
 
+import awscala.iam._
 import org.slf4j._
 import org.scalatest._
 import org.scalatest.flatspec.AnyFlatSpec
@@ -40,6 +41,15 @@ class IAMSpec extends AnyFlatSpec with Matchers {
     group.destroy()
 
     user.destroy()
+  }
+
+  it should "return correct dates for access keys" in {
+    implicit val iam = IAM()
+    val userName = s"awscala-unit-test-user-${System.currentTimeMillis}"
+    val user: User = iam.createUser(userName)
+    val userAccessKey = user.createAccessKey()
+    val accessKeyCreatedDate = userAccessKey.createDate
+    accessKeyCreatedDate.getTime should equal(new Date().getTime +- 1000)
   }
 
 }
