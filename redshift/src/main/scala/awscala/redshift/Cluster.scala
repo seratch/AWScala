@@ -1,6 +1,8 @@
 package awscala.redshift
 
+import awscala.DateTime.toDate
 import awscala._
+
 import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ redshift => aws }
 
@@ -28,7 +30,7 @@ object Cluster {
     securityGroupMemberships = c.getClusterSecurityGroups.asScala.map(m => ClusterSecurityGroupMembership(m)).toSeq,
     vpcId = c.getVpcId,
     vpcSecurityGroupMemberships = c.getVpcSecurityGroups.asScala.map(m => VpcSecurityGroupMembership(m)).toSeq,
-    createdAt = new DateTime(c.getClusterCreateTime))
+    createdAt = DateTime(c.getClusterCreateTime))
 }
 
 class Cluster(
@@ -59,7 +61,7 @@ class Cluster(
   setAllowVersionUpgrade(allowVersionUpgrade)
   setAutomatedSnapshotRetentionPeriod(automatedSnapshotRetentionPeriod)
   setAvailabilityZone(availabilityZone.name)
-  setClusterCreateTime(createdAt.toDate)
+  setClusterCreateTime(toDate(createdAt))
   setClusterIdentifier(identifier)
   setClusterParameterGroups(parameterGroupStatuses.map(_.asInstanceOf[aws.model.ClusterParameterGroupStatus]).asJava)
   setClusterSecurityGroups(securityGroupMemberships.map(_.asInstanceOf[aws.model.ClusterSecurityGroupMembership]).asJava)

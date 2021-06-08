@@ -1,6 +1,8 @@
 package awscala.iam
 
+import awscala.DateTime.toDate
 import awscala._
+
 import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ identitymanagement => aws }
 
@@ -12,14 +14,14 @@ object InstanceProfile {
     arn = g.getArn,
     path = g.getPath,
     roles = g.getRoles.asScala.map(r => Role(r)).toSeq,
-    createdAt = new DateTime(g.getCreateDate))
+    createdAt = DateTime(g.getCreateDate))
 }
 
 case class InstanceProfile(id: String, name: String, arn: String, path: String, roles: Seq[Role], createdAt: DateTime)
   extends aws.model.InstanceProfile {
 
   setArn(arn)
-  setCreateDate(createdAt.toDate)
+  setCreateDate(toDate(createdAt))
   setInstanceProfileId(id)
   setInstanceProfileName(name)
   setPath(path)

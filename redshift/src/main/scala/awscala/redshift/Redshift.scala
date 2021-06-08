@@ -1,6 +1,8 @@
 package awscala.redshift
 
+import awscala.DateTime.toDate
 import awscala._
+
 import scala.jdk.CollectionConverters._
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ redshift => aws }
@@ -123,7 +125,7 @@ trait Redshift extends aws.AmazonRedshift {
 
     val req = new aws.model.DescribeClusterSnapshotsRequest()
       .withSnapshotIdentifier(snapshotIdentifier)
-      .withStartTime(from.toDate)
+      .withStartTime(toDate(from))
       .withMarker(marker)
       .withMaxRecords(maxRecords)
       .withOwnerAccount(ownerAccount)
@@ -133,10 +135,10 @@ trait Redshift extends aws.AmazonRedshift {
       req.setClusterIdentifier(clusterIdentifier)
     }
     if (from != null) {
-      req.setStartTime(from.toDate)
+      req.setStartTime(toDate(from))
     }
     if (to != null) {
-      req.setEndTime(to.toDate)
+      req.setEndTime(toDate(to))
     }
     if (marker != null) {
       req.setMarker(marker)

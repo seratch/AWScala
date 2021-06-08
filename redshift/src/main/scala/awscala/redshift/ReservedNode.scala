@@ -1,6 +1,8 @@
 package awscala.redshift
 
+import awscala.DateTime.toDate
 import awscala._
+
 import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ redshift => aws }
 
@@ -20,7 +22,7 @@ object ReservedNode {
     recurringCharges = n.getRecurringCharges.asScala.map(c => RecurringCharge(
       amount = c.getRecurringChargeAmount,
       frequency = c.getRecurringChargeFrequency)).toSeq,
-    startedAt = new DateTime(n.getStartTime))
+    startedAt = DateTime(n.getStartTime))
 }
 
 class ReservedNode(
@@ -47,7 +49,7 @@ class ReservedNode(
   setRecurringCharges(recurringCharges.map(_.asInstanceOf[aws.model.RecurringCharge]).asJava)
   setReservedNodeId(id)
   setReservedNodeOfferingId(offeringId)
-  setStartTime(startedAt.toDate)
+  setStartTime(toDate(startedAt))
   setState(state)
   setUsagePrice(usagePrice)
 }

@@ -1,6 +1,8 @@
 package awscala.redshift
 
+import awscala.DateTime.toDate
 import awscala._
+
 import scala.jdk.CollectionConverters._
 import com.amazonaws.services.{ redshift => aws }
 
@@ -28,8 +30,8 @@ object Snapshot {
     totalBackupSizeInMegaBytes = s.getTotalBackupSizeInMegaBytes,
     vpcId = s.getVpcId,
     accountsWithRestoreAccess = s.getAccountsWithRestoreAccess.asScala.map(a => AccountWithRestoreAccess(a.getAccountId)).toSeq,
-    clusterCreatedAt = new DateTime(s.getClusterCreateTime),
-    snapshotCreatedAt = new DateTime(s.getSnapshotCreateTime))
+    clusterCreatedAt = DateTime(s.getClusterCreateTime),
+    snapshotCreatedAt = DateTime(s.getSnapshotCreateTime))
 }
 
 class Snapshot(
@@ -61,7 +63,7 @@ class Snapshot(
   setActualIncrementalBackupSizeInMegaBytes(actualIncrementalBackupSizeInMegaBytes)
   setAvailabilityZone(availabilityZone.name)
   setBackupProgressInMegaBytes(backupProgressInMegaBytes)
-  setClusterCreateTime(clusterCreatedAt.toDate)
+  setClusterCreateTime(toDate(clusterCreatedAt))
   setClusterIdentifier(clusterIdentifier)
   setClusterVersion(clusterVersion.version)
   setCurrentBackupRateInMegaBytesPerSecond(currentBackupRateInMegaBytesPerSecond)
@@ -74,7 +76,7 @@ class Snapshot(
   setNumberOfNodes(numOfNodes)
   setOwnerAccount(ownerAccount)
   setPort(port)
-  setSnapshotCreateTime(snapshotCreatedAt.toDate)
+  setSnapshotCreateTime(toDate(snapshotCreatedAt))
   setSnapshotIdentifier(snapshotIdentifier)
   setSnapshotType(snapshotType.value)
   setStatus(status.value)

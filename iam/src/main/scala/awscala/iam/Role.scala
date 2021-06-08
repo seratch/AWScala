@@ -1,5 +1,6 @@
 package awscala.iam
 
+import awscala.DateTime.toDate
 import awscala._
 import com.amazonaws.services.{ identitymanagement => aws }
 
@@ -11,7 +12,7 @@ object Role {
     arn = g.getArn,
     path = g.getPath,
     assumeRolePolicyDocument = g.getAssumeRolePolicyDocument,
-    createdAt = new DateTime(g.getCreateDate))
+    createdAt = DateTime(g.getCreateDate))
 }
 
 case class Role(id: String, name: String, arn: String, path: String, assumeRolePolicyDocument: String, createdAt: DateTime)
@@ -19,7 +20,7 @@ case class Role(id: String, name: String, arn: String, path: String, assumeRoleP
 
   setArn(arn)
   setAssumeRolePolicyDocument(assumeRolePolicyDocument)
-  setCreateDate(createdAt.toDate)
+  setCreateDate(toDate(createdAt))
   setPath(path)
   setRoleId(id)
   setRoleName(name)

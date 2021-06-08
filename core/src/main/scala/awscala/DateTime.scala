@@ -1,16 +1,25 @@
 package awscala
 
-import org.joda.time.format.DateTimeFormatter
+import java.time.chrono.Chronology
+import java.time.format.DateTimeFormatter
 
 object DateTime {
-  import org.joda.time.{ DateTime => Joda, _ }
+  import java.time._
 
-  def now() = Joda.now()
-  def now(zone: DateTimeZone) = Joda.now(zone)
-  def now(chronology: Chronology) = Joda.now(chronology)
+  private[this] val UTC = ZoneId.of("UTC")
 
-  def parse(str: String) = Joda.parse(str)
-  def parse(str: String, formatter: DateTimeFormatter) = Joda.parse(str, formatter)
+  def apply(date: java.util.Date): ZonedDateTime =
+    ZonedDateTime.ofInstant(date.toInstant, UTC)
+  def toDate(dateTime: ZonedDateTime): java.util.Date =
+    java.util.Date.from(dateTime.toInstant)
+
+  def now(): ZonedDateTime = ZonedDateTime.now()
+  def now(zone: ZoneId): ZonedDateTime = ZonedDateTime.now(zone)
+  def now(chronology: Chronology): ZonedDateTime =
+    ZonedDateTime.ofInstant(chronology.zonedDateTime(Instant.now()).toInstant, UTC)
+
+  def parse(str: String): ZonedDateTime = ZonedDateTime.parse(str)
+  def parse(str: String, formatter: DateTimeFormatter): ZonedDateTime = ZonedDateTime.parse(str, formatter)
 
 }
 
