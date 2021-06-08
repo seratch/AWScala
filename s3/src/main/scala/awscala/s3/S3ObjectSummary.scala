@@ -1,5 +1,6 @@
 package awscala.s3
 
+import awscala.DateTime.toDate
 import awscala._
 import com.amazonaws.services.{ s3 => aws }
 
@@ -11,7 +12,7 @@ object S3ObjectSummary {
     size = obj.getSize,
     storageClass = obj.getStorageClass,
     eTag = obj.getETag,
-    lastModified = new DateTime(obj.getLastModified),
+    lastModified = DateTime(obj.getLastModified),
     owner = obj.getOwner)
 }
 
@@ -24,7 +25,7 @@ class S3ObjectSummary(val bucket: Bucket, key: String, size: Long,
   setSize(size)
   setStorageClass(storageClass)
   setETag(eTag)
-  setLastModified(lastModified.toDate)
+  setLastModified(toDate(lastModified))
   setOwner(owner)
 }
 

@@ -1,5 +1,6 @@
 package awscala.s3
 
+import awscala.DateTime.toDate
 import awscala._
 import com.amazonaws.services.{ s3 => aws }
 
@@ -11,7 +12,7 @@ object PutObjectResult {
     versionId = obj.getVersionId,
     eTag = obj.getETag,
     contentMd5 = null,
-    expirationTime = new DateTime(obj.getExpirationTime),
+    expirationTime = DateTime(obj.getExpirationTime),
     expirationTimeRuleId = obj.getExpirationTimeRuleId,
     sseAlgorithm = obj.getSSEAlgorithm)
 
@@ -21,7 +22,7 @@ object PutObjectResult {
     versionId = obj.getVersionId,
     eTag = obj.getETag,
     contentMd5 = obj.getContentMd5,
-    expirationTime = new DateTime(obj.getExpirationTime),
+    expirationTime = DateTime(obj.getExpirationTime),
     expirationTimeRuleId = obj.getExpirationTimeRuleId,
     sseAlgorithm = obj.getSSEAlgorithm)
 }
@@ -36,7 +37,7 @@ case class PutObjectResult(bucket: Bucket, key: String, versionId: String,
   setVersionId(versionId)
   setETag(eTag)
   setContentMd5(contentMd5)
-  setExpirationTime(expirationTime.toDate)
+  setExpirationTime(toDate(expirationTime))
   setExpirationTimeRuleId(expirationTimeRuleId)
   setSSEAlgorithm(sseAlgorithm)
 }

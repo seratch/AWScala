@@ -1,5 +1,6 @@
 package awscala.iam
 
+import awscala.DateTime.toDate
 import awscala._
 import com.amazonaws.services.{ identitymanagement => aws }
 
@@ -10,11 +11,11 @@ object Group {
     name = g.getGroupName,
     arn = g.getArn,
     path = g.getPath,
-    createdAt = new DateTime(g.getCreateDate))
+    createdAt = DateTime(g.getCreateDate))
 }
 
 case class Group(id: String, name: String, arn: String, path: String, createdAt: DateTime)
-  extends aws.model.Group(path, name, id, arn, createdAt.toDate) {
+  extends aws.model.Group(path, name, id, arn, toDate(createdAt)) {
 
   def updateName(newName: String)(implicit iam: IAM) = iam.updateGroupName(this, newName)
   def updatePath(newPath: String)(implicit iam: IAM) = iam.updateGroupPath(this, newPath)

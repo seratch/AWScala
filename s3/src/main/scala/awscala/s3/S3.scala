@@ -1,7 +1,8 @@
 package awscala.s3
 
-import java.io.{ ByteArrayInputStream, File, InputStream }
+import awscala.DateTime.toDate
 
+import java.io.{ ByteArrayInputStream, File, InputStream }
 import awscala._
 import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth.AWSCredentialsProvider
@@ -324,7 +325,7 @@ trait S3 extends aws.AmazonS3 {
 
   // presignedUrl
   def generatePresignedUrl(obj: S3Object, expiration: DateTime): java.net.URL = {
-    generatePresignedUrl(obj.bucket.name, obj.key, expiration.toDate)
+    generatePresignedUrl(obj.bucket.name, obj.key, toDate(expiration))
   }
 
 }

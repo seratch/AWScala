@@ -1,5 +1,6 @@
 package awscala.redshift
 
+import awscala.DateTime.toDate
 import awscala._
 import com.amazonaws.services.{ redshift => aws }
 
@@ -9,7 +10,7 @@ object Event {
     sourceIdentifier = e.getSourceIdentifier,
     sourceType = aws.model.SourceType.fromValue(e.getSourceType),
     message = e.getMessage,
-    createdAt = new DateTime(e.getDate))
+    createdAt = DateTime(e.getDate))
 }
 
 case class Event(
@@ -18,7 +19,7 @@ case class Event(
   message: String,
   createdAt: DateTime) extends aws.model.Event {
 
-  setDate(createdAt.toDate)
+  setDate(toDate(createdAt))
   setMessage(message)
   setSourceIdentifier(sourceIdentifier)
   setSourceType(sourceType)

@@ -19,7 +19,7 @@ case class StateMachine(arn: String) {
           .withInput(input)
           .withName(name)
       }
-    Execution(exec.getExecutionArn, new DateTime(exec.getStartDate))
+    Execution(exec.getExecutionArn, DateTime(exec.getStartDate))
   }
 
   def execution(name: String)(implicit steps: StepFunctions): Option[Execution] = executions().find(_.name == name)
@@ -35,7 +35,7 @@ case class StateMachine(arn: String) {
 
       def getList(r: ListExecutionsResult): util.List[ExecutionListItem] = r.getExecutions
     }
-    ExecutionsSequencer.sequence.map(e => Execution(e.getExecutionArn, new DateTime(e.getStartDate)))
+    ExecutionsSequencer.sequence.map(e => Execution(e.getExecutionArn, DateTime(e.getStartDate)))
   }
 
   def definition()(implicit steps: StepFunctions): String =

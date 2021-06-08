@@ -1,5 +1,6 @@
 package awscala.sts
 
+import awscala.DateTime.toDate
 import awscala._
 import com.amazonaws.services.{ securitytoken => aws }
 import com.amazonaws.auth.{ AWSSessionCredentials, BasicSessionCredentials }
@@ -9,7 +10,7 @@ object TemporaryCredentials {
     accessKeyId = c.getAccessKeyId,
     secretAccessKey = c.getSecretAccessKey,
     sessionToken = c.getSessionToken,
-    expiration = new DateTime(c.getExpiration))
+    expiration = DateTime(c.getExpiration))
 }
 
 case class TemporaryCredentials(
@@ -19,7 +20,7 @@ case class TemporaryCredentials(
   expiration: DateTime) extends aws.model.Credentials {
 
   setAccessKeyId(accessKeyId)
-  setExpiration(expiration.toDate)
+  setExpiration(toDate(expiration))
   setSecretAccessKey(secretAccessKey)
   setSessionToken(sessionToken)
 

@@ -18,7 +18,7 @@ case class Execution(arn: String, startTime: DateTime) {
     ExecutionDetails(
       arn,
       startTime,
-      Option(details.getStopDate).map(new DateTime(_)),
+      Option(details.getStopDate).map(DateTime(_)),
       ExecutionStatus.fromString(details.getStatus),
       details.getInput,
       Option(details.getOutput))
@@ -83,7 +83,7 @@ case class Execution(arn: String, startTime: DateTime) {
     }
     HistorySequencer.sequence.flatMap { rawEvent =>
       ExecutionEventDetails.fromEvent(rawEvent).map { event =>
-        ExecutionEvent(rawEvent.getId, rawEvent.getPreviousEventId, new DateTime(rawEvent.getTimestamp), event)
+        ExecutionEvent(rawEvent.getId, rawEvent.getPreviousEventId, DateTime(rawEvent.getTimestamp), event)
       }
     }
   }

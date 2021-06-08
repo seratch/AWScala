@@ -1,12 +1,16 @@
 package awscala.emr
 
 import awscala._
+
 import scala.jdk.CollectionConverters._
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.{ elasticmapreduce => aws }
 import aws.model._
+import awscala.DateTime.toDate
+
+import java.time.temporal.ChronoUnit
 
 object EMR {
   def apply(credentials: Credentials)(implicit region: Region): EMR = new EMRClient(BasicCredentialsProvider(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)).at(region)
@@ -215,7 +219,7 @@ trait EMR extends aws.AmazonElasticMapReduce {
   def runningClusters() = clusters(Seq("RUNNING"))
 
   def recentClusters(duration: Duration = 1 hour) =
-    clusterSummaries(Nil, None, Some(new DateTime().minusMillis(duration.toMillis.toInt).toDate())).toList.sortBy(x => x.getStatus().getTimeline().getCreationDateTime()) map { x => toCluster(x) }
+    clusterSummaries(Nil, None, Some(toDate(DateTime.now().minus(duration.toMillis, ChronoUnit.MILLIS)))).toList.sortBy(x => x.getStatus().getTimeline().getCreationDateTime()) map { x => toCluster(x) }
 
   def clusterSummaries(clusterStates: Seq[String] = Nil, createdBefore: Option[java.util.Date] = None, createdAfter: Option[java.util.Date] = None): Seq[ClusterSummary] = {
     import aws.model.ListClustersResult

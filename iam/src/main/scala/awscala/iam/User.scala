@@ -1,5 +1,6 @@
 package awscala.iam
 
+import awscala.DateTime.toDate
 import awscala._
 import com.amazonaws.services.{ identitymanagement => aws }
 
@@ -10,11 +11,11 @@ object User {
     name = g.getUserName,
     arn = g.getArn,
     path = g.getPath,
-    createdAt = new DateTime(g.getCreateDate))
+    createdAt = DateTime(g.getCreateDate))
 }
 
 case class User(id: String, name: String, arn: String, path: String, createdAt: DateTime)
-  extends aws.model.User(path, name, id, arn, createdAt.toDate) {
+  extends aws.model.User(path, name, id, arn, toDate(createdAt)) {
 
   def updateName(name: String)(implicit iam: IAM) = iam.updateUserName(this, name)
   def updatePath(path: String)(implicit iam: IAM) = iam.updateUserPath(this, path)

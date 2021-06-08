@@ -1,5 +1,6 @@
 package awscala.dynamodbv2
 
+import awscala.DateTime.toDate
 import awscala._
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
@@ -22,7 +23,7 @@ object TableMeta {
       indexes.asScala.map(i => LocalSecondaryIndexMeta(i))
     }.getOrElse(Nil).toSeq,
     provisionedThroughput = ProvisionedThroughputMeta(t.getProvisionedThroughput),
-    createdAt = new DateTime(t.getCreationDateTime),
+    createdAt = DateTime(t.getCreationDateTime),
     billingModeSummary = Option(t.getBillingModeSummary).map(BillingModeSummary.apply))
 }
 
@@ -50,7 +51,7 @@ case class TableMeta(
     billingMode = billingModeSummary.map(_.billingMode).map(aws.model.BillingMode.fromValue))
 
   setAttributeDefinitions(attributes.map(_.asInstanceOf[aws.model.AttributeDefinition]).asJava)
-  setCreationDateTime(createdAt.toDate)
+  setCreationDateTime(toDate(createdAt))
   setItemCount(itemCount)
   setKeySchema(keySchema.map(_.asInstanceOf[aws.model.KeySchemaElement]).asJava)
   setGlobalSecondaryIndexes(globalSecondaryIndexes.asJava)
@@ -89,8 +90,8 @@ object ProvisionedThroughputMeta {
     numberOfDecreasesToday = p.getNumberOfDecreasesToday,
     readCapacityUnits = p.getReadCapacityUnits,
     writeCapacityUnits = p.getWriteCapacityUnits,
-    lastDecreasedAt = new DateTime(p.getLastDecreaseDateTime),
-    lastIncreasedAt = new DateTime(p.getLastIncreaseDateTime))
+    lastDecreasedAt = DateTime(p.getLastDecreaseDateTime),
+    lastIncreasedAt = DateTime(p.getLastIncreaseDateTime))
 }
 case class ProvisionedThroughputMeta(
   numberOfDecreasesToday: Long,
@@ -99,8 +100,8 @@ case class ProvisionedThroughputMeta(
   lastDecreasedAt: DateTime,
   lastIncreasedAt: DateTime) extends aws.model.ProvisionedThroughputDescription {
 
-  setLastDecreaseDateTime(lastDecreasedAt.toDate)
-  setLastIncreaseDateTime(lastIncreasedAt.toDate)
+  setLastDecreaseDateTime(toDate(lastDecreasedAt))
+  setLastIncreaseDateTime(toDate(lastIncreasedAt))
   setNumberOfDecreasesToday(numberOfDecreasesToday)
   setReadCapacityUnits(readCapacityUnits)
   setWriteCapacityUnits(writeCapacityUnits)
@@ -109,12 +110,12 @@ case class ProvisionedThroughputMeta(
 object BillingModeSummary {
   def apply(p: aws.model.BillingModeSummary): BillingModeSummary = new BillingModeSummary(
     billingMode = p.getBillingMode,
-    lastUpdateToPayPerRequestDateTime = new DateTime(p.getLastUpdateToPayPerRequestDateTime))
+    lastUpdateToPayPerRequestDateTime = DateTime(p.getLastUpdateToPayPerRequestDateTime))
 }
 case class BillingModeSummary(
   billingMode: String,
   lastUpdateToPayPerRequestDateTime: DateTime) extends aws.model.BillingModeSummary {
 
   setBillingMode(billingMode)
-  setLastUpdateToPayPerRequestDateTime(lastUpdateToPayPerRequestDateTime.toDate)
+  setLastUpdateToPayPerRequestDateTime(toDate(lastUpdateToPayPerRequestDateTime))
 }

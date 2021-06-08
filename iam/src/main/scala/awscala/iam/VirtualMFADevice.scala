@@ -1,5 +1,6 @@
 package awscala.iam
 
+import awscala.DateTime.toDate
 import awscala._
 import com.amazonaws.services.{ identitymanagement => aws }
 
@@ -7,13 +8,13 @@ object VirtualMFADevice {
 
   def apply(user: User, g: aws.model.MFADevice): VirtualMFADevice = new VirtualMFADevice(
     base32StringSeed = None,
-    enabledAt = new DateTime(g.getEnableDate),
+    enabledAt = DateTime(g.getEnableDate),
     qrCodePng = None,
     serialNumber = g.getSerialNumber,
     user = user)
   def apply(g: aws.model.VirtualMFADevice): VirtualMFADevice = new VirtualMFADevice(
     base32StringSeed = Some(g.getBase32StringSeed),
-    enabledAt = new DateTime(g.getEnableDate),
+    enabledAt = DateTime(g.getEnableDate),
     qrCodePng = Some(g.getQRCodePNG),
     serialNumber = g.getSerialNumber,
     user = User(g.getUser))
@@ -25,7 +26,7 @@ case class VirtualMFADevice(
   extends aws.model.VirtualMFADevice {
 
   setBase32StringSeed(base32StringSeed.orNull[java.nio.ByteBuffer])
-  setEnableDate(enabledAt.toDate)
+  setEnableDate(toDate(enabledAt))
   setQRCodePNG(qrCodePng.orNull[java.nio.ByteBuffer])
   setSerialNumber(serialNumber)
   setUser(user)
