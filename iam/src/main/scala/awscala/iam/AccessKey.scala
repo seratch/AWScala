@@ -10,15 +10,13 @@ object AccessKey {
     accessKeyId = ak.getAccessKeyId,
     secretAccessKey = Option(ak.getSecretAccessKey),
     status = ak.getStatus,
-    createDate = ak.getCreateDate
-  )
+    createDate = ak.getCreateDate)
   def apply(m: aws.model.AccessKeyMetadata): AccessKey = new AccessKey(
     userName = m.getUserName,
     accessKeyId = m.getAccessKeyId,
     secretAccessKey = None,
     status = m.getStatus,
-    createDate = m.getCreateDate
-  )
+    createDate = m.getCreateDate)
 }
 
 case class AccessKey(userName: String, accessKeyId: String, secretAccessKey: Option[String], status: String, createDate: Date)
