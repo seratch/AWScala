@@ -231,7 +231,7 @@ val googlers: Seq[Item] = table.scan(Seq("Company" -> cond.eq("Google")))
 table.destroy()
 ```
 
-PUT method with case class usage
+PUT method with case class usage (@hashPK and @rangePK annotations are not currently available in Scala 3)
 
 ```scala
 import awscala._, dynamodbv2._ 

@@ -5,10 +5,7 @@ import DynamoDB.{ CompositePk, SimplePk }
 import java.lang.reflect.Modifier
 import com.amazonaws.services.{ dynamodbv2 => aws }
 
-import scala.annotation.StaticAnnotation
 import scala.collection.mutable.ListBuffer
-import scala.reflect.runtime.{ universe => u }
-import scala.reflect.runtime.universe.termNames
 
 object Table {
 
@@ -25,9 +22,6 @@ object Table {
       globalSecondaryIndexes, provisionedThroughput, Option(billingMode))
 }
 
-class hashPK extends StaticAnnotation
-class rangePK extends StaticAnnotation
-
 case class Table(
   name: String,
   hashPK: String,
@@ -36,7 +30,7 @@ case class Table(
   localSecondaryIndexes: Seq[LocalSecondaryIndex] = Nil,
   globalSecondaryIndexes: Seq[GlobalSecondaryIndex] = Nil,
   provisionedThroughput: Option[ProvisionedThroughput] = None,
-  billingMode: Option[aws.model.BillingMode] = None) {
+  billingMode: Option[aws.model.BillingMode] = None) extends TableCompat {
 
   // ------------------------------------------
   // Items
@@ -74,46 +68,7 @@ case class Table(
     dynamoDB.put(this, hashPK, rangePK, attrs: _*)
   }
 
-  def putItem[T: u.TypeTag](entity: T)(implicit dynamoDB: DynamoDB): Unit = {
-    val constructorArgs: Seq[AnnotatedConstructorArgMeta] = extractAnnotatedConstructorArgs(entity)
-    val getterCallResults: Seq[(String, AnyRef)] = extractGetterNameAndValue(entity)
-
-    var maybeHashPK: Option[Any] = None
-    var maybeRangePK: Option[Any] = None
-    val attributes: ListBuffer[(String, AnyRef)] = ListBuffer()
-    for (arg <- constructorArgs) {
-      getterCallResults.find { case (name, _) => name == arg.name } match {
-        case Some((_, value)) if arg.annotationNames.contains("hashPK") => maybeHashPK = Some(value)
-        case Some((_, value)) if arg.annotationNames.contains("rangePK") => maybeRangePK = Some(value)
-        case Some(nameAndValue) => attributes += nameAndValue
-        case _ => // noop
-      }
-    }
-    (maybeHashPK, maybeRangePK) match {
-      case (Some(hashPK), Some(rangePK)) =>
-        dynamoDB.put(this, hashPK, rangePK, attributes.toSeq: _*)
-      case (Some(hashPK), None) =>
-        dynamoDB.put(this, hashPK, attributes.toSeq: _*)
-      case _ =>
-        throw new Exception(s"Primary key is not defined for ${entity.getClass.getName}")
-    }
-  }
-
-  private case class AnnotatedConstructorArgMeta(name: String, annotationNames: Seq[String])
-
-  private def extractAnnotatedConstructorArgs[T: u.TypeTag](entity: T): Seq[AnnotatedConstructorArgMeta] = {
-    u.typeOf[entity.type].decl(termNames.CONSTRUCTOR).asMethod.paramLists.flatten
-      .collect({
-        case t if t != null && t.annotations.nonEmpty =>
-          Some(AnnotatedConstructorArgMeta(
-            name = t.name.toString,
-            // FIXME: should we use canonical name?
-            annotationNames = t.annotations.map(_.toString)))
-        case _ => None
-      }).flatten
-  }
-
-  private def extractGetterNameAndValue(obj: Any): Seq[(String, AnyRef)] = {
+  protected def extractGetterNameAndValue(obj: Any): Seq[(String, AnyRef)] = {
     val clazz = obj.getClass
     val privateInstanceFieldNames: Seq[String] = clazz.getDeclaredFields
       .filter(f =>
@@ -132,14 +87,6 @@ case class Table(
 
     getterMethodNames.map(name => (name, clazz.getDeclaredMethod(name).invoke(obj)))
   }
-
-  def putItem(hashPK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = {
-    dynamoDB.put(this, hashPK, attributes: _*)
-  }
-  def putItem(hashPK: Any, rangePK: Any, attributes: SimplePk*)(implicit dynamoDB: DynamoDB): Unit = {
-    dynamoDB.put(this, hashPK, rangePK, attributes: _*)
-  }
-
   def delete(hashPK: Any)(implicit dynamoDB: DynamoDB): Unit = deleteItem(hashPK)
   def delete(hashPK: Any, rangePK: Any)(implicit dynamoDB: DynamoDB): Unit = deleteItem(hashPK, rangePK)
 

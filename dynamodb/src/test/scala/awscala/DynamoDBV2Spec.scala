@@ -103,44 +103,6 @@ class DynamoDBV2Spec extends AnyFlatSpec with Matchers {
     members.destroy()
   }
 
-  case class TestMember(
-    @hashPK id: Int,
-    @rangePK Country: String,
-    Company: String,
-    Name: String,
-    Age: Int)
-  it should "allows using case class with annotation in put method" in {
-    implicit val dynamoDB: DynamoDB = DynamoDB.local()
-    val tableName = s"Members_${System.currentTimeMillis}"
-    val createdTableMeta: TableMeta = dynamoDB.createTable(
-      name = tableName,
-      hashPK = "Id" -> AttributeType.Number,
-      rangePK = "Country" -> AttributeType.String,
-      otherAttributes = Seq(
-        "Company" -> AttributeType.String),
-      indexes = Seq(
-        LocalSecondaryIndex(
-          name = "CompanyIndex",
-          keySchema = Seq(KeySchema("Id", KeyType.Hash), KeySchema("Company", KeyType.Range)),
-          projection = Projection(ProjectionType.Include, Seq("Company")))))
-    log.info(s"Created Table: $createdTableMeta")
-
-    println(s"Waiting for DynamoDB table activation...")
-    TableUtils.waitUntilActive(dynamoDB, createdTableMeta.name)
-    println("")
-    println(s"Created DynamoDB table has been activated.")
-
-    val members: Table = dynamoDB.table(tableName).get
-    val member = TestMember(1, "PL", "DataMass", "Alex", 29)
-
-    members.putItem(member)
-
-    members.get(1, "PL").get.attributes.find(_.name == "Name").get.value.s.get should equal("Alex")
-    members.get(1, "PL").get.attributes.find(_.name == "Company").get.value.s.get should equal("DataMass")
-    members.get(1, "PL").get.attributes.find(_.name == "Country").get.value.s.get should equal("PL")
-    members.destroy()
-  }
-
   it should "provide cool APIs for Hash/Range PK tables" in {
     implicit val dynamoDB: DynamoDB = DynamoDB.local()
 
