@@ -1,7 +1,7 @@
 import xerial.sbt.Sonatype.autoImport._
 
 val scala213 = "2.13.4"
-val scala3 = "3.0.0"
+val scala3 = "3.0.1"
 
 lazy val commonSettings = Seq(
   organization := "com.github.seratch",
