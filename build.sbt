@@ -1,6 +1,6 @@
 import xerial.sbt.Sonatype.autoImport._
 
-val scala213 = "2.13.4"
+val scala213 = "2.13.6"
 val scala3 = "3.0.2"
 
 lazy val commonSettings = Seq(
