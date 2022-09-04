@@ -75,7 +75,7 @@ lazy val core = project
       "org.joda" % "joda-convert" % "2.2.2",
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
-      "ch.qos.logback" % "logback-classic" % "1.2.11" % "test",
+      "ch.qos.logback" % "logback-classic" % "1.4.0" % "test",
       "org.scalatest" %% "scalatest" % "3.2.13" % "test",
     ) ++ {scalaVersion.value.head match {
       case '2' => Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value)
@@ -108,7 +108,7 @@ def awsProject(service: String) = {
       moduleName := s"awscala-$service",
       libraryDependencies ++= Seq(
         "com.amazonaws" % s"aws-java-sdk-$service" % awsJavaSdkVersion,
-        "ch.qos.logback" % "logback-classic" % "1.2.11" % "test",
+        "ch.qos.logback" % "logback-classic" % "1.4.0" % "test",
         "org.scalatest" %% "scalatest" % "3.2.13" % "test"
       )
     )
