@@ -76,7 +76,7 @@ lazy val core = project
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.4.0" % "test",
-      "org.scalatest" %% "scalatest" % "3.2.13" % "test",
+      "org.scalatest" %% "scalatest" % "3.2.14" % "test",
     ) ++ {scalaVersion.value.head match {
       case '2' => Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value)
       case _ => Seq()
@@ -109,7 +109,7 @@ def awsProject(service: String) = {
       libraryDependencies ++= Seq(
         "com.amazonaws" % s"aws-java-sdk-$service" % awsJavaSdkVersion,
         "ch.qos.logback" % "logback-classic" % "1.4.0" % "test",
-        "org.scalatest" %% "scalatest" % "3.2.13" % "test"
+        "org.scalatest" %% "scalatest" % "3.2.14" % "test"
       )
     )
     .dependsOn(core)
