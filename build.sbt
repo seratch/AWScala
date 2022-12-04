@@ -73,7 +73,7 @@ lazy val core = project
       "com.amazonaws" % "aws-java-sdk-core" % awsJavaSdkVersion,
       "joda-time" % "joda-time" % "2.12.1",
       "org.joda" % "joda-convert" % "2.2.2",
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1",
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.9.0",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.4.5" % "test",
       "org.scalatest" %% "scalatest" % "3.2.14" % "test",
