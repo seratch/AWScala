@@ -1,7 +1,7 @@
 import xerial.sbt.Sonatype.autoImport._
 
 val scala213 = "2.13.10"
-val scala3 = "3.2.1"
+val scala3 = "3.2.2"
 
 lazy val commonSettings = Seq(
   organization := "com.github.seratch",
@@ -54,7 +54,7 @@ lazy val commonSettings = Seq(
   sonatypeProfileName := "com.github.seratch"
 )
 
-lazy val awsJavaSdkVersion = "1.12.376"
+lazy val awsJavaSdkVersion = "1.12.435"
 
 lazy val all = (project in file("."))
   .settings(commonSettings)
@@ -72,11 +72,11 @@ lazy val core = project
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-java-sdk-core" % awsJavaSdkVersion,
       "joda-time" % "joda-time" % "2.12.2",
-      "org.joda" % "joda-convert" % "2.2.2",
+      "org.joda" % "joda-convert" % "2.2.3",
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.9.0",
       "org.bouncycastle" % "bcprov-jdk16" % "1.46" % "provided",
       "ch.qos.logback" % "logback-classic" % "1.4.6" % "test",
-      "org.scalatest" %% "scalatest" % "3.2.14" % "test",
+      "org.scalatest" %% "scalatest" % "3.2.15" % "test",
     ) ++ {scalaVersion.value.head match {
       case '2' => Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value)
       case _ => Seq()
@@ -109,7 +109,7 @@ def awsProject(service: String) = {
       libraryDependencies ++= Seq(
         "com.amazonaws" % s"aws-java-sdk-$service" % awsJavaSdkVersion,
         "ch.qos.logback" % "logback-classic" % "1.4.6" % "test",
-        "org.scalatest" %% "scalatest" % "3.2.14" % "test"
+        "org.scalatest" %% "scalatest" % "3.2.15" % "test"
       )
     )
     .dependsOn(core)
