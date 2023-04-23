@@ -54,7 +54,7 @@ lazy val commonSettings = Seq(
   sonatypeProfileName := "com.github.seratch"
 )
 
-lazy val awsJavaSdkVersion = "1.12.349"
+lazy val awsJavaSdkVersion = "1.12.454"
 
 lazy val all = (project in file("."))
   .settings(commonSettings)
